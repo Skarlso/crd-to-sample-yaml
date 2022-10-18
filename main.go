@@ -38,22 +38,23 @@ func main() {
 	if err != nil {
 		printAndQuit("failed to create file at: '%s': %v", outputLocation, err)
 	}
-	defer outputFile.Close()
 	//
 	//fmt.Println(crd.Spec.Versions[0].Schema.OpenAPIV3Schema.Properties)
 
 	// parseHeader -- parses apiVersion, kind, metadata
 	parseProperties(crd.Spec.Versions[0].Schema.OpenAPIV3Schema.Properties, outputFile, 0)
+	outputFile.Close()
 }
 
+// TODO: somehow sort the output otherwise it's constantly changing.
 func parseProperties(properties map[string]v1beta1.JSONSchemaProps, file *os.File, indent int) {
 	for k, v := range properties {
 		if _, err := file.WriteString(fmt.Sprintf("%s%s:\n", strings.Repeat(" ", indent), k)); err != nil {
+			file.Close()
 			printAndQuit("failed to write k to file '%s'", k)
 		}
 		if len(v.Properties) > 0 {
 			parseProperties(v.Properties, file, indent+2)
-			continue
 		}
 	}
 }

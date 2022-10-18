@@ -1,4 +1,6 @@
+metadata:
 spec:
+  image:
   platforms:
   readInputFromSecret:
     name:
@@ -7,8 +9,6 @@ spec:
   commandHasOutputToWrite:
   dependencies:
   enabled:
-  image:
 status:
 apiVersion:
 kind:
-metadata:
