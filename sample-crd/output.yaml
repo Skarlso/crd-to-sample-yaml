@@ -1,0 +1,14 @@
+spec:
+  platforms:
+  readInputFromSecret:
+    name:
+    namespace:
+  schedule:
+  commandHasOutputToWrite:
+  dependencies:
+  enabled:
+  image:
+status:
+apiVersion:
+kind:
+metadata:
