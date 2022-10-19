@@ -34,24 +34,29 @@ func main() {
 
 	for _, version := range crd.Spec.Versions {
 		dir := filepath.Dir(path)
-		outputLocation := filepath.Join(dir, fmt.Sprintf("output_%s.yaml", version.Name))
+		outputLocation := filepath.Join(dir, fmt.Sprintf("%s_%s.yaml", crd.Spec.Names.Kind, version.Name))
 		outputFile, err := os.Create(outputLocation)
 		if err != nil {
 			printAndQuit("failed to create file at: '%s': %v", outputLocation, err)
 		}
-		parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, outputFile, 0)
+		parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, outputFile, 0, false)
 		outputFile.Close()
 	}
 }
 
-func parseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file *os.File, indent int) {
+func parseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file *os.File, indent int, inArray bool) {
 	var sortedKeys []string
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
 	}
 	sort.Strings(sortedKeys)
 	for _, k := range sortedKeys {
-		writeOrFail(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", indent), k))
+		if inArray {
+			writeOrFail(file, fmt.Sprintf("%s:", k))
+			inArray = false
+		} else {
+			writeOrFail(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", indent), k))
+		}
 		if len(properties[k].Properties) == 0 {
 			if k == "apiVersion" {
 				writeOrFail(file, fmt.Sprintf(" %s/%s\n", group, version))
@@ -61,11 +66,19 @@ func parseProperties(group, version, kind string, properties map[string]v1beta1.
 				writeOrFail(file, fmt.Sprintf(" %s\n", kind))
 				continue
 			}
-			result := outputValueType(properties[k])
-			writeOrFail(file, fmt.Sprintf(" %s\n", result))
+			// If we are dealing with an array, and we have properties to parse
+			// we need to reparse all of them again.
+			var result string
+			if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
+				writeOrFail(file, fmt.Sprintf("\n%s- ", strings.Repeat(" ", indent)))
+				parseProperties(group, version, kind, properties[k].Items.Schema.Properties, file, indent+2, true)
+			} else {
+				result = outputValueType(properties[k])
+				writeOrFail(file, fmt.Sprintf(" %s\n", result))
+			}
 		} else if len(properties[k].Properties) > 0 {
 			writeOrFail(file, "\n")
-			parseProperties(group, version, kind, properties[k].Properties, file, indent+2)
+			parseProperties(group, version, kind, properties[k].Properties, file, indent+2, false)
 		}
 	}
 }
@@ -81,12 +94,21 @@ func outputValueType(v v1beta1.JSONSchemaProps) string {
 	switch v.Type {
 	case "string":
 		return "string"
+	case "integer":
+		return "1"
 	case "boolean":
 		return "true"
 	case "object":
 		return "{}"
-	case "array":
-		return "[]"
+	case "array": // deal with arrays of other types that weren't objects
+		t := v.Items.Schema.Type
+		var s string
+		if t == "string" {
+			s = fmt.Sprintf("[\"%s\"]", t)
+		} else {
+			s = fmt.Sprintf("[%s]", t)
+		}
+		return s
 	}
 	return v.Type
 }

@@ -1,0 +1,136 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSCluster
+metadata: {}
+spec:
+  additionalTags: {}
+  bastion:
+    allowedCIDRBlocks: ["string"]
+    ami: string
+    disableIngressRules: true
+    enabled: true
+    instanceType: string
+  controlPlaneEndpoint:
+    host: string
+    port: 1
+  controlPlaneLoadBalancer:
+    additionalSecurityGroups: ["string"]
+    crossZoneLoadBalancing: true
+    healthCheckProtocol: string
+    name: string
+    scheme: string
+    subnets: ["string"]
+  identityRef:
+    kind: AWSCluster
+    name: string
+  imageLookupBaseOS: string
+  imageLookupFormat: string
+  imageLookupOrg: string
+  network:
+    cni:
+      cniIngressRules:
+      - description: string
+        fromPort: 1
+        protocol: string
+        toPort: 1
+    securityGroupOverrides: {}
+    subnets:
+    - availabilityZone: string
+      cidrBlock: string
+      id: string
+      ipv6CidrBlock: string
+      isIpv6: true
+      isPublic: true
+      natGatewayId: string
+      routeTableId: string
+      tags: {}
+    vpc:
+      availabilityZoneSelection: string
+      availabilityZoneUsageLimit: 1
+      cidrBlock: string
+      id: string
+      internetGatewayId: string
+      ipv6:
+        cidrBlock: string
+        egressOnlyInternetGatewayId: string
+        poolId: string
+      tags: {}
+  region: string
+  s3Bucket:
+    controlPlaneIAMInstanceProfile: string
+    name: string
+    nodesIAMInstanceProfiles: ["string"]
+  sshKeyName: string
+status:
+  bastion:
+    addresses:
+    - address: string
+      type: string
+    availabilityZone: string
+    ebsOptimized: true
+    enaSupport: true
+    iamProfile: string
+    id: string
+    imageId: string
+    instanceState: string
+    networkInterfaces: ["string"]
+    nonRootVolumes:
+    - deviceName: string
+      encrypted: true
+      encryptionKey: string
+      iops: 1
+      size: 1
+      throughput: 1
+      type: string
+    privateIp: string
+    publicIp: string
+    rootVolume:
+      deviceName: string
+      encrypted: true
+      encryptionKey: string
+      iops: 1
+      size: 1
+      throughput: 1
+      type: string
+    securityGroupIds: ["string"]
+    spotMarketOptions:
+      maxPrice: string
+    sshKeyName: string
+    subnetId: string
+    tags: {}
+    tenancy: string
+    type: string
+    userData: string
+    volumeIDs: ["string"]
+  conditions:
+  - lastTransitionTime: string
+    message: string
+    reason: string
+    severity: string
+    status: string
+    type: string
+  failureDomains: {}
+  networkStatus:
+    apiServerElb:
+      attributes:
+        crossZoneLoadBalancing: true
+        idleTimeout: 1
+      availabilityZones: ["string"]
+      dnsName: string
+      healthChecks:
+        healthyThreshold: 1
+        interval: 1
+        target: string
+        timeout: 1
+        unhealthyThreshold: 1
+      listeners:
+      - instancePort: 1
+        instanceProtocol: string
+        port: 1
+        protocol: string
+      name: string
+      scheme: string
+      securityGroupIds: ["string"]
+      subnetIds: ["string"]
+      tags: {}
+    securityGroups: {}
+  ready: true
