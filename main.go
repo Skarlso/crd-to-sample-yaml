@@ -32,19 +32,18 @@ func main() {
 		printAndQuit("failed to unmarshal into custom resource definition")
 	}
 
-	// TODO: Each version should have its own file.
-	dir := filepath.Dir(path)
-	outputLocation := filepath.Join(dir, "output.yaml")
-	outputFile, err := os.Create(outputLocation)
-	if err != nil {
-		printAndQuit("failed to create file at: '%s': %v", outputLocation, err)
+	for _, version := range crd.Spec.Versions {
+		dir := filepath.Dir(path)
+		outputLocation := filepath.Join(dir, fmt.Sprintf("output_%s.yaml", version.Name))
+		outputFile, err := os.Create(outputLocation)
+		if err != nil {
+			printAndQuit("failed to create file at: '%s': %v", outputLocation, err)
+		}
+		parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, outputFile, 0)
+		outputFile.Close()
 	}
-
-	parseProperties(crd.Spec.Group, crd.Spec.Versions[0].Name, crd.Spec.Names.Kind, crd.Spec.Versions[0].Schema.OpenAPIV3Schema.Properties, outputFile, 0)
-	outputFile.Close()
 }
 
-// TODO: somehow sort the output otherwise it's constantly changing.
 func parseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file *os.File, indent int) {
 	var sortedKeys []string
 	for k := range properties {

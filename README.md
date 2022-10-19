@@ -27,4 +27,6 @@ spec:
 status: {}
 ```
 
+Each version will contain its own file output.
+
 Future plans include generating proper, schema validated values for all fields.
