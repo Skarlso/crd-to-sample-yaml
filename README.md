@@ -16,10 +16,10 @@ kind: KrokCommand
 metadata: {}
 spec:
   commandHasOutputToWrite: true
-  dependencies: []
+  dependencies: ["string"]
   enabled: true
   image: string
-  platforms: []
+  platforms: ["string"]
   readInputFromSecret:
     name: string
     namespace: string
