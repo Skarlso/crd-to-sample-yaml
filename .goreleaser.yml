@@ -1,0 +1,32 @@
+release:
+  prerelease: auto # this should detect a release candidate and mark it as pre-release in GitHub
+
+builds:
+  - id: default
+    binary: crd-to-yaml
+    flags:
+      - -tags
+      - netgo release
+      - -trimpath
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+
+archives:
+  - id: default
+    builds:
+      - default
+    name_template: "crd-to-yaml_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    format: tar.gz
+    files:
+      - none*
+
+checksum:
+  name_template: "crd-to-yaml_checksums.txt"
