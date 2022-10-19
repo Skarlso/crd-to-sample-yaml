@@ -1,4 +1,4 @@
-module github.com/Skarlso/yaml-from-crd
+module github.com/Skarlso/crd-to-sample-yaml
 
 go 1.19
 

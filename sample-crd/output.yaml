@@ -1,14 +1,14 @@
-metadata:
+apiVersion: delivery.krok.app/v1alpha1
+kind: KrokCommand
+metadata: {}
 spec:
-  image:
-  platforms:
+  commandHasOutputToWrite: true
+  dependencies: []
+  enabled: true
+  image: string
+  platforms: []
   readInputFromSecret:
-    name:
-    namespace:
-  schedule:
-  commandHasOutputToWrite:
-  dependencies:
-  enabled:
-status:
-apiVersion:
-kind:
+    name: string
+    namespace: string
+  schedule: string
+status: {}
