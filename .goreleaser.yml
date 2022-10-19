@@ -4,7 +4,6 @@ release:
 builds:
   - id: default
     binary: crd-to-yaml
-    gobinary: "go1.19.2"
     flags:
       - -tags
       - netgo release
