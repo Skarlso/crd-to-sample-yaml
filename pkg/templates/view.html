@@ -6,7 +6,19 @@
 </head>
 
 <body>
-
+{{range .Versions}}
+    <p>Version: {{.Version}}</p>
+    {{range .Properties}}
+        <p>Name: {{.Name}}</p>
+        <p>Description: {{.Description}}</p>
+        <p>Type: {{.Type}}</p>
+        <p>Nullable: {{.Nullable}}</p>
+        <p>Patterns: {{.Patterns}}</p>
+        <!--  TODO: put an if not empty then display this check here.  -->
+        <p>Format: {{.Format}}</p>
+        <br>
+    {{end}}
+{{end}}
 </body>
 
 </html>

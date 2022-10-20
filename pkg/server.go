@@ -6,13 +6,21 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gorilla/mux"
+	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
+type Version struct {
+	Version    string
+	Properties []Property
+}
+
 type ViewPage struct {
-	CRD string
+	Versions []Version
 }
 
 type Server struct {
@@ -97,8 +105,29 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	crdContent := value[0]
-	view := &ViewPage{
-		CRD: crdContent,
+	crd := &v1beta1.CustomResourceDefinition{}
+	if err := yaml.Unmarshal([]byte(crdContent), crd); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "failed to unmarshal into custom resource definition: %s", err)
+		return
+	}
+	versions := make([]Version, 0)
+	for _, version := range crd.Spec.Versions {
+		//properties := make([]Property, 0)
+		properties, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "failed to parse properties: %s", err)
+			return
+		}
+		versions = append(versions, Version{
+			Version:    version.Name,
+			Properties: properties,
+		})
+	}
+
+	view := ViewPage{
+		Versions: versions,
 	}
 	t, err := template.ParseFS(files, "templates/view.html")
 	if err != nil {
@@ -112,4 +141,54 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "failed to execute template: %s", err)
 		return
 	}
+}
+
+type Property struct {
+	Name        string
+	Description string
+	Type        string
+	Nullable    bool
+	Patterns    string
+	Format      string
+}
+
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps) ([]Property, error) {
+	var (
+		sortedKeys []string
+		output     []Property
+	)
+	for k := range properties {
+		sortedKeys = append(sortedKeys, k)
+	}
+	sort.Strings(sortedKeys)
+	for _, k := range sortedKeys {
+		if len(properties[k].Properties) == 0 {
+			if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
+				out, err := parseCRD(properties[k].Items.Schema.Properties)
+				if err != nil {
+					return nil, err
+				}
+				output = append(output, out...)
+			} else {
+				v := properties[k]
+				output = append(output, Property{
+					Name:        k,
+					Type:        v.Type,
+					Description: v.Description,
+					Patterns:    v.Pattern,
+					Format:      v.Format,
+					Nullable:    v.Nullable,
+				})
+
+			}
+		} else if len(properties[k].Properties) > 0 {
+			// recursively parse all sub-properties
+			out, err := parseCRD(properties[k].Properties)
+			if err != nil {
+				return nil, err
+			}
+			output = append(output, out...)
+		}
+	}
+	return output, nil
 }

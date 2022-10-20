@@ -11,24 +11,14 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-func Generate(path string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return fmt.Errorf("file under '%s' does not exist", path)
-	}
-
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return fmt.Errorf("failed to read file: %w", err)
-	}
-
+func Generate(content []byte, path string) error {
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(content, crd); err != nil {
 		return fmt.Errorf("failed to unmarshal into custom resource definition")
 	}
 
 	for _, version := range crd.Spec.Versions {
-		dir := filepath.Dir(path)
-		outputLocation := filepath.Join(dir, fmt.Sprintf("%s_%s.yaml", crd.Spec.Names.Kind, version.Name))
+		outputLocation := filepath.Join(path, fmt.Sprintf("%s_%s.yaml", crd.Spec.Names.Kind, version.Name))
 		outputFile, err := os.Create(outputLocation)
 		if err != nil {
 			return fmt.Errorf("failed to create file at: '%s': %w", outputLocation, err)
@@ -50,8 +40,7 @@ func (w *writer) write(file *os.File, msg string) {
 	if w.err != nil {
 		return
 	}
-	_, err := file.WriteString(msg)
-	w.err = err
+	_, w.err = file.WriteString(msg)
 }
 
 func parseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file *os.File, indent int, inArray bool) error {
