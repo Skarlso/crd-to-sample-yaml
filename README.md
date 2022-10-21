@@ -5,7 +5,7 @@ Generate a sample YAML file from a CRD definition.
 Simply run:
 
 ```
-crd-to-yaml delivery.krok.app_krokcommands
+crd-to-yaml generate -f delivery.krok.app_krokcommands
 ```
 
 This will result in a file similar to this:
@@ -30,3 +30,11 @@ status: {}
 Each version will contain its own file output.
 
 Future plans include generating proper, schema validated values for all fields.
+
+There is also an option to run this as a server. Run:
+
+```
+crd-to-yaml serve
+```
+
+This will start a front-end that can be used to paste in and parse CRDs.
