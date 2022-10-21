@@ -14,7 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-const htmlPaddingLength = 10
+const htmlPaddingLength = 2
 
 type Version struct {
 	Version    string
@@ -115,8 +115,7 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	versions := make([]Version, 0)
 	for _, version := range crd.Spec.Versions {
-		//properties := make([]Property, 0)
-		properties, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, 0)
+		properties, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, 0, version.Name)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "failed to parse properties: %s", err)
@@ -137,7 +136,6 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "failed to load view page: %s", err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 	if err := t.Execute(w, view); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "failed to execute template: %s", err)
@@ -153,9 +151,10 @@ type Property struct {
 	Patterns    string
 	Format      string
 	Indent      int
+	Version     string
 }
 
-func parseCRD(properties map[string]v1beta1.JSONSchemaProps, indent int) ([]Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, indent int, version string) ([]Property, error) {
 	var (
 		sortedKeys []string
 		output     []Property
@@ -167,7 +166,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, indent int) ([]Prop
 	for _, k := range sortedKeys {
 		if len(properties[k].Properties) == 0 {
 			if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
-				out, err := parseCRD(properties[k].Items.Schema.Properties, indent+htmlPaddingLength)
+				out, err := parseCRD(properties[k].Items.Schema.Properties, indent+htmlPaddingLength, version)
 				if err != nil {
 					return nil, err
 				}
@@ -187,6 +186,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, indent int) ([]Prop
 					Format:      v.Format,
 					Nullable:    v.Nullable,
 					Indent:      indent,
+					Version:     version,
 				})
 			}
 		} else if len(properties[k].Properties) > 0 {
@@ -199,9 +199,10 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, indent int) ([]Prop
 				Format:      v.Format,
 				Nullable:    v.Nullable,
 				Indent:      indent,
+				Version:     version,
 			})
 			// recursively parse all sub-properties
-			out, err := parseCRD(properties[k].Properties, indent+htmlPaddingLength)
+			out, err := parseCRD(properties[k].Properties, indent+htmlPaddingLength, version)
 			if err != nil {
 				return nil, err
 			}

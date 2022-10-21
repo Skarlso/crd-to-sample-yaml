@@ -8,45 +8,19 @@
     />
     <title>Preview CRDs</title>
 </head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
-
-    label {
-        padding: 12px 12px 12px 0;
-        display: inline-block;
-    }
-
-    input[type=submit] {
-        background-color: #04AA6D;
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        float: right;
-    }
-
-    input[type=submit]:hover {
-        background-color: #45a049;
-    }
-
-    .container {
-        border-radius: 5px;
-        background-color: #f2f2f2;
-        padding: 20px;
-    }
-
-    input[type=text], select, textarea {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        resize: vertical;
-    }
-
     :root {
         --color-tone-1: #000000;
         --color-tone-4: #d3d6da;
@@ -62,14 +36,6 @@
         font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
         font-size: 16px;
         --header-height: 50px;
-    }
-
-    /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
-    @media screen and (max-width: 600px) and (min-width: 415px) {
-        .col-25, .col-75, input[type=submit] {
-            width: 100%;
-            margin-top: 0;
-        }
     }
 
     header {
@@ -104,17 +70,6 @@
         display: flex;
         width: 70px;
         justify-content: flex-end;
-    }
-
-    button.icon {
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-
-    p.name {
-        font-style: italic;
-        font-weight: bold;
     }
 
     p.description {
@@ -153,28 +108,42 @@
 <div class="container">
     <div class="versions">
         {{range .Versions}}
-        <div class="row">
             <h1>
                 Version: {{.Version}}
             </h1>
-            {{range .Properties}}
-            <div style="text-indent: {{.Indent}}em; border-bottom-color: indianred; border-bottom-style: solid">
-                <p class="name">Name: {{.Name}}</p>
-                <p class="description">Description: {{.Description}}</p>
-                <p class="type">Type: {{.Type}}</p>
-                <p class="nullable">Nullable: {{.Nullable}}</p>
-                {{if .Patterns}}
-                    <p class="patterns">Patterns: <span style="font-family: 'Fira Code',serif; text-decoration: underline;">{{.Patterns}}</span></p>
-                {{end}}
-                {{if .Format}}
-                    <p class="format">Format: <span style="font-family: 'Fira Code',serif; text-decoration: underline;">{{.Format}}</span></p>
-                {{end}}
-                <br>
+            <br>
+            {{range $i, $v := .Properties}}
+            <div class="row">
+                <div style="text-indent: {{.Indent}}em">
+                    <button class="btn btn-outline-primary" type="button" data-toggle="collapse"
+                            data-target="#div-{{$v.Version}}-{{$i}}"
+                            aria-expanded="false" aria-controls="#div-{{$v.Version}}-{{$i}}">
+                        {{$v.Name}}
+                    </button>
+                    <div class="collapse" id="div-{{$v.Version}}-{{$i}}">
+                        <div>
+                            <p class="description">Description: {{$v.Description}}</p>
+                            <p class="type">Type: {{$v.Type}}</p>
+                            <p class="nullable">Nullable: {{$v.Nullable}}</p>
+                            {{if $v.Patterns}}
+                            <p class="patterns">Patterns: <span
+                                    style="font-family: 'Fira Code',serif; text-decoration: underline;">{{$v.Patterns}}</span>
+                            </p>
+                            {{end}}
+                            {{if $v.Format}}
+                            <p class="format">Format: <span
+                                    style="font-family: 'Fira Code',serif; text-decoration: underline;">{{$v.Format}}</span>
+                            </p>
+                            {{end}}
+                        </div>
+                    </div>
+                    <br>
+                </div>
             </div>
             {{end}}
-        </div>
         {{end}}
     </div>
+</div>
 </body>
 
 </html>
