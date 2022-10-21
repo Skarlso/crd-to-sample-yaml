@@ -38,3 +38,9 @@ crd-to-yaml serve
 ```
 
 This will start a front-end that can be used to paste in and parse CRDs.
+
+## Showcase
+
+![frontpage](./imgs/frontend.png)
+
+![parsed](./imgs/parsed.png)
