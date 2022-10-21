@@ -14,6 +14,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
+const htmlPaddingLength = 10
+
 type Version struct {
 	Version    string
 	Properties []Property
@@ -114,7 +116,7 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	versions := make([]Version, 0)
 	for _, version := range crd.Spec.Versions {
 		//properties := make([]Property, 0)
-		properties, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties)
+		properties, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, 0)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "failed to parse properties: %s", err)
@@ -150,9 +152,10 @@ type Property struct {
 	Nullable    bool
 	Patterns    string
 	Format      string
+	Indent      int
 }
 
-func parseCRD(properties map[string]v1beta1.JSONSchemaProps) ([]Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, indent int) ([]Property, error) {
 	var (
 		sortedKeys []string
 		output     []Property
@@ -164,26 +167,41 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps) ([]Property, error)
 	for _, k := range sortedKeys {
 		if len(properties[k].Properties) == 0 {
 			if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
-				out, err := parseCRD(properties[k].Items.Schema.Properties)
+				out, err := parseCRD(properties[k].Items.Schema.Properties, indent+htmlPaddingLength)
 				if err != nil {
 					return nil, err
 				}
 				output = append(output, out...)
 			} else {
 				v := properties[k]
+				t := v.Type
+				if t == "array" {
+					of := v.Items.Schema.Type
+					t = fmt.Sprintf("%s of %ss", t, of)
+				}
 				output = append(output, Property{
 					Name:        k,
-					Type:        v.Type,
+					Type:        t,
 					Description: v.Description,
 					Patterns:    v.Pattern,
 					Format:      v.Format,
 					Nullable:    v.Nullable,
+					Indent:      indent,
 				})
-
 			}
 		} else if len(properties[k].Properties) > 0 {
+			v := properties[k]
+			output = append(output, Property{
+				Name:        k,
+				Type:        v.Type,
+				Description: v.Description,
+				Patterns:    v.Pattern,
+				Format:      v.Format,
+				Nullable:    v.Nullable,
+				Indent:      indent,
+			})
 			// recursively parse all sub-properties
-			out, err := parseCRD(properties[k].Properties)
+			out, err := parseCRD(properties[k].Properties, indent+htmlPaddingLength)
 			if err != nil {
 				return nil, err
 			}
