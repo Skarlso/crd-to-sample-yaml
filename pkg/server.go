@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"log"
 	"net/http"
 	"sort"
 	"time"
@@ -17,8 +18,11 @@ import (
 const htmlPaddingLength = 2
 
 type Version struct {
-	Version    string
-	Properties []Property
+	Version     string
+	Kind        string
+	Group       string
+	Properties  []*Property
+	Description string
 }
 
 type ViewPage struct {
@@ -30,8 +34,10 @@ type Server struct {
 }
 
 var (
-	//go:embed templates/*
-	files     embed.FS
+	//go:embed templates
+	files embed.FS
+	//go:embed static
+	static    embed.FS
 	templates map[string]*template.Template
 )
 
@@ -72,6 +78,7 @@ func (s *Server) Run() error {
 	r := mux.NewRouter()
 	r.HandleFunc("/", s.IndexHandler)
 	r.HandleFunc("/submit", s.FormHandler).Methods("POST")
+	r.PathPrefix("/static/").Handler(http.FileServer(http.FS(static)))
 	srv := &http.Server{
 		Handler:      r,
 		Addr:         s.address,
@@ -82,7 +89,8 @@ func (s *Server) Run() error {
 	return srv.ListenAndServe()
 }
 
-func (s *Server) IndexHandler(w http.ResponseWriter, request *http.Request) {
+func (s *Server) IndexHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println(fmt.Sprintf("received request on index handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
 	webSite, err := fs.ReadFile(files, "templates/index.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -94,6 +102,7 @@ func (s *Server) IndexHandler(w http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println(fmt.Sprintf("received request on form handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
 	if err := r.ParseForm(); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "value to parse form: %s", err)
@@ -115,18 +124,20 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	versions := make([]Version, 0)
 	for _, version := range crd.Spec.Versions {
-		properties, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, 0, version.Name)
+		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, version.Schema.OpenAPIV3Schema.Required)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "failed to parse properties: %s", err)
 			return
 		}
 		versions = append(versions, Version{
-			Version:    version.Name,
-			Properties: properties,
+			Version:     version.Name,
+			Properties:  out,
+			Kind:        crd.Spec.Names.Kind,
+			Group:       crd.Spec.Group,
+			Description: version.Schema.OpenAPIV3Schema.Description,
 		})
 	}
-
 	view := ViewPage{
 		Versions: versions,
 	}
@@ -143,6 +154,7 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Property builds up a Tree structure of embedded things.
 type Property struct {
 	Name        string
 	Description string
@@ -152,62 +164,58 @@ type Property struct {
 	Format      string
 	Indent      int
 	Version     string
+	Required    bool
+	Properties  []*Property
 }
 
-func parseCRD(properties map[string]v1beta1.JSONSchemaProps, indent int, version string) ([]Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, requiredList []string) ([]*Property, error) {
 	var (
 		sortedKeys []string
-		output     []Property
+		output     []*Property
 	)
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
 	}
 	sort.Strings(sortedKeys)
 	for _, k := range sortedKeys {
-		if len(properties[k].Properties) == 0 {
-			if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
-				out, err := parseCRD(properties[k].Items.Schema.Properties, indent+htmlPaddingLength, version)
-				if err != nil {
-					return nil, err
-				}
-				output = append(output, out...)
-			} else {
-				v := properties[k]
-				t := v.Type
-				if t == "array" {
-					of := v.Items.Schema.Type
-					t = fmt.Sprintf("%s of %ss", t, of)
-				}
-				output = append(output, Property{
-					Name:        k,
-					Type:        t,
-					Description: v.Description,
-					Patterns:    v.Pattern,
-					Format:      v.Format,
-					Nullable:    v.Nullable,
-					Indent:      indent,
-					Version:     version,
-				})
+		// Create the Property with the values necessary.
+		// Check if there are properties for it in Properties or in Array -> Properties.
+		// If yes, call parseCRD and add the result to the created properties Properties list.
+		// If not, or if we are done, add this new property to the list of properties and return it.
+		v := properties[k]
+		required := false
+		for _, item := range requiredList {
+			if item == k {
+				required = true
+				break
 			}
-		} else if len(properties[k].Properties) > 0 {
-			v := properties[k]
-			output = append(output, Property{
-				Name:        k,
-				Type:        v.Type,
-				Description: v.Description,
-				Patterns:    v.Pattern,
-				Format:      v.Format,
-				Nullable:    v.Nullable,
-				Indent:      indent,
-				Version:     version,
-			})
-			// recursively parse all sub-properties
-			out, err := parseCRD(properties[k].Properties, indent+htmlPaddingLength, version)
+		}
+		p := &Property{
+			Name:        k,
+			Type:        v.Type,
+			Description: v.Description,
+			Patterns:    v.Pattern,
+			Format:      v.Format,
+			Nullable:    v.Nullable,
+			Version:     version,
+			Required:    required,
+		}
+		if len(properties[k].Properties) > 0 {
+			requiredList = v.Required
+			out, err := parseCRD(properties[k].Properties, version, requiredList)
 			if err != nil {
 				return nil, err
 			}
-			output = append(output, out...)
+			p.Properties = out
+		} else if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
+			requiredList = v.Required
+			out, err := parseCRD(properties[k].Items.Schema.Properties, version, requiredList)
+			if err != nil {
+				return nil, err
+			}
+			p.Properties = out
 		}
+		output = append(output, p)
 	}
 	return output, nil
 }

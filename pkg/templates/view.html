@@ -7,143 +7,105 @@
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
     <title>Preview CRDs</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="static/css/all.css" rel="stylesheet" type="text/css">
+    <link href="static/css/prism.css" rel="stylesheet" type="text/css">
+    <link href="static/css/prism-okaidia.css" rel="stylesheet" type="text/css">
+    <link href="static/css/root.css" rel="stylesheet" type="text/css">
 </head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
 
-<style>
-    :root {
-        --color-tone-1: #000000;
-        --color-tone-4: #d3d6da;
-        --color-tone-7: #ffffff;
-        --color-correct: var(--green);
-        --tile-text-color: var(--color-tone-7);
-        --key-text-color: var(--color-tone-1);
-        --key-bg: var(--color-tone-4);
-        --key-bg-correct: var(--color-correct);
-        --green: #6aaa64;
-        --white: #fff;
-        --black: #212121;
-        font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
-        font-size: 16px;
-        --header-height: 50px;
-    }
-
-    header {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        padding: 0 16px;
-        height: var(--header-height);
-        color: var(--color-tone-1);
-        border-bottom: 1px solid var(--color-tone-4);
-    }
-
-    header .title {
-        font-weight: 700;
-        font-size: 37px;
-        line-height: 100%;
-        letter-spacing: 0.01em;
-        text-align: center;
-        pointer-events: none;
-    }
-
-    .padding-left {
-        display: flex;
-        align-items: center;
-        width: 70px;
-        justify-content: flex-start;
-    }
-
-    .padding-right {
-        display: flex;
-        width: 70px;
-        justify-content: flex-end;
-    }
-
-    p.description {
-        font-style: oblique;
-    }
-
-    p.type {
-        font-weight: bold;
-    }
-
-    p.patterns {
-        font-style: normal;
-    }
-
-    p.format {
-        font-style: normal;
-    }
-
-    p.nullable {
-        font-style: normal;
-    }
-</style>
-
-<body>
-<header>
-    <div class="padding-left">
-        <button id="help-button" class="icon">
-            <i class="fa fa-question-circle"></i>
-        </button>
-    </div>
-    <div class="title">CRD Parser</div>
-    <div class="padding-right">
-        <a href="https://github.com/Skarlso/crd-to-sample-yaml" target="_blank"><i class="fa fa-github"></i></a>
-    </div>
-</header>
-<div class="container">
-    <div class="versions">
-        {{range .Versions}}
+<body class="dark-mode" data-dm-shortcut-enabled="true" data-sidebar-shortcut-enabled="true">
+<div class="content-wrapper">
+    <div class="container">
+        <div class="versions">
+            {{range .Versions}}
             <h1>
-                Version: {{.Version}}
+                Version: {{.Group}}/{{.Version}}<br>
+                Kind: {{.Kind}}
             </h1>
-            <br>
-            {{range $i, $v := .Properties}}
-            <div class="row">
-                <div style="text-indent: {{.Indent}}em">
-                    <button class="btn btn-outline-primary" type="button" data-toggle="collapse"
-                            data-target="#div-{{$v.Version}}-{{$i}}"
-                            aria-expanded="false" aria-controls="#div-{{$v.Version}}-{{$i}}">
-                        {{$v.Name}}
-                    </button>
-                    <div class="collapse" id="div-{{$v.Version}}-{{$i}}">
-                        <div>
-                            <p class="description">Description: {{$v.Description}}</p>
-                            <p class="type">Type: {{$v.Type}}</p>
-                            <p class="nullable">Nullable: {{$v.Nullable}}</p>
-                            {{if $v.Patterns}}
-                            <p class="patterns">Patterns: <span
-                                    style="font-family: 'Fira Code',serif; text-decoration: underline;">{{$v.Patterns}}</span>
-                            </p>
-                            {{end}}
-                            {{if $v.Format}}
-                            <p class="format">Format: <span
-                                    style="font-family: 'Fira Code',serif; text-decoration: underline;">{{$v.Format}}</span>
-                            </p>
-                            {{end}}
+            <p class="font-size-18">
+            <div>
+                <p>{{.Description}}</p>
+            </div>
+            </p>
+            <div class="d-flex flex-row-reverse mb-10 mt-10">
+                <button class="btn ml-10" type="button" onclick="expandAll()">
+                    + expand all
+                </button>
+                <button class="btn" type="button" onclick="collapseAll()">
+                    - collapse all
+                </button>
+            </div>
+            <div class="collapse-group">
+                {{range $i, $v := .Properties}}
+                <details class="collapse-panel">
+                    <summary class="collapse-header position-relative">
+                        {{$v.Name}} <kbd class="text-muted">{{$v.Type}}</kbd>
+                        {{if .Format}}
+                        <kbd class="text-muted">{{.Format}}</kbd>
+                        {{end}}
+                        {{if .Patterns}}
+                        <kbd class="text-muted">{{.Patterns}}</kbd>
+                        {{end}}
+                        {{if $v.Required}}
+                            <span class="badge badge-primary">required</span>
+                        {{end}}
+                    </summary>
+                    <div id="{{$v.Name}}" class="collapse-content">
+                        <div class="property-description">
+                            <p>{{$v.Description}}</p>
                         </div>
+                        {{template "properties" .Properties}}
                     </div>
                     <br>
-                </div>
+                </details>
+                {{end}}
             </div>
             {{end}}
-        {{end}}
+        </div>
     </div>
 </div>
-</body>
+<script>
+    function expandAll() {
+        console.log("todo: loop through all elements and expand them")
+    }
 
+    function collapseAll() {
+        console.log("todo: loop through all elements and collapse them")
+    }
+</script>
+</body>
 </html>
+
+<!-- Recursively walk the properties to construct embedded divs. -->
+{{define "properties"}}
+{{if .}}
+{{range . }}
+<details class="collapse-panel">
+    <summary class="collapse-header position-relative">
+        {{.Name}} <kbd class="text-muted">{{.Type}}</kbd>
+        {{if .Format}}
+        <kbd class="text-muted">{{.Format}}</kbd>
+        {{end}}
+        {{if .Patterns}}
+        <kbd class="text-muted">{{.Patterns}}</kbd>
+        {{end}}
+        {{if .Required}}
+        <span class="badge badge-primary">required</span>
+        {{end}}
+    </summary>
+    <div id="{{.Name}}" class="collapse-content">
+        <div class="property-description">
+            <p>{{.Description}}</p>
+        </div>
+        <div class="collapse-group">
+            {{template "properties" .Properties}}
+        </div>
+    </div>
+    <br>
+</details>
+{{end}}
+{{end}}
+{{end}}

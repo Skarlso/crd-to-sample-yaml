@@ -1,0 +1,12 @@
+@import url("https://unpkg.com/halfmoon@1.1.1/css/halfmoon-variables.min.css");
+
+@media (max-width: 576px) {
+    body .content-wrapper > div {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+body .content-wrapper {
+    padding-bottom: 2rem;
+}
