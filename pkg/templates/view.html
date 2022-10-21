@@ -172,7 +172,7 @@
                         {{$v.Name}}
                     </button>
                     <div class="collapse" id="div-{{$v.Version}}-{{$i}}">
-                        <div class="card card-body">
+                        <div>
                             <p class="description">Description: {{$v.Description}}</p>
                             <p class="type">Type: {{$v.Type}}</p>
                             <p class="nullable">Nullable: {{$v.Nullable}}</p>
@@ -191,7 +191,6 @@
                     <br>
                 </div>
             </div>
-            <br>
             {{end}}
         {{end}}
     </div>
