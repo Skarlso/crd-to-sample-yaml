@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 	"github.com/spf13/cobra"
@@ -28,7 +29,7 @@ func init() {
 
 func runServe(cmd *cobra.Command, args []string) error {
 	// Run service & server
-	fmt.Println("starting to serve under: ", address)
+	log.Println("starting to serve under: ", address)
 	sv, err := pkg.NewServer(address)
 	if err != nil {
 		return err

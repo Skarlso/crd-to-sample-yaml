@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/Skarlso/crd-to-sample-yaml/cmd"
 )
 
 func main() {
 	if err := cmd.Execute(); err != nil {
-		fmt.Println("failed to run command: ", err)
+		log.Fatal("failed to run command: ", err)
 	}
 }

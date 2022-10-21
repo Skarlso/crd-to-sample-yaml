@@ -7,18 +7,14 @@
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
     <title>Preview CRDs</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="static/css/all.css" rel="stylesheet" type="text/css">
+    <link href="static/css/prism.css" rel="stylesheet" type="text/css">
+    <link href="static/css/prism-okaidia.css" rel="stylesheet" type="text/css">
+    <link href="static/css/root.css" rel="stylesheet" type="text/css">
 </head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
 
 <style>
     :root {
@@ -71,15 +67,9 @@
         width: 70px;
         justify-content: flex-end;
     }
-    .center {
-        margin: auto;
-        width: 50%;
-        border: 3px solid green;
-        padding: 10px;
-    }
 </style>
 
-<body>
+<body class="dark-mode" data-dm-shortcut-enabled="true" data-sidebar-shortcut-enabled="true">
 <header>
     <div class="padding-left">
         <button id="help-button" class="icon">
@@ -92,17 +82,18 @@
     </div>
 </header>
 <div class="container">
-    <div class="center">
-        <form action="/submit" method="POST">
-            <div class="mb-3">
+    <div class="container">
+        <div class="mt-md-20">
+            <form action="/submit" method="POST">
+                <div class="mb-3">
                 <textarea class="form-control" id="crd_data" name="crd_data"
                           placeholder="Paste CRD here..."
                           style="height:200px"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
     </div>
 </div>
 </body>
-
 </html>
