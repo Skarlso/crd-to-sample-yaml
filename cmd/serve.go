@@ -23,7 +23,7 @@ func init() {
 	rootCmd.AddCommand(serveCmd)
 
 	f := serveCmd.PersistentFlags()
-	f.StringVarP(&address, "address", "a", ":8999", "The address under which the server is running")
+	f.StringVarP(&address, "address", "a", ":9998", "The address under which the server is running")
 }
 
 func runServe(cmd *cobra.Command, args []string) error {
