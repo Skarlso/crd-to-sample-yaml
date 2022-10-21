@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <title>Preview CRDs</title>
+</head>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    label {
+        padding: 12px 12px 12px 0;
+        display: inline-block;
+    }
+
+    input[type=submit] {
+        background-color: #04AA6D;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        float: right;
+    }
+
+    input[type=submit]:hover {
+        background-color: #45a049;
+    }
+
+    .container {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 20px;
+    }
+
+    input[type=text], select, textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+    }
+
+    :root {
+        --color-tone-1: #000000;
+        --color-tone-4: #d3d6da;
+        --color-tone-7: #ffffff;
+        --color-correct: var(--green);
+        --tile-text-color: var(--color-tone-7);
+        --key-text-color: var(--color-tone-1);
+        --key-bg: var(--color-tone-4);
+        --key-bg-correct: var(--color-correct);
+        --green: #6aaa64;
+        --white: #fff;
+        --black: #212121;
+        font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+        font-size: 16px;
+        --header-height: 50px;
+    }
+
+    /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+    @media screen and (max-width: 600px) and (min-width: 415px) {
+        .col-25, .col-75, input[type=submit] {
+            width: 100%;
+            margin-top: 0;
+        }
+    }
+
+    header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        padding: 0 16px;
+        height: var(--header-height);
+        color: var(--color-tone-1);
+        border-bottom: 1px solid var(--color-tone-4);
+    }
+
+    header .title {
+        font-weight: 700;
+        font-size: 37px;
+        line-height: 100%;
+        letter-spacing: 0.01em;
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .padding-left {
+        display: flex;
+        align-items: center;
+        width: 70px;
+        justify-content: flex-start;
+    }
+
+    .padding-right {
+        display: flex;
+        width: 70px;
+        justify-content: flex-end;
+    }
+
+    button.icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .center {
+        margin: auto;
+        width: 50%;
+        border: 3px solid green;
+        padding: 10px;
+    }
+
+    .inner {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 20px;
+    }
+</style>
+
+<body>
+<header>
+    <div class="padding-left">
+        <button id="help-button" class="icon">
+            <i class="fa fa-question-circle"></i>
+        </button>
+    </div>
+    <div class="title">CRD Parser</div>
+    <div class="padding-right">
+        <a href="https://github.com/Skarlso/crd-to-sample-yaml" target="_blank"><i class="fa fa-github"></i></a>
+    </div>
+</header>
+<div class="container">
+    <div class="center">
+        <form action="/submit" method="POST">
+            <div class="inner">
+                <label for="crd_data">CRD Data</label><br>
+                <textarea id="crd_data" name="crd_data"
+                          placeholder="Paste CRD here..."
+                          style="height:200px"></textarea>
+                <br>
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+
+</html>
