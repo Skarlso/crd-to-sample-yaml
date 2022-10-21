@@ -43,4 +43,5 @@ This will start a front-end that can be used to paste in and parse CRDs.
 
 ![frontpage](./imgs/frontend.png)
 
-![parsed](./imgs/parsed.png)
+![parsed1](./imgs/parsed1.png)
+![parsed2](./imgs/parsed2.png)
