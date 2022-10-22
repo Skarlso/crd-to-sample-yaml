@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"html/template"
@@ -15,14 +16,13 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-const htmlPaddingLength = 2
-
 type Version struct {
 	Version     string
 	Kind        string
 	Group       string
 	Properties  []*Property
 	Description string
+	YAML        string
 }
 
 type ViewPage struct {
@@ -93,32 +93,27 @@ func (s *Server) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("received request on index handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
 	webSite, err := fs.ReadFile(files, "templates/index.html")
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "failed to read index page: %s", err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, string(webSite))
 }
 
 func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("received request on form handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
 	if err := r.ParseForm(); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "value to parse form: %s", err)
 		return
 	}
 	value := r.Form["crd_data"]
 
 	if len(value) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "form value is empty")
 		return
 	}
 	crdContent := value[0]
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal([]byte(crdContent), crd); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "failed to unmarshal into custom resource definition: %s", err)
 		return
 	}
@@ -126,8 +121,13 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, version.Schema.OpenAPIV3Schema.Required)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "failed to parse properties: %s", err)
+			return
+		}
+		var buffer []byte
+		buf := bytes.NewBuffer(buffer)
+		if err := parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false); err != nil {
+			fmt.Fprintf(w, "failed to generate yaml sample: %s", err)
 			return
 		}
 		versions = append(versions, Version{
@@ -136,6 +136,7 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 			Kind:        crd.Spec.Names.Kind,
 			Group:       crd.Spec.Group,
 			Description: version.Schema.OpenAPIV3Schema.Description,
+			YAML:        buf.String(),
 		})
 	}
 	view := ViewPage{
@@ -143,12 +144,10 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	t, err := template.ParseFS(files, "templates/view.html")
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "failed to load view page: %s", err)
 		return
 	}
 	if err := t.Execute(w, view); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "failed to execute template: %s", err)
 		return
 	}

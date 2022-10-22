@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -36,14 +37,14 @@ type writer struct {
 	err error
 }
 
-func (w *writer) write(file *os.File, msg string) {
+func (w *writer) write(wc io.Writer, msg string) {
 	if w.err != nil {
 		return
 	}
-	_, w.err = file.WriteString(msg)
+	_, w.err = wc.Write([]byte(msg))
 }
 
-func parseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file *os.File, indent int, inArray bool) error {
+func parseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file io.Writer, indent int, inArray bool) error {
 	var sortedKeys []string
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)

@@ -29,6 +29,14 @@
             <div>
                 <p>{{.Description}}</p>
             </div>
+            <label>Generated YAML sample:</label>
+            <div class="collapse-group">
+                <details class="collapse-panel">
+                    <div id="yaml-{{.Version}}" class="collapse-content">
+                        <pre class="language-yaml"><code class="language-yaml">{{.YAML}}</code></pre>
+                    </div>
+                </details>
+            </div>
             </p>
             <div class="d-flex flex-row-reverse mb-10 mt-10">
                 <button class="btn ml-10" type="button" onclick="expandAll()">
@@ -50,7 +58,7 @@
                         <kbd class="text-muted">{{.Patterns}}</kbd>
                         {{end}}
                         {{if $v.Required}}
-                            <span class="badge badge-primary">required</span>
+                        <span class="badge badge-primary">required</span>
                         {{end}}
                     </summary>
                     <div id="{{$v.Name}}" class="collapse-content">
@@ -75,6 +83,8 @@
     function collapseAll() {
         console.log("todo: loop through all elements and collapse them")
     }
+</script>
+<script src="static/js/prism.js">
 </script>
 </body>
 </html>
