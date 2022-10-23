@@ -14,6 +14,7 @@
     <link href="static/css/prism.css" rel="stylesheet" type="text/css">
     <link href="static/css/prism-okaidia.css" rel="stylesheet" type="text/css">
     <link href="static/css/root.css" rel="stylesheet" type="text/css">
+    <link href="static/css/alert.css" rel="stylesheet" type="text/css">
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
@@ -21,23 +22,6 @@
 </head>
 
 <style>
-    :root {
-        --color-tone-1: #000000;
-        --color-tone-4: #d3d6da;
-        --color-tone-7: #ffffff;
-        --color-correct: var(--green);
-        --tile-text-color: var(--color-tone-7);
-        --key-text-color: var(--color-tone-1);
-        --key-bg: var(--color-tone-4);
-        --key-bg-correct: var(--color-correct);
-        --green: #6aaa64;
-        --white: #fff;
-        --black: #212121;
-        font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
-        font-size: 16px;
-        --header-height: 50px;
-    }
-
     header {
         display: flex;
         flex-direction: row;
@@ -45,9 +29,9 @@
         justify-content: space-between;
         flex-wrap: nowrap;
         padding: 0 16px;
-        height: var(--header-height);
-        color: var(--color-tone-1);
-        border-bottom: 1px solid var(--color-tone-4);
+        height: 50px;
+        color: #000000;
+        border-bottom: 1px solid #d3d6da;
     }
 
     header .title {
@@ -85,6 +69,12 @@
         <a href="https://github.com/Skarlso/crd-to-sample-yaml" target="_blank"><i class="fa fa-github"></i></a>
     </div>
 </header>
+{{if .Msg}}
+<div class="alert">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+    {{.Msg}}
+</div>
+{{end}}
 <div class="container">
     <div class="container">
         <div class="mt-md-20">

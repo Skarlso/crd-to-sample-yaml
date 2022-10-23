@@ -16,6 +16,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
+// Error contains an HTML error message.
+type Error struct {
+	Msg string
+}
+
 type Version struct {
 	Version     string
 	Kind        string
@@ -91,43 +96,42 @@ func (s *Server) Run() error {
 
 func (s *Server) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("received request on index handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
-	webSite, err := fs.ReadFile(files, "templates/index.html")
-	if err != nil {
-		fmt.Fprintf(w, "failed to read index page: %s", err)
-		return
+	t := templates["index.html"]
+	e := Error{}
+	if err := t.Execute(w, e); err != nil {
+		fmt.Fprintf(w, "failed to parse index template: %s", err)
 	}
-	fmt.Fprintf(w, string(webSite))
 }
 
 func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("received request on form handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
 	if err := r.ParseForm(); err != nil {
-		fmt.Fprintf(w, "value to parse form: %s", err)
+		parseError(fmt.Sprintf("value to parse form: %s", err), w)
 		return
 	}
 	value := r.Form["crd_data"]
 
 	if len(value) == 0 {
-		fmt.Fprintf(w, "form value is empty")
+		parseError("form value is empty", w)
 		return
 	}
 	crdContent := value[0]
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal([]byte(crdContent), crd); err != nil {
-		fmt.Fprintf(w, "failed to unmarshal into custom resource definition: %s", err)
+		parseError(fmt.Sprintf("failed to unmarshal into custom resource definition: %s", err), w)
 		return
 	}
 	versions := make([]Version, 0)
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, version.Schema.OpenAPIV3Schema.Required)
 		if err != nil {
-			fmt.Fprintf(w, "failed to parse properties: %s", err)
+			parseError(fmt.Sprintf("failed to parse properties: %s", err), w)
 			return
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
 		if err := parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false); err != nil {
-			fmt.Fprintf(w, "failed to generate yaml sample: %s", err)
+			parseError(fmt.Sprintf("failed to generate yaml sample: %s", err), w)
 			return
 		}
 		versions = append(versions, Version{
@@ -142,14 +146,20 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	view := ViewPage{
 		Versions: versions,
 	}
-	t, err := template.ParseFS(files, "templates/view.html")
-	if err != nil {
-		fmt.Fprintf(w, "failed to load view page: %s", err)
+	t := templates["view.html"]
+	if err := t.Execute(w, view); err != nil {
+		parseError(fmt.Sprintf("failed to execute template: %s", err), w)
 		return
 	}
-	if err := t.Execute(w, view); err != nil {
+}
+
+func parseError(msg string, w http.ResponseWriter) {
+	t := templates["index.html"]
+	e := Error{
+		Msg: msg,
+	}
+	if err := t.Execute(w, e); err != nil {
 		fmt.Fprintf(w, "failed to execute template: %s", err)
-		return
 	}
 }
 
