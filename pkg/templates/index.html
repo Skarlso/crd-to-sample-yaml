@@ -10,11 +10,12 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="static/css/all.css" rel="stylesheet" type="text/css">
+    <link href="static/css/main.css" rel="stylesheet" type="text/css">
     <link href="static/css/prism.css" rel="stylesheet" type="text/css">
     <link href="static/css/prism-okaidia.css" rel="stylesheet" type="text/css">
     <link href="static/css/root.css" rel="stylesheet" type="text/css">
     <link href="static/css/alert.css" rel="stylesheet" type="text/css">
+    <link href="static/css/halfmoon-variables.min.css" rel="stylesheet" type="text/css">
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
@@ -70,8 +71,9 @@
     </div>
 </header>
 {{if .Msg}}
-<div class="alert">
+<div class="alert alert-danger" role="alert">
     <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+    <h4 class="alert-heading">Oops!</h4>
     {{.Msg}}
 </div>
 {{end}}
