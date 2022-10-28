@@ -2,10 +2,15 @@
 
 Generate a sample YAML file from a CRD definition.
 
-Simply run:
+## Getting started
+- Prerequisites: Go installed on your machine. (Check out this link for details: https://go.dev/doc/install)
+- Clone the repository
+- Execute `make build` to build the binary
+
+Now you can simply run:
 
 ```
-crd-to-yaml generate -f delivery.krok.app_krokcommands
+crd-to-yaml generate -c delivery.krok.app_krokcommands
 ```
 
 This will result in a file similar to this:

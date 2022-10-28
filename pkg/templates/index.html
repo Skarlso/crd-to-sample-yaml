@@ -49,23 +49,15 @@
 
 <body class="dark-mode" data-dm-shortcut-enabled="true" data-sidebar-shortcut-enabled="true">
 <header>
-    <nav>
-        <div class="title">
-            CRD Parser
-        </div>
-        <div class="nav-items">
-            <ul>
-                <li>
-                    <button id="help-button" class="icon">
-                        <i class="fa fa-question-circle fa-2x"></i>
-                    </button>
-                </li>
-                <li>
-                    <a href="https://github.com/Skarlso/crd-to-sample-yaml" target="_blank"><i class="fa fa-github fa-2x"></i></a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <div class="padding-left">
+        <button id="help-button" class="icon">
+            <i class="fa fa-question-circle"></i>
+        </button>
+    </div>
+    <div class="title">CRD Parser</div>
+    <div class="padding-right">
+        <a href="https://github.com/Skarlso/crd-to-sample-yaml" target="_blank"><i class="fa fa-github"></i></a>
+    </div>
 </header>
 {{if .Msg}}
 <div class="alert alert-danger" role="alert">
@@ -83,7 +75,6 @@
                           placeholder="Paste CRD here..."
                           style="height:200px"></textarea>
                 </div>
-                <br>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>
