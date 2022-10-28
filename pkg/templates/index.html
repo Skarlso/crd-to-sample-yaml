@@ -23,52 +23,47 @@
 </head>
 
 <style>
-    header {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        padding: 0 16px;
-        height: 50px;
-        color: #000000;
-        border-bottom: 1px solid #d3d6da;
+    header{
+        margin: 0px;
+        padding: 20px 20px 0px  ;
+        border-bottom: 1px solid black;
     }
-
-    header .title {
-        font-weight: 700;
-        font-size: 37px;
-        line-height: 100%;
-        letter-spacing: 0.01em;
-        text-align: center;
-        pointer-events: none;
-    }
-
-    .padding-left {
+    nav{
         display: flex;
-        align-items: center;
-        width: 70px;
-        justify-content: flex-start;
     }
-
-    .padding-right {
-        display: flex;
-        width: 70px;
-        justify-content: flex-end;
+    .title{
+        margin-right: auto;
+        font-size: 2.5rem;
+    }
+    .title:hover{
+        color: rgb(0, 0, 164);
+        cursor: pointer;
+    }
+    li{
+        width: 50px;
+        margin-left: 20px;
+        display: inline-block;
+        list-style: none;
     }
 </style>
 
 <body class="dark-mode" data-dm-shortcut-enabled="true" data-sidebar-shortcut-enabled="true">
 <header>
-    <div class="padding-left">
-        <button id="help-button" class="icon">
-            <i class="fa fa-question-circle fa-2x"></i>
-        </button>
-    </div>
-    <div class="title" style="color: #fff;">CRD Parser</div>
-    <div class="padding-right">
-        <a href="https://github.com/Skarlso/crd-to-sample-yaml" target="_blank"><i class="fa fa-github fa-2x" style="color: #fff;"></i></a>
-    </div>
+    <nav>
+        <div class="title">
+            CRD Parser
+        </div>
+        <ul class=".nav-items">
+            <li>
+                <button id="help-button" class="icon">
+                    <i class="fa fa-question-circle fa-2x"></i>
+                </button>
+            </li>
+            <li>
+                <a href="https://github.com/Skarlso/crd-to-sample-yaml" target="_blank"><i class="fa fa-github fa-2x"></i></a>
+            </li>
+        </ul>
+    </nav>
 </header>
 {{if .Msg}}
 <div class="alert alert-danger" role="alert">
