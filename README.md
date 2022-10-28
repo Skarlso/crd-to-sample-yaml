@@ -10,7 +10,7 @@ Generate a sample YAML file from a CRD definition.
 Now you can simply run:
 
 ```
-crd-to-yaml generate -f delivery.krok.app_krokcommands
+crd-to-yaml generate -c delivery.krok.app_krokcommands
 ```
 
 This will result in a file similar to this:
