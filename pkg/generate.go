@@ -58,7 +58,7 @@ func parseProperties(group, version, kind string, properties map[string]v1beta1.
 		} else {
 			w.write(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", indent), k))
 		}
-		if len(properties[k].Properties) == 0 {
+		if len(properties[k].Properties) == 0 && properties[k].AdditionalProperties == nil {
 			if k == "apiVersion" {
 				w.write(file, fmt.Sprintf(" %s/%s\n", group, version))
 				continue
@@ -83,6 +83,12 @@ func parseProperties(group, version, kind string, properties map[string]v1beta1.
 			w.write(file, "\n")
 			// recursively parse all sub-properties
 			if err := parseProperties(group, version, kind, properties[k].Properties, file, indent+2, false); err != nil {
+				return err
+			}
+		} else if properties[k].AdditionalProperties != nil {
+			w.write(file, "\n")
+
+			if err := parseProperties(group, version, kind, properties[k].AdditionalProperties.Schema.Properties, file, indent+2, false); err != nil {
 				return err
 			}
 		}

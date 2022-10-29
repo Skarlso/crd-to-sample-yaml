@@ -2,7 +2,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSCluster
 metadata: {}
 spec:
-  additionalTags: {}
+  additionalTags:
   bastion:
     allowedCIDRBlocks: ["string"]
     ami: string
@@ -32,7 +32,7 @@ spec:
         fromPort: 1
         protocol: string
         toPort: 1
-    securityGroupOverrides: {}
+    securityGroupOverrides:
     subnets:
     - availabilityZone: string
       cidrBlock: string
@@ -42,7 +42,7 @@ spec:
       isPublic: true
       natGatewayId: string
       routeTableId: string
-      tags: {}
+      tags:
     vpc:
       availabilityZoneSelection: string
       availabilityZoneUsageLimit: 1
@@ -53,7 +53,7 @@ spec:
         cidrBlock: string
         egressOnlyInternetGatewayId: string
         poolId: string
-      tags: {}
+      tags:
   region: string
   s3Bucket:
     controlPlaneIAMInstanceProfile: string
@@ -96,7 +96,7 @@ status:
       maxPrice: string
     sshKeyName: string
     subnetId: string
-    tags: {}
+    tags:
     tenancy: string
     type: string
     userData: string
@@ -108,7 +108,9 @@ status:
     severity: string
     status: string
     type: string
-  failureDomains: {}
+  failureDomains:
+    attributes:
+    controlPlane: true
   networkStatus:
     apiServerElb:
       attributes:
@@ -131,6 +133,17 @@ status:
       scheme: string
       securityGroupIds: ["string"]
       subnetIds: ["string"]
-      tags: {}
-    securityGroups: {}
+      tags:
+    securityGroups:
+      id: string
+      ingressRule:
+      - cidrBlocks: ["string"]
+        description: string
+        fromPort: 1
+        ipv6CidrBlocks: ["string"]
+        protocol: string
+        sourceSecurityGroupIds: ["string"]
+        toPort: 1
+      name: string
+      tags:
   ready: true
