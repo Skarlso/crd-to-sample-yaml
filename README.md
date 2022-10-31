@@ -13,6 +13,14 @@ Now you can simply run:
 cty generate -c delivery.krok.app_krokcommands
 ```
 
+Optionally, define a URL at which a CRD is located:
+
+```
+cty generate -u https://raw.githubusercontent.com/kubernetes-sigs/cluster-api-provider-aws/main/config/crd/bases/infrastructure.cluster.x-k8s.io_awsclusters.yaml
+```
+
+`cty` does not support authentication modes, therefore the CRD needs to be publicly accessible.
+
 This will result in a file similar to this:
 
 ```yaml
@@ -32,7 +40,9 @@ spec:
 status: {}
 ```
 
-Each version will contain its own file output.
+A single file will be created containing all versions in the CRD delimited by `---`.
+
+Optionally, you can provide the flag `-s` which will output the generated content to `stdout`.
 
 Future plans include generating proper, schema validated values for all fields.
 
