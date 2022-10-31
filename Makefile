@@ -1,4 +1,4 @@
-NAME=crd-to-yaml
+NAME=cty
 
 # Set the build dir, where built cross-compiled binaries will be output
 BUILDDIR := bin

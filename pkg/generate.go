@@ -3,33 +3,28 @@ package pkg
 import (
 	"fmt"
 	"io"
-	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-func Generate(content []byte, path string) error {
-	crd := &v1beta1.CustomResourceDefinition{}
-	if err := yaml.Unmarshal(content, crd); err != nil {
-		return fmt.Errorf("failed to unmarshal into custom resource definition")
-	}
-
-	for _, version := range crd.Spec.Versions {
-		outputLocation := filepath.Join(path, fmt.Sprintf("%s_%s.yaml", crd.Spec.Names.Kind, version.Name))
-		outputFile, err := os.Create(outputLocation)
-		if err != nil {
-			return fmt.Errorf("failed to create file at: '%s': %w", outputLocation, err)
-		}
-		if err := parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, outputFile, 0, false); err != nil {
-			outputFile.Close()
+// Generate takes a CRD content and path, and outputs
+func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser) error {
+	for i, version := range crd.Spec.Versions {
+		if err := parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, w, 0, false); err != nil {
+			w.Close()
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
-		outputFile.Close()
+		if i < len(crd.Spec.Versions)-1 {
+			if _, err := w.Write([]byte("\n---\n")); err != nil {
+				w.Close()
+				return fmt.Errorf("failed to write yaml delimiter to writer: %w", err)
+			}
+		}
 	}
+
+	w.Close()
 	return nil
 }
 
@@ -44,6 +39,9 @@ func (w *writer) write(wc io.Writer, msg string) {
 	_, w.err = wc.Write([]byte(msg))
 }
 
+// parseProperties takes a writer and puts out any information / properties it encounters during the runs.
+// It will recursively parse every "properties:" and "additionalProperties:". Using the types, it will also output
+// some sample data based on those types.
 func parseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file io.Writer, indent int, inArray bool) error {
 	var sortedKeys []string
 	for k := range properties {
@@ -99,6 +97,7 @@ func parseProperties(group, version, kind string, properties map[string]v1beta1.
 	return nil
 }
 
+// outputValueType generate an output value based on the given type.
 func outputValueType(v v1beta1.JSONSchemaProps) string {
 	switch v.Type {
 	case "string":

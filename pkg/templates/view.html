@@ -114,6 +114,7 @@
             <p>{{.Description}}</p>
         </div>
         <div class="collapse-group">
+            <!-- Here is where the magic happens. This is the recursive call of the same template. -->
             {{template "properties" .Properties}}
         </div>
     </div>

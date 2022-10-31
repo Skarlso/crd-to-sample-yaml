@@ -21,6 +21,7 @@ type Error struct {
 	Msg string
 }
 
+// Version wraps a top level version resource which contains the underlying openAPIV3Schema.
 type Version struct {
 	Version     string
 	Kind        string
@@ -30,10 +31,12 @@ type Version struct {
 	YAML        string
 }
 
+// ViewPage is the template for view.html.
 type ViewPage struct {
 	Versions []Version
 }
 
+// Server wraps an address and creates a server around it.
 type Server struct {
 	address string
 }
@@ -46,6 +49,7 @@ var (
 	templates map[string]*template.Template
 )
 
+// NewServer creates a new address wrapper.
 func NewServer(address string) (*Server, error) {
 	if err := loadTemplates(); err != nil {
 		return nil, fmt.Errorf("failed to load templates: %w", err)
@@ -55,6 +59,7 @@ func NewServer(address string) (*Server, error) {
 	}, nil
 }
 
+// loadTemplates creates a map of loaded templates that are primed and ready to be rendered.
 func loadTemplates() error {
 	if templates == nil {
 		templates = make(map[string]*template.Template)
@@ -78,6 +83,7 @@ func loadTemplates() error {
 	return nil
 }
 
+// Run starts a simple http server.
 func (s *Server) Run() error {
 	// read all files from location and create links for them.
 	r := mux.NewRouter()
@@ -94,6 +100,7 @@ func (s *Server) Run() error {
 	return srv.ListenAndServe()
 }
 
+// IndexHandler handles all requests to / by rendering index.html.
 func (s *Server) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("received request on index handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
 	t := templates["index.html"]
@@ -103,6 +110,7 @@ func (s *Server) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// FormHandler handles submits through the provided form and renders view.html.
 func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("received request on form handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
 	if err := r.ParseForm(); err != nil {
@@ -153,6 +161,7 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// parseError creates an error on the index.html page.
 func parseError(msg string, w http.ResponseWriter) {
 	t := templates["index.html"]
 	e := Error{
@@ -177,6 +186,8 @@ type Property struct {
 	Properties  []*Property
 }
 
+// parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
+// template can call and construct linked divs.
 func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, requiredList []string) ([]*Property, error) {
 	var (
 		sortedKeys []string
