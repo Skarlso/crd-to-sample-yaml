@@ -12,6 +12,8 @@ jobs:
         id: prep
         run: |
           echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set up Go
+        uses: actions/setup-go@v3
       - name: Cache go-build and mod
         uses: actions/cache@v3
         with:
