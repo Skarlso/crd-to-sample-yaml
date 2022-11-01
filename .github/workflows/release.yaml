@@ -14,6 +14,8 @@ jobs:
           echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Set up Go
         uses: actions/setup-go@v3
+        with:
+          go-version: '^1.19.1' # The Go version to download (if necessary) and use.
       - name: Cache go-build and mod
         uses: actions/cache@v3
         with:
