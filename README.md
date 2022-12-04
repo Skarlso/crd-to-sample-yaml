@@ -1,4 +1,4 @@
-# crd-to-sample-yaml
+# crd-to-sample-yaml or cty ( city )
 
 Generate a sample YAML file from a CRD definition.
 
