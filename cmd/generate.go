@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/spf13/cobra"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -44,7 +45,7 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 		w       io.WriteCloser
 	)
 	if url != "" {
-		f := NewFetcher(http.DefaultClient)
+		f := fetcher.NewFetcher(http.DefaultClient)
 		content, err = f.Fetch(url)
 		if err != nil {
 			return fmt.Errorf("failed to fetch content: %w", err)

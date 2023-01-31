@@ -11,6 +11,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/gorilla/mux"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -118,10 +119,20 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	value := r.Form["crd_data"]
+	if len(value) == 0 || value[0] == "" {
+		url := r.Form["url_to_crd"]
+		if len(url) == 0 || url[0] == "" {
+			parseError("either form or url needs to be provided", w)
+			return
+		}
 
-	if len(value) == 0 {
-		parseError("form value is empty", w)
-		return
+		f := fetcher.NewFetcher(http.DefaultClient)
+		content, err := f.Fetch(url[0])
+		if err != nil {
+			parseError("failed to fetch url data", w)
+			return
+		}
+		value = []string{string(content)}
 	}
 	crdContent := value[0]
 	crd := &v1beta1.CustomResourceDefinition{}
