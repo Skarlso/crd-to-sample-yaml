@@ -11,10 +11,11 @@ import (
 	"sort"
 	"time"
 
-	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/gorilla/mux"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
+
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 )
 
 // Error contains an HTML error message.
@@ -89,6 +90,7 @@ func (s *Server) Run() error {
 	// read all files from location and create links for them.
 	r := mux.NewRouter()
 	r.HandleFunc("/", s.IndexHandler)
+	r.HandleFunc("/render", s.URLHandler).Methods("GET").Queries("url", "{url}")
 	r.HandleFunc("/submit", s.FormHandler).Methods("POST")
 	r.PathPrefix("/static/").Handler(http.FileServer(http.FS(static)))
 	srv := &http.Server{
@@ -101,9 +103,28 @@ func (s *Server) Run() error {
 	return srv.ListenAndServe()
 }
 
+// URLHandler handles sharing urls.
+func (s *Server) URLHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	url, ok := vars["url"]
+	if !ok {
+		parseError("url was not defined in the parameters", w)
+		return
+	}
+
+	f := fetcher.NewFetcher(http.DefaultClient)
+	content, err := f.Fetch(url)
+	if err != nil {
+		parseError("failed to fetch url data", w)
+		return
+	}
+
+	s.renderContent(w, string(content))
+}
+
 // IndexHandler handles all requests to / by rendering index.html.
 func (s *Server) IndexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println(fmt.Sprintf("received request on index handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
+	log.Printf("received request on index handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent"))
 	t := templates["index.html"]
 	e := Error{}
 	if err := t.Execute(w, e); err != nil {
@@ -113,7 +134,7 @@ func (s *Server) IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 // FormHandler handles submits through the provided form and renders view.html.
 func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println(fmt.Sprintf("received request on form handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent")))
+	log.Printf("received request on form handler: method: %s; origin: %s; User-Agent: %s; ", r.Method, r.Header.Get("Origin"), r.Header.Get("User-Agent"))
 	if err := r.ParseForm(); err != nil {
 		parseError(fmt.Sprintf("value to parse form: %s", err), w)
 		return
@@ -135,6 +156,10 @@ func (s *Server) FormHandler(w http.ResponseWriter, r *http.Request) {
 		value = []string{string(content)}
 	}
 	crdContent := value[0]
+	s.renderContent(w, crdContent)
+}
+
+func (s *Server) renderContent(w http.ResponseWriter, crdContent string) {
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal([]byte(crdContent), crd); err != nil {
 		parseError(fmt.Sprintf("failed to unmarshal into custom resource definition: %s", err), w)

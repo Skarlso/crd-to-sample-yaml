@@ -36,7 +36,7 @@ test: lint ## Lints Krok then runs all tests
 clean: ## Runs go clean
 	go clean -i
 
-lint: ## Runs golangci-lint on Krok
+lint: ## Runs golangci-lint on crd
 	golangci-lint run ./...
 
 ##@ Utilities
