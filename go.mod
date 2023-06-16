@@ -1,9 +1,8 @@
 module github.com/Skarlso/crd-to-sample-yaml
 
-go 1.19
+go 1.20
 
 require (
-	github.com/davecgh/go-spew v1.1.1
 	github.com/gorilla/mux v1.8.0
 	github.com/spf13/cobra v1.4.0
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
