@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -10,21 +11,25 @@ import (
 )
 
 // Generate takes a CRD content and path, and outputs
-func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser) error {
+func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser) (err error) {
+	defer func() {
+		if cerr := w.Close(); cerr != nil {
+			err = errors.Join(err, cerr)
+		}
+	}()
+
 	for i, version := range crd.Spec.Versions {
 		if err := parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, w, 0, false); err != nil {
-			w.Close()
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
+
 		if i < len(crd.Spec.Versions)-1 {
 			if _, err := w.Write([]byte("\n---\n")); err != nil {
-				w.Close()
 				return fmt.Errorf("failed to write yaml delimiter to writer: %w", err)
 			}
 		}
 	}
 
-	w.Close()
 	return nil
 }
 
