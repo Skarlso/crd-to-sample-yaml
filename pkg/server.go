@@ -218,6 +218,7 @@ type Property struct {
 	Format      string
 	Indent      int
 	Version     string
+	Default     string
 	Required    bool
 	Properties  []*Property
 }
@@ -256,6 +257,10 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 			Version:     version,
 			Required:    required,
 		}
+		if v.Default != nil {
+			p.Default = string(v.Default.Raw)
+		}
+
 		if len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil {
 			requiredList = v.Required
 			out, err := parseCRD(properties[k].Properties, version, requiredList)

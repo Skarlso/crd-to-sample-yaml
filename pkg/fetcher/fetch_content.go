@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// Fetcher wraps an http client.
+// Fetcher wraps an HTTP client.
 type Fetcher struct {
 	client *http.Client
 }

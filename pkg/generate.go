@@ -104,6 +104,10 @@ func parseProperties(group, version, kind string, properties map[string]v1beta1.
 
 // outputValueType generate an output value based on the given type.
 func outputValueType(v v1beta1.JSONSchemaProps) string {
+	if v.Default != nil {
+		return string(v.Default.Raw)
+	}
+
 	switch v.Type {
 	case "string":
 		return "string"

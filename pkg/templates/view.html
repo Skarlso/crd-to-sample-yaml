@@ -52,11 +52,14 @@
                 <details class="collapse-panel">
                     <summary class="collapse-header position-relative">
                         {{$v.Name}} <kbd class="text-muted">{{$v.Type}}</kbd>
-                        {{if .Format}}
+                        {{if $v.Format}}
                         <kbd class="text-muted">{{.Format}}</kbd>
                         {{end}}
-                        {{if .Patterns}}
+                        {{if $v.Patterns}}
                         <kbd class="text-muted">{{.Patterns}}</kbd>
+                        {{end}}
+                        {{if $v.Default}}
+                        <kbd class="text-muted">{{$v.Default}}</kbd>
                         {{end}}
                         {{if $v.Required}}
                         <span class="badge badge-primary">required</span>
@@ -104,6 +107,9 @@
         {{end}}
         {{if .Patterns}}
         <kbd class="text-muted">{{.Patterns}}</kbd>
+        {{end}}
+        {{if .Default}}
+        <kbd class="text-muted">{{.Default}}</kbd>
         {{end}}
         {{if .Required}}
         <span class="badge badge-primary">required</span>
