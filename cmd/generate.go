@@ -7,12 +7,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/spf13/cobra"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 )
 
 var (
