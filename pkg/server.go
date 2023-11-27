@@ -174,7 +174,7 @@ func (s *Server) renderContent(w http.ResponseWriter, crdContent string) {
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := parseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false); err != nil {
+		if err := ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false); err != nil {
 			parseError(fmt.Sprintf("failed to generate yaml sample: %s", err), w)
 			return
 		}
