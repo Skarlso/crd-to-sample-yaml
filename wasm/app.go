@@ -11,10 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-// hello is a component that displays a simple "Hello World!". A component is a
-// customizable, independent, and reusable UI element. It is created by
-// embedding app.Compo into a struct.
-type hello struct {
+// crdView is the main component to display a rendered CRD.
+type crdView struct {
 	app.Compo
 }
 
@@ -45,7 +43,7 @@ type Property struct {
 
 // The Render method is where the component appearance is defined. Here, a
 // "Hello World!" is displayed as a heading.
-func (h *hello) Render() app.UI {
+func (h *crdView) Render() app.UI {
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(crdContent, crd); err != nil {
 		//parseError(fmt.Sprintf("failed to unmarshal into custom resource definition: %s", err), w)
