@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
@@ -8,6 +11,9 @@ import (
 // It will also deal with navigation and user submits.
 type index struct {
 	app.Compo
+
+	content   []byte
+	isMounted bool
 }
 
 // header is the site header.
@@ -57,24 +63,60 @@ func (i *input) Render() app.UI {
 // form is the form in which the user will submit their input.
 type form struct {
 	app.Compo
+
+	formHandler app.EventHandler
 }
 
 func (f *form) Render() app.UI {
 	return app.Div().Class("mt-md-20").Body(
-		app.Form().Action("/submit").Method("POST").Body(
+		app.Div().Body(
 			app.Div().Class("mb-3").Body(
 				&textarea{},
 				&input{},
 			),
-			app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit"),
-		).OnSubmit(f.OnSubmit),
+			app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler),
+		),
 	)
 }
 
-func (f *form) OnSubmit(ctx app.Context, e app.Event) {
-	// TODO: set state here and then get that value in the other component.
+func (i *index) OnClick(ctx app.Context, e app.Event) {
+	ta := app.Window().GetElementByID("crd_data").Get("value")
+	if v := ta.String(); v != "" {
+		i.content = []byte(v)
+
+		return
+	}
+
+	inp := app.Window().GetElementByID("url_to_crd").Get("value")
+	if inp.String() == "" {
+		return
+	}
+
+	f := fetcher.NewFetcher(http.DefaultClient)
+	content, err := f.Fetch(inp.String())
+	if err != nil {
+		app.Log("failed to fetch url: ", err)
+		return
+	}
+
+	i.content = content
+}
+
+func (i *index) OnMount(ctx app.Context) {
+	i.isMounted = true
 }
 
 func (i *index) Render() app.UI {
-	return app.Div().Class("container").Body(&header{}, &form{})
+	// Prevent double rendering components.
+	if i.isMounted {
+		return app.Main().Body(app.Div().Class("container").Body(func() app.UI {
+			if i.content != nil {
+				return &crdView{content: i.content}
+			}
+
+			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick})
+		}()))
+	}
+
+	return app.Main()
 }

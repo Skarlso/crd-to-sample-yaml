@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
+
+	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 )
 
 // crdView is the main component to display a rendered CRD.
 type crdView struct {
 	app.Compo
+
+	content []byte
 }
 
 // Version wraps a top level version resource which contains the underlying openAPIV3Schema.
@@ -45,10 +48,10 @@ type Property struct {
 // "Hello World!" is displayed as a heading.
 func (h *crdView) Render() app.UI {
 	crd := &v1beta1.CustomResourceDefinition{}
-	if err := yaml.Unmarshal(crdContent, crd); err != nil {
-		//parseError(fmt.Sprintf("failed to unmarshal into custom resource definition: %s", err), w)
+	if err := yaml.Unmarshal(h.content, crd); err != nil {
 		return app.Div().Text(err.Error())
 	}
+
 	versions := make([]Version, 0)
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, version.Schema.OpenAPIV3Schema.Required)
@@ -77,7 +80,7 @@ func (h *crdView) Render() app.UI {
 		version := versions[i]
 		div.Body(
 			app.H1().Text(fmt.Sprintf(
-				`Version: %s/%s</br>Kind: %s`,
+				`Version: %s/%s - Kind: %s`,
 				version.Group,
 				version.Version,
 				version.Kind,
