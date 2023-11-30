@@ -22,8 +22,6 @@ func main() {
 	// This is done by calling the Route() function,  which tells go-app what
 	// component to display for a given path, on both client and server-side.
 	app.Route("/", &index{})
-	app.Route("/submit", &crdView{})
-	//app.Route("/index", &index{})
 
 	// Once the routes set up, the next thing to do is to either launch the app
 	// or the server that serves the app.
@@ -106,7 +104,7 @@ func main() {
 }
 
 func generateGitHubPages(h *app.Handler) {
-	if err := app.GenerateStaticWebsite("static", h); err != nil {
+	if err := app.GenerateStaticWebsite(".", h); err != nil {
 		panic(err)
 	}
 }
