@@ -2,5 +2,4 @@ crd-to-yaml
 dist/
 .idea
 cty
-wasm/web/app.wasm
 wasm/wasm
