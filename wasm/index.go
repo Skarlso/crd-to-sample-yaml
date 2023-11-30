@@ -37,7 +37,8 @@ func (t *textarea) Render() app.UI {
 		Placeholder("Paste CRD here...").
 		Style("height", "200px").
 		ID("crd_data").
-		Name("crd_data")
+		Name("crd_data").
+		AutoFocus(true)
 }
 
 // input is the input button.
