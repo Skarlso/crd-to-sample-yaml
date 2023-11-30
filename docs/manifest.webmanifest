@@ -1,0 +1,27 @@
+{
+  "short_name": "Preview CRDs",
+  "name": "Preview CRDs",
+  "description": "",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/maxence-charriere/go-app/master/docs/web/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "/web/img/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "scope": "/",
+  "start_url": "/",
+  "background_color": "#2d2c2c",
+  "theme_color": "#2d2c2c",
+  "display": "standalone"
+}
