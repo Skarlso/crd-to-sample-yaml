@@ -33,6 +33,11 @@ func (f *Fetcher) Fetch(url string) ([]byte, error) {
 			err = fmt.Errorf("failed to close with %s after %w", closeErr, err)
 		}
 	}()
+
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		return nil, fmt.Errorf("failed to fetch url content with status code %d", resp.StatusCode)
+	}
+
 	content, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read body: %w", err)

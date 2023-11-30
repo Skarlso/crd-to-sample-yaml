@@ -1,11 +1,14 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
+
+const maximumBytes = 200 * 1000 // 200KB
 
 // index is the main page that contains the textarea and the submit button.
 // It will also deal with navigation and user submits.
@@ -14,6 +17,19 @@ type index struct {
 
 	content   []byte
 	isMounted bool
+	err       error
+}
+
+func (i *index) buildError() app.UI {
+	return app.Div().Class("alert alert-danger").Role("alert").Body(
+		app.Span().Class("closebtn").OnClick(i.dismissError).Body(app.Text("×")),
+		app.H4().Class("alert-heading").Text("Oops!"),
+		app.Text(i.err.Error()),
+	)
+}
+
+func (i *index) dismissError(ctx app.Context, e app.Event) {
+	i.err = nil
 }
 
 // header is the site header.
@@ -82,6 +98,12 @@ func (f *form) Render() app.UI {
 func (i *index) OnClick(ctx app.Context, e app.Event) {
 	ta := app.Window().GetElementByID("crd_data").Get("value")
 	if v := ta.String(); v != "" {
+		if len(v) > maximumBytes {
+			i.err = errors.New("content exceeds maximum length of 200KB")
+
+			return
+		}
+
 		i.content = []byte(v)
 
 		return
@@ -95,7 +117,13 @@ func (i *index) OnClick(ctx app.Context, e app.Event) {
 	f := fetcher.NewFetcher(http.DefaultClient)
 	content, err := f.Fetch(inp.String())
 	if err != nil {
-		app.Log("failed to fetch url: ", err)
+		i.err = err
+
+		return
+	}
+	if len(content) > maximumBytes {
+		i.err = errors.New("content exceeds maximum length of 200KB")
+
 		return
 	}
 
@@ -110,6 +138,10 @@ func (i *index) Render() app.UI {
 	// Prevent double rendering components.
 	if i.isMounted {
 		return app.Main().Body(app.Div().Class("container").Body(func() app.UI {
+			if i.err != nil {
+				return app.Div().Class("container").Body(&header{}, i.buildError())
+			}
+
 			if i.content != nil {
 				return &crdView{content: i.content}
 			}

@@ -44,24 +44,31 @@ type Property struct {
 	Properties  []*Property
 }
 
+func (h *crdView) buildError(err error) app.UI {
+	return app.Div().Class("alert alert-danger").Role("alert").Body(
+		app.Span().Class("closebtn").Body(app.Text("×")),
+		app.H4().Class("alert-heading").Text("Oops!"),
+		app.Text(err.Error()))
+}
+
 // The Render method is where the component appearance is defined. Here, a
 // "Hello World!" is displayed as a heading.
 func (h *crdView) Render() app.UI {
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(h.content, crd); err != nil {
-		return app.Div().Text(err.Error())
+		return h.buildError(err)
 	}
 
 	versions := make([]Version, 0)
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, version.Schema.OpenAPIV3Schema.Required)
 		if err != nil {
-			return app.Div().Text(err.Error())
+			return h.buildError(err)
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
 		if err := pkg.ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false); err != nil {
-			return app.Div().Text(err.Error())
+			return h.buildError(err)
 		}
 		versions = append(versions, Version{
 			Version:     version.Name,
@@ -78,14 +85,24 @@ func (h *crdView) Render() app.UI {
 	container.Body(app.Range(versions).Slice(func(i int) app.UI {
 		div := app.Div().Class("versions")
 		version := versions[i]
+		yamlContent := app.Div().Class("collapse-group").Body(
+			app.Details().Class("collapse-panel").Body(
+				app.Div().Class("collapse-content").ID(fmt.Sprintf("yaml-%s", version.Version)).Body(
+					app.Pre().Class("language-yaml").Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
+				),
+			),
+		)
 		div.Body(
-			app.H1().Text(fmt.Sprintf(
-				`Version: %s/%s - Kind: %s`,
-				version.Group,
-				version.Version,
-				version.Kind,
-			)),
-			app.Text(version.Description),
+			app.H1().Body(
+				app.P().Body(app.Text(fmt.Sprintf(
+					`Version: %s/%s`,
+					version.Group,
+					version.Version,
+				))),
+				app.P().Body(app.Text(fmt.Sprintf("Kind: %s", version.Kind)))),
+			app.P().Body(app.Text(version.Description)),
+			app.P().Body(app.Text("Generated YAML sample:")),
+			yamlContent,
 			app.H1().Text(version.Version),
 			render(app.Div().Class("collapse-group"), version.Properties),
 		)
@@ -118,7 +135,7 @@ func render(d app.UI, p []*Property) app.UI {
 		}
 
 		summary.Body(summaryElements...)
-		description := app.Div().Class("property-description").Text(prop.Description)
+		description := app.Div().Class("property-description").Body(app.P().Body(app.Text(prop.Description)))
 		detailsElements := []app.UI{summary, description}
 
 		// add any children that the parent has
