@@ -27,17 +27,17 @@
                 Kind: {{.Kind}}
             </h1>
             <p class="font-size-18">
-            <div>
-                <p>{{.Description}}</p>
-            </div>
-            <label>Generated YAML sample:</label>
-            <div class="collapse-group">
-                <details class="collapse-panel">
-                    <div id="yaml-{{.Version}}" class="collapse-content">
-                        <pre class="language-yaml"><code class="language-yaml">{{.YAML}}</code></pre>
-                    </div>
-                </details>
-            </div>
+                <div>
+                    <p>{{.Description}}</p>
+                </div>
+                <label>Generated YAML sample:</label>
+                <div class="collapse-group">
+                    <details class="collapse-panel">
+                        <div id="yaml-{{.Version}}" class="collapse-content">
+                            <pre class="language-yaml"><code class="language-yaml">{{.YAML}}</code></pre>
+                        </div>
+                    </details>
+                </div>
             </p>
             <div class="d-flex flex-row-reverse mb-10 mt-10">
                 <button class="btn ml-10" type="button" onclick="expandAll()">
