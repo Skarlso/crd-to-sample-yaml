@@ -111,6 +111,7 @@ func main() {
 	// This is done by calling the Route() function,  which tells go-app what
 	// component to display for a given path, on both client and server-side.
 	app.Route("/", &index{})
+	app.Route("/submit", &crdView{})
 	//app.Route("/index", &index{})
 
 	// Once the routes set up, the next thing to do is to either launch the app
@@ -136,6 +137,7 @@ func main() {
 		Name:   "Preview CRDs",
 		Title:  "Preview CRDs",
 		Author: "Gergely Brautigam",
+		Body:   func() app.HTMLBody { return app.Body().Class("dark-mode") },
 		Styles: []string{
 			"web/css/alert.css",
 			"web/css/halfmoon-variables.min.css",
