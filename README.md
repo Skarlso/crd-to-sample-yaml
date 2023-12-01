@@ -46,10 +46,13 @@ Optionally, you can provide the flag `-s` which will output the generated conten
 
 Future plans include generating proper, schema validated values for all fields.
 
-There is also an option to run this as a server. Run:
+## WASM frontend
 
-```
-cty serve
+There is a WASM based frontend that can be started by navigating into the `wasm` folder and running the following make
+target:
+
+```shell
+make run
 ```
 
 This will start a front-end that can be used to paste in and parse CRDs.
