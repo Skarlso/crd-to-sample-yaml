@@ -4,3 +4,6 @@ build:
 
 run: build
 	./wasm
+
+static: build
+	./wasm --static
