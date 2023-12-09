@@ -89,10 +89,13 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 				return err
 			}
 		} else if properties[k].AdditionalProperties != nil {
-			w.write(file, "\n")
-
-			if err := ParseProperties(group, version, kind, properties[k].AdditionalProperties.Schema.Properties, file, indent+2, false); err != nil {
-				return err
+			if len(properties[k].AdditionalProperties.Schema.Properties) == 0 {
+				w.write(file, " {}\n")
+			} else {
+				w.write(file, "\n")
+				if err := ParseProperties(group, version, kind, properties[k].AdditionalProperties.Schema.Properties, file, indent+2, false); err != nil {
+					return err
+				}
 			}
 		}
 	}
