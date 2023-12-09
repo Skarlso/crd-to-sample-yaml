@@ -60,13 +60,13 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 			inArray = false
 		} else {
 			if comments && properties[k].Description != "" {
-				var comment string
+				comment := strings.Builder{}
 				multiLine := strings.Split(properties[k].Description, "\n")
 				for _, line := range multiLine {
-					comment += fmt.Sprintf("%s# %s\n", strings.Repeat(" ", indent), line)
+					comment.WriteString(fmt.Sprintf("%s# %s\n", strings.Repeat(" ", indent), line))
 				}
 
-				w.write(file, comment)
+				w.write(file, comment.String())
 			}
 			w.write(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", indent), k))
 		}
