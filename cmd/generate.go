@@ -26,6 +26,7 @@ var (
 	url          string
 	output       string
 	stdOut       bool
+	comments     bool
 )
 
 func init() {
@@ -36,6 +37,7 @@ func init() {
 	f.StringVarP(&url, "url", "u", "", "If provided, will use this URL to fetch CRD YAML content from.")
 	f.StringVarP(&output, "output", "o", "", "The location of the output file. Default is next to the CRD.")
 	f.BoolVarP(&stdOut, "stdout", "s", false, "If set, it will output the generated content to stdout")
+	f.BoolVarP(&comments, "comments", "m", false, "If set, it will add descriptions as comments to each line where available")
 }
 
 func runGenerate(cmd *cobra.Command, args []string) error {
@@ -78,5 +80,5 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 		w = outputFile
 	}
 
-	return pkg.Generate(crd, w)
+	return pkg.Generate(crd, w, comments)
 }

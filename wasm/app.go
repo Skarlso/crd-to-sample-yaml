@@ -67,7 +67,7 @@ func (h *crdView) Render() app.UI {
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := pkg.ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false); err != nil {
+		if err := pkg.ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false, false); err != nil {
 			return h.buildError(err)
 		}
 		versions = append(versions, Version{
