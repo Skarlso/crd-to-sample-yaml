@@ -18,6 +18,7 @@ type index struct {
 	content   []byte
 	isMounted bool
 	err       error
+	comments  bool
 }
 
 func (i *index) buildError() app.UI {
@@ -130,6 +131,39 @@ func (i *index) OnClick(ctx app.Context, e app.Event) {
 	i.content = content
 }
 
+// checkBox defines if comments should be generated for the sample YAML output.
+type checkBox struct {
+	app.Compo
+
+	checkHandler app.EventHandler
+}
+
+func (c *checkBox) Render() app.UI {
+	//return app.Div().Body(app.P().Body(app.Text("Enable Comments"), app.Input().Type("checkbox")))
+	//<div class="input-group mb-3">
+	//
+	//  <div class="input-group-text">
+	//
+	//    <input type="checkbox" class="form-check-input mt-0" value="" aria-label="Checkbox for following input">
+	//
+	//  </div>
+	//
+	//  <input type="text" class="form-control" placeholder="Input with checkbox" aria-label="Input with checkbox">
+	//
+	//</div>
+	return app.Div().Class("input-group mb-3").Body(
+		app.Div().Class("input-group-text").Body(
+			app.Input().Type("checkbox").Class("form-check-input mt-0").Value("Enable Comments"),
+		),
+		app.Div().Class("form-control"),
+	)
+
+}
+
+func (i *index) OnCheck(ctx app.Context, e app.Event) {
+	i.comments = !i.comments
+}
+
 func (i *index) OnMount(ctx app.Context) {
 	i.isMounted = true
 }
@@ -143,10 +177,10 @@ func (i *index) Render() app.UI {
 			}
 
 			if i.content != nil {
-				return &crdView{content: i.content}
+				return &crdView{content: i.content, comment: i.comments}
 			}
 
-			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick})
+			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick}, &checkBox{checkHandler: i.OnCheck})
 		}()))
 	}
 
