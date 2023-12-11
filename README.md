@@ -57,6 +57,33 @@ make run
 
 This will start a front-end that can be used to paste in and parse CRDs.
 
+## Comments
+
+Comments can be added to each line of the generated YAML content where descriptions are available. This looks something
+like this:
+
+```yaml
+# APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+# Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+kind: AWSCluster
+metadata: {}
+# AWSClusterSpec defines the desired state of an EC2-based Kubernetes cluster.
+spec:
+  # AdditionalTags is an optional set of tags to add to AWS resources managed by the AWS provider, in addition to the ones added by default.
+  additionalTags: {}
+  # Bastion contains options to configure the bastion host.
+  bastion:
+  ...
+```
+
+To add comments simply run cty with:
+```console
+cty generate -c sample-crd/infrastructure.cluster.x-k8s.io_awsclusters.yaml --comments
+```
+
+The frontend also has a checkbox to add comments to the generated yaml output.
+
 ## Showcase
 
 ![frontpage](./imgs/frontend.png)
