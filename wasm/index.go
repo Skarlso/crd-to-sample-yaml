@@ -81,7 +81,8 @@ func (i *input) Render() app.UI {
 type form struct {
 	app.Compo
 
-	formHandler app.EventHandler
+	formHandler  app.EventHandler
+	checkHandler app.EventHandler
 }
 
 func (f *form) Render() app.UI {
@@ -90,6 +91,7 @@ func (f *form) Render() app.UI {
 			app.Div().Class("mb-3").Body(
 				&textarea{},
 				&input{},
+				&checkBox{checkHandler: f.checkHandler},
 			),
 			app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler),
 		),
@@ -139,24 +141,11 @@ type checkBox struct {
 }
 
 func (c *checkBox) Render() app.UI {
-	//return app.Div().Body(app.P().Body(app.Text("Enable Comments"), app.Input().Type("checkbox")))
-	//<div class="input-group mb-3">
-	//
-	//  <div class="input-group-text">
-	//
-	//    <input type="checkbox" class="form-check-input mt-0" value="" aria-label="Checkbox for following input">
-	//
-	//  </div>
-	//
-	//  <input type="text" class="form-control" placeholder="Input with checkbox" aria-label="Input with checkbox">
-	//
-	//</div>
-	return app.Div().Class("input-group mb-3").Body(
-		app.Div().Class("input-group-text").Body(
-			app.Input().Type("checkbox").Class("form-check-input mt-0").Value("Enable Comments"),
-		),
-		app.Div().Class("form-control"),
-	)
+	// https://halfmoonui.pythonanywhere.com/docs/checkbox/ v1.1.1
+	return app.P().Body(app.Div().Class("custom-checkbox").Body(
+		app.Input().Type("checkbox").ID("enable-comments").OnClick(c.checkHandler),
+		app.Label().For("enable-comments").Body(app.Text("enable comments")),
+	))
 
 }
 
@@ -180,7 +169,7 @@ func (i *index) Render() app.UI {
 				return &crdView{content: i.content, comment: i.comments}
 			}
 
-			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick}, &checkBox{checkHandler: i.OnCheck})
+			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick, checkHandler: i.OnCheck})
 		}()))
 	}
 
