@@ -17,6 +17,7 @@ type crdView struct {
 	app.Compo
 
 	content []byte
+	comment bool
 }
 
 // Version wraps a top level version resource which contains the underlying openAPIV3Schema.
@@ -67,7 +68,7 @@ func (h *crdView) Render() app.UI {
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := pkg.ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false); err != nil {
+		if err := pkg.ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false, h.comment); err != nil {
 			return h.buildError(err)
 		}
 		versions = append(versions, Version{

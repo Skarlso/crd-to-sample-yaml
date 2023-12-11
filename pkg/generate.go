@@ -11,7 +11,7 @@ import (
 )
 
 // Generate takes a CRD content and path, and outputs
-func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser) (err error) {
+func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments bool) (err error) {
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
 			err = errors.Join(err, cerr)
@@ -19,7 +19,7 @@ func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser) (err erro
 	}()
 
 	for i, version := range crd.Spec.Versions {
-		if err := ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, w, 0, false); err != nil {
+		if err := ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, w, 0, false, enableComments); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 
@@ -47,7 +47,7 @@ func (w *writer) write(wc io.Writer, msg string) {
 // ParseProperties takes a writer and puts out any information / properties it encounters during the runs.
 // It will recursively parse every "properties:" and "additionalProperties:". Using the types, it will also output
 // some sample data based on those types.
-func ParseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file io.Writer, indent int, inArray bool) error {
+func ParseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file io.Writer, indent int, inArray, comments bool) error {
 	var sortedKeys []string
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
@@ -59,6 +59,15 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 			w.write(file, fmt.Sprintf("%s:", k))
 			inArray = false
 		} else {
+			if comments && properties[k].Description != "" {
+				comment := strings.Builder{}
+				multiLine := strings.Split(properties[k].Description, "\n")
+				for _, line := range multiLine {
+					comment.WriteString(fmt.Sprintf("%s# %s\n", strings.Repeat(" ", indent), line))
+				}
+
+				w.write(file, comment.String())
+			}
 			w.write(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", indent), k))
 		}
 		if len(properties[k].Properties) == 0 && properties[k].AdditionalProperties == nil {
@@ -75,7 +84,7 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 			var result string
 			if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
 				w.write(file, fmt.Sprintf("\n%s- ", strings.Repeat(" ", indent)))
-				if err := ParseProperties(group, version, kind, properties[k].Items.Schema.Properties, file, indent+2, true); err != nil {
+				if err := ParseProperties(group, version, kind, properties[k].Items.Schema.Properties, file, indent+2, true, comments); err != nil {
 					return err
 				}
 			} else {
@@ -85,7 +94,7 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 		} else if len(properties[k].Properties) > 0 {
 			w.write(file, "\n")
 			// recursively parse all sub-properties
-			if err := ParseProperties(group, version, kind, properties[k].Properties, file, indent+2, false); err != nil {
+			if err := ParseProperties(group, version, kind, properties[k].Properties, file, indent+2, false, comments); err != nil {
 				return err
 			}
 		} else if properties[k].AdditionalProperties != nil {
@@ -93,7 +102,7 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 				w.write(file, " {}\n")
 			} else {
 				w.write(file, "\n")
-				if err := ParseProperties(group, version, kind, properties[k].AdditionalProperties.Schema.Properties, file, indent+2, false); err != nil {
+				if err := ParseProperties(group, version, kind, properties[k].AdditionalProperties.Schema.Properties, file, indent+2, false, comments); err != nil {
 					return err
 				}
 			}

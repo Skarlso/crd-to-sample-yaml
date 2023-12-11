@@ -18,6 +18,7 @@ type index struct {
 	content   []byte
 	isMounted bool
 	err       error
+	comments  bool
 }
 
 func (i *index) buildError() app.UI {
@@ -80,7 +81,8 @@ func (i *input) Render() app.UI {
 type form struct {
 	app.Compo
 
-	formHandler app.EventHandler
+	formHandler  app.EventHandler
+	checkHandler app.EventHandler
 }
 
 func (f *form) Render() app.UI {
@@ -89,6 +91,7 @@ func (f *form) Render() app.UI {
 			app.Div().Class("mb-3").Body(
 				&textarea{},
 				&input{},
+				&checkBox{checkHandler: f.checkHandler},
 			),
 			app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler),
 		),
@@ -130,6 +133,26 @@ func (i *index) OnClick(ctx app.Context, e app.Event) {
 	i.content = content
 }
 
+// checkBox defines if comments should be generated for the sample YAML output.
+type checkBox struct {
+	app.Compo
+
+	checkHandler app.EventHandler
+}
+
+func (c *checkBox) Render() app.UI {
+	// https://halfmoonui.pythonanywhere.com/docs/checkbox/ v1.1.1
+	return app.P().Body(app.Div().Class("custom-checkbox").Body(
+		app.Input().Type("checkbox").ID("enable-comments").OnClick(c.checkHandler),
+		app.Label().For("enable-comments").Body(app.Text("enable comments")),
+	))
+
+}
+
+func (i *index) OnCheck(ctx app.Context, e app.Event) {
+	i.comments = !i.comments
+}
+
 func (i *index) OnMount(ctx app.Context) {
 	i.isMounted = true
 }
@@ -143,10 +166,10 @@ func (i *index) Render() app.UI {
 			}
 
 			if i.content != nil {
-				return &crdView{content: i.content}
+				return &crdView{content: i.content, comment: i.comments}
 			}
 
-			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick})
+			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick, checkHandler: i.OnCheck})
 		}()))
 	}
 
