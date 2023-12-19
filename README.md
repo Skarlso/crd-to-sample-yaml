@@ -1,5 +1,7 @@
 # crd-to-sample-yaml or cty ( city )
 
+![logo](./imgs/cty_logo.png)
+
 Generate a sample YAML file from a CRD definition.
 
 ## Getting started
