@@ -3,10 +3,8 @@ module github.com/Skarlso/crd-to-sample-yaml
 go 1.21
 
 require (
-	github.com/gorilla/mux v1.8.0
 	github.com/maxence-charriere/go-app/v9 v9.8.0
 	github.com/spf13/cobra v1.7.0
-	golang.org/x/sync v0.4.0
 	k8s.io/apiextensions-apiserver v0.28.3
 	k8s.io/apimachinery v0.28.3
 )

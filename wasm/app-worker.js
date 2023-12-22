@@ -1,8 +1,8 @@
-const cacheName = "app-" + "f96960f80589ec86daa211b3742f853e06756900";
+const cacheName = "app-" + "a150ac9dbfc138341f3cb7d8d22cc8a31d1058a5";
 const resourcesToCache = ["/","/app.css","/app.js","/manifest.webmanifest","/wasm_exec.js","/web/app.wasm","/web/css/alert.css","/web/css/halfmoon-variables.min.css","/web/css/main.css","/web/css/prism-okaidia.css","/web/css/prism.css","/web/css/root.css","/web/img/logo.png","/web/js/prism.js","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"];
 
 self.addEventListener("install", (event) => {
-  console.log("installing app worker f96960f80589ec86daa211b3742f853e06756900");
+  console.log("installing app worker a150ac9dbfc138341f3cb7d8d22cc8a31d1058a5");
 
   event.waitUntil(
     caches
@@ -28,7 +28,7 @@ self.addEventListener("activate", (event) => {
       );
     })
   );
-  console.log("app worker f96960f80589ec86daa211b3742f853e06756900 is activated");
+  console.log("app worker a150ac9dbfc138341f3cb7d8d22cc8a31d1058a5 is activated");
 });
 
 self.addEventListener("fetch", (event) => {
