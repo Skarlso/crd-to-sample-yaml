@@ -86,10 +86,21 @@ func (h *crdView) Render() app.UI {
 	container.Body(app.Range(versions).Slice(func(i int) app.UI {
 		div := app.Div().Class("versions")
 		version := versions[i]
-		yamlContent := app.Div().Class("row").Body(
-			app.Details().Class("collapse-panel").Body(
-				app.Div().Class("col").ID(fmt.Sprintf("yaml-%s", version.Version)).Body(
-					app.Pre().Class("language-yaml").Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
+		yamlContent := app.Div().Class("accordion").ID("yaml-accordion-" + version.Version).Body(
+			app.Div().Class("accordion-item").Body(
+				app.H2().Class("accordion-header").Body(
+					app.Button().Class("accordion-button").Type("button").DataSets(
+						map[string]any{
+							"bs-toggle": "collapse",
+							"bs-target": "#yaml-accordion-collapse-" + version.Version}).
+						Aria("expanded", "false").
+						Aria("controls", "yaml-accordion-collapse-"+version.Version).
+						Body(app.Text("Details")),
+				),
+				app.Div().Class("accordion-collapse collapse").ID("yaml-accordion-collapse-"+version.Version).DataSet("bs-parent", "#yaml-accordion-"+version.Version).Body(
+					app.Div().Class("accordion-body").Body(
+						app.Pre().Class("language-yaml").Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
+					),
 				),
 			),
 		)
@@ -105,7 +116,9 @@ func (h *crdView) Render() app.UI {
 			app.P().Body(app.Text("Generated YAML sample:")),
 			yamlContent,
 			app.H1().Text(version.Version),
-			render(app.Div().Class("row"), version.Properties),
+			app.Div().Class("accordion").ID("version-accordion-"+version.Version).Body(
+				render(app.Div().Class("accordion-item"), version.Properties, "version-accordion-"+version.Version),
+			),
 		)
 		return div
 	}))
@@ -113,15 +126,28 @@ func (h *crdView) Render() app.UI {
 	return wrapper.Body(container)
 }
 
-func render(d app.UI, p []*Property) app.UI {
+func render(d app.UI, p []*Property, accordionID string) app.UI {
 	var elements []app.UI
 	for _, prop := range p {
 		// add the parent first
-		details := app.Details().Class("row")
+		header := app.H2().Class("accordion-header").Body(
+			app.Button().Class("accordion-button").Type("button").DataSets(
+				map[string]any{
+					"bs-toggle": "collapse",
+					"bs-target": "#accordion-collapse-for-" + prop.Name + accordionID}).
+				Aria("expanded", "false").
+				Aria("controls", "accordion-collapse-for-"+prop.Name+accordionID).
+				Body(app.Text(prop.Name)),
+		)
+		elements = append(elements, header)
+		accordionDiv := app.Div().Class("accordion-collapse collapse").ID("accordion-collapse-for-"+prop.Name+accordionID).DataSet("bs-parent", "#"+accordionID)
+		accordionBody := app.Div().Class("accordion-body")
 
-		summary := app.Summary().Class("col")
+		// details := app.Details().Class("row")
+
+		summary := app.Div()
 		summaryElements := make([]app.UI, 0)
-		summaryElements = append(summaryElements, app.Text(prop.Name), app.Kbd().Class("text-muted").Text(prop.Type))
+		// summaryElements = append(summaryElements, app.Text(prop.Name), app.Kbd().Class("text-muted").Text(prop.Type))
 		if prop.Required {
 			summaryElements = append(summaryElements, app.Span().Class("badge badge-primary").Text("required"))
 		}
@@ -136,18 +162,18 @@ func render(d app.UI, p []*Property) app.UI {
 		}
 
 		summary.Body(summaryElements...)
-		description := app.Div().Class("col").Body(app.P().Body(app.Text(prop.Description)))
-		detailsElements := []app.UI{summary, description}
+		description := app.Div().Body(app.Text(prop.Description))
+		bodyElements := []app.UI{summary, description}
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
-			element := render(app.Div().ID(prop.Name).Class("container"), prop.Properties)
-			detailsElements = append(detailsElements, element)
+			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, "accordion-collapse-for-"+prop.Name+accordionID)
+			bodyElements = append(bodyElements, element)
 		}
 
-		details.Body(detailsElements...)
-
-		elements = append(elements, details)
+		accordionBody.Body(bodyElements...)
+		accordionDiv.Body(accordionBody)
+		elements = append(elements, accordionDiv)
 	}
 
 	// add all the elements and return the div

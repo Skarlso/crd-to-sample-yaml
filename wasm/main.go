@@ -50,11 +50,11 @@ func main() {
 		// Body:   func() app.HTMLBody { return app.Body().Class("dark-mode") },
 		Styles: []string{
 			"web/css/alert.css",
-			"web/css/halfmoon.min.css",
 			"web/css/main.css",
 			"web/css/prism.css",
 			"web/css/prism-okaidia.css",
 			"web/css/root.css",
+			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css",
 			"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
 		},
 		RawHeaders: []string{
