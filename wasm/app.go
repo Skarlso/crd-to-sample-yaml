@@ -86,9 +86,9 @@ func (h *crdView) Render() app.UI {
 	container.Body(app.Range(versions).Slice(func(i int) app.UI {
 		div := app.Div().Class("versions")
 		version := versions[i]
-		yamlContent := app.Div().Class("collapse-group").Body(
+		yamlContent := app.Div().Class("row").Body(
 			app.Details().Class("collapse-panel").Body(
-				app.Div().Class("collapse-content").ID(fmt.Sprintf("yaml-%s", version.Version)).Body(
+				app.Div().Class("col").ID(fmt.Sprintf("yaml-%s", version.Version)).Body(
 					app.Pre().Class("language-yaml").Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
 				),
 			),
@@ -105,7 +105,7 @@ func (h *crdView) Render() app.UI {
 			app.P().Body(app.Text("Generated YAML sample:")),
 			yamlContent,
 			app.H1().Text(version.Version),
-			render(app.Div().Class("collapse-group"), version.Properties),
+			render(app.Div().Class("row"), version.Properties),
 		)
 		return div
 	}))
@@ -117,9 +117,9 @@ func render(d app.UI, p []*Property) app.UI {
 	var elements []app.UI
 	for _, prop := range p {
 		// add the parent first
-		details := app.Details().Class("collapse-panel")
+		details := app.Details().Class("row")
 
-		summary := app.Summary().Class("collapse-header position-relative")
+		summary := app.Summary().Class("col")
 		summaryElements := make([]app.UI, 0)
 		summaryElements = append(summaryElements, app.Text(prop.Name), app.Kbd().Class("text-muted").Text(prop.Type))
 		if prop.Required {
@@ -136,12 +136,12 @@ func render(d app.UI, p []*Property) app.UI {
 		}
 
 		summary.Body(summaryElements...)
-		description := app.Div().Class("property-description").Body(app.P().Body(app.Text(prop.Description)))
+		description := app.Div().Class("col").Body(app.P().Body(app.Text(prop.Description)))
 		detailsElements := []app.UI{summary, description}
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
-			element := render(app.Div().ID(prop.Name).Class("collapse-content"), prop.Properties)
+			element := render(app.Div().ID(prop.Name).Class("container"), prop.Properties)
 			detailsElements = append(detailsElements, element)
 		}
 

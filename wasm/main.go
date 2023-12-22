@@ -46,10 +46,11 @@ func main() {
 		Name:   "Preview CRDs",
 		Title:  "Preview CRDs",
 		Author: "Gergely Brautigam",
-		Body:   func() app.HTMLBody { return app.Body().Class("dark-mode") },
+		HTML:   func() app.HTMLHtml { return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark") },
+		// Body:   func() app.HTMLBody { return app.Body().Class("dark-mode") },
 		Styles: []string{
 			"web/css/alert.css",
-			"web/css/halfmoon-variables.min.css",
+			"web/css/halfmoon.min.css",
 			"web/css/main.css",
 			"web/css/prism.css",
 			"web/css/prism-okaidia.css",
@@ -57,7 +58,10 @@ func main() {
 			"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
 		},
 		RawHeaders: []string{
-			`<style>
+			`
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<style>
     header{
         margin: 0px;
         padding: 20px 20px 0px  ;
@@ -86,6 +90,7 @@ func main() {
 		},
 		Scripts: []string{
 			"web/js/prism.js",
+			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js",
 		},
 		Icon: app.Icon{
 			Default: "/web/img/logo.png",
