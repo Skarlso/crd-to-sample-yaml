@@ -86,10 +86,21 @@ func (h *crdView) Render() app.UI {
 	container.Body(app.Range(versions).Slice(func(i int) app.UI {
 		div := app.Div().Class("versions")
 		version := versions[i]
-		yamlContent := app.Div().Class("collapse-group").Body(
-			app.Details().Class("collapse-panel").Body(
-				app.Div().Class("collapse-content").ID(fmt.Sprintf("yaml-%s", version.Version)).Body(
-					app.Pre().Class("language-yaml").Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
+		yamlContent := app.Div().Class("accordion").ID("yaml-accordion-" + version.Version).Body(
+			app.Div().Class("accordion-item").Body(
+				app.H2().Class("accordion-header").Body(
+					app.Button().Class("accordion-button").Type("button").DataSets(
+						map[string]any{
+							"bs-toggle": "collapse",
+							"bs-target": "#yaml-accordion-collapse-" + version.Version}).
+						Aria("expanded", "false").
+						Aria("controls", "yaml-accordion-collapse-"+version.Version).
+						Body(app.Text("Details")),
+				),
+				app.Div().Class("accordion-collapse collapse").ID("yaml-accordion-collapse-"+version.Version).DataSet("bs-parent", "#yaml-accordion-"+version.Version).Body(
+					app.Div().Class("accordion-body").Body(
+						app.Pre().Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
+					),
 				),
 			),
 		)
@@ -105,7 +116,9 @@ func (h *crdView) Render() app.UI {
 			app.P().Body(app.Text("Generated YAML sample:")),
 			yamlContent,
 			app.H1().Text(version.Version),
-			render(app.Div().Class("collapse-group"), version.Properties),
+			app.Div().Class("accordion").ID("version-accordion-"+version.Version).Body(
+				render(app.Div().Class("accordion-item"), version.Properties, "version-accordion-"+version.Version, 0),
+			),
 		)
 		return div
 	}))
@@ -113,52 +126,80 @@ func (h *crdView) Render() app.UI {
 	return wrapper.Body(container)
 }
 
-func render(d app.UI, p []*Property) app.UI {
+var borderOpacity = map[int]string{
+	0: "border border-secondary-subtle",
+	1: "border border-secondary-subtle border-opacity-75",
+	2: "border border-secondary-subtle border-opacity-50",
+	3: "border border-secondary-subtle border-opacity-25",
+	4: "border border-secondary-subtle border-opacity-10",
+}
+
+func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
+	borderOpacity, ok := borderOpacity[depth]
+	if !ok {
+		borderOpacity = ""
+	}
+
 	var elements []app.UI
 	for _, prop := range p {
 		// add the parent first
-		details := app.Details().Class("collapse-panel")
+		headerElements := []app.UI{
+			app.Div().Class("col").Body(app.Text(prop.Name)),
+			app.Div().Class("text-muted col").Text(prop.Type),
+		}
 
-		summary := app.Summary().Class("collapse-header position-relative")
-		summaryElements := make([]app.UI, 0)
-		summaryElements = append(summaryElements, app.Text(prop.Name), app.Kbd().Class("text-muted").Text(prop.Type))
 		if prop.Required {
-			summaryElements = append(summaryElements, app.Span().Class("badge badge-primary").Text("required"))
+			headerElements = append(headerElements, app.Div().Class("text-bg-primary").Class("col").Text("required"))
 		}
 		if prop.Format != "" {
-			summaryElements = append(summaryElements, app.Kbd().Class("text-muted").Text(prop.Format))
+			headerElements = append(headerElements, app.Div().Class("col").Text(prop.Format))
 		}
 		if prop.Default != "" {
-			summaryElements = append(summaryElements, app.Kbd().Class("text-primary").Text(prop.Default))
+			headerElements = append(headerElements, app.Div().Class("col").Text(prop.Default))
 		}
 		if prop.Patterns != "" {
-			summaryElements = append(summaryElements, app.Kbd().Class("text-muted").Text(prop.Patterns))
+			headerElements = append(headerElements, app.Div().Class("col").Class("fst-italic").Text(prop.Patterns))
 		}
 
-		summary.Body(summaryElements...)
-		description := app.Div().Class("property-description").Body(app.P().Body(app.Text(prop.Description)))
-		detailsElements := []app.UI{summary, description}
+		header := app.H2().Class("accordion-header").Class(borderOpacity).Body(
+			app.Button().ID("accordion-button-id-"+prop.Name+accordionID).Class("accordion-button").Type("button").DataSets(
+				map[string]any{
+					"bs-toggle": "collapse",
+					"bs-target": "#accordion-collapse-for-" + prop.Name + accordionID}).
+				Aria("expanded", "false").
+				Aria("controls", "accordion-collapse-for-"+prop.Name+accordionID).
+				Body(
+					app.Div().Class("container").Body(
+						// Both row's are important here to produce the desired outcome.
+						app.Div().Class("row").Body(
+							app.P().Class("fw-bold").Class("row").Body(
+								headerElements...,
+							),
+							app.Div().Class("row").Class("text-break").Body(app.Text(prop.Description)),
+						),
+					),
+				))
+
+		elements = append(elements, header)
+		accordionDiv := app.Div().Class("accordion-collapse collapse").ID("accordion-collapse-for-"+prop.Name+accordionID).DataSet("bs-parent", "#"+accordionID)
+		accordionBody := app.Div().Class("accordion-body")
+
+		bodyElements := []app.UI{}
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
-			element := render(app.Div().ID(prop.Name).Class("collapse-content"), prop.Properties)
-			detailsElements = append(detailsElements, element)
+			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, "accordion-collapse-for-"+prop.Name+accordionID, depth+1)
+			bodyElements = append(bodyElements, element)
 		}
 
-		details.Body(detailsElements...)
-
-		elements = append(elements, details)
+		accordionBody.Body(bodyElements...)
+		accordionDiv.Body(accordionBody)
+		elements = append(elements, accordionDiv)
 	}
 
 	// add all the elements and return the div
 	switch t := d.(type) {
 	case app.HTMLDiv:
-		t.Body(elements...)
-		d = t
-	case app.HTMLDetails:
-		t.Body(elements...)
-		d = t
-	case app.HTMLSummary:
 		t.Body(elements...)
 		d = t
 	}
