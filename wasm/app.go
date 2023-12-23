@@ -117,7 +117,7 @@ func (h *crdView) Render() app.UI {
 			yamlContent,
 			app.H1().Text(version.Version),
 			app.Div().Class("accordion").ID("version-accordion-"+version.Version).Body(
-				render(app.Div().Class("accordion-item"), version.Properties, "version-accordion-"+version.Version),
+				render(app.Div().Class("accordion-item"), version.Properties, "version-accordion-"+version.Version, 0),
 			),
 		)
 		return div
@@ -126,48 +126,65 @@ func (h *crdView) Render() app.UI {
 	return wrapper.Body(container)
 }
 
-func render(d app.UI, p []*Property, accordionID string) app.UI {
+var borderOpacity = map[int]string{
+	0: "border border-secondary-subtle",
+	1: "border border-secondary-subtle border-opacity-75",
+	2: "border border-secondary-subtle border-opacity-50",
+	3: "border border-secondary-subtle border-opacity-25",
+	4: "border border-secondary-subtle border-opacity-10",
+}
+
+func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
+	borderOpacity, ok := borderOpacity[depth]
+	if !ok {
+		borderOpacity = ""
+	}
 	var elements []app.UI
 	for _, prop := range p {
 		// add the parent first
-		header := app.H2().Class("accordion-header").Body(
-			app.Button().Class("accordion-button").Type("button").DataSets(
+		header := app.H2().Class("accordion-header").Class(borderOpacity).Body(
+			app.Button().ID("accordion-button-id-"+prop.Name+accordionID).Class("accordion-button").Type("button").DataSets(
 				map[string]any{
 					"bs-toggle": "collapse",
 					"bs-target": "#accordion-collapse-for-" + prop.Name + accordionID}).
 				Aria("expanded", "false").
 				Aria("controls", "accordion-collapse-for-"+prop.Name+accordionID).
-				Body(app.Text(prop.Name)),
+				Body(
+					app.Div().Class("container").Body(
+						app.Div().Class("row").Body(app.P().Class("fw-bold").Body(app.Text(prop.Name))),
+						app.Div().Class("row").Class("text-break").Body(app.Text(prop.Description)),
+					),
+				),
 		)
 		elements = append(elements, header)
 		accordionDiv := app.Div().Class("accordion-collapse collapse").ID("accordion-collapse-for-"+prop.Name+accordionID).DataSet("bs-parent", "#"+accordionID)
 		accordionBody := app.Div().Class("accordion-body")
 
-		// details := app.Details().Class("row")
+		details := app.Div().Class("container")
 
-		summary := app.Div()
+		summary := app.Div().Class("row")
 		summaryElements := make([]app.UI, 0)
-		// summaryElements = append(summaryElements, app.Text(prop.Name), app.Kbd().Class("text-muted").Text(prop.Type))
+		summaryElements = append(summaryElements, app.Div().Class("text-muted").Text(prop.Type))
 		if prop.Required {
-			summaryElements = append(summaryElements, app.Span().Class("badge badge-primary").Text("required"))
+			summaryElements = append(summaryElements, app.Div().Class("text-bg-primary").Class("col").Text("required"))
 		}
 		if prop.Format != "" {
-			summaryElements = append(summaryElements, app.Kbd().Class("text-muted").Text(prop.Format))
+			summaryElements = append(summaryElements, app.Div().Class("col").Text(prop.Format))
 		}
 		if prop.Default != "" {
-			summaryElements = append(summaryElements, app.Kbd().Class("text-primary").Text(prop.Default))
+			summaryElements = append(summaryElements, app.Div().Class("col").Text(prop.Default))
 		}
 		if prop.Patterns != "" {
-			summaryElements = append(summaryElements, app.Kbd().Class("text-muted").Text(prop.Patterns))
+			summaryElements = append(summaryElements, app.Div().Class("col").Text(prop.Patterns))
 		}
 
 		summary.Body(summaryElements...)
-		description := app.Div().Body(app.Text(prop.Description))
-		bodyElements := []app.UI{summary, description}
+		details.Body(summary)
+		bodyElements := []app.UI{details}
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
-			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, "accordion-collapse-for-"+prop.Name+accordionID)
+			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, "accordion-collapse-for-"+prop.Name+accordionID, depth+1)
 			bodyElements = append(bodyElements, element)
 		}
 
