@@ -55,13 +55,15 @@ type textarea struct {
 }
 
 func (t *textarea) Render() app.UI {
-	return app.Textarea().
-		Class("form-control").
-		Placeholder("Paste CRD here...").
-		Style("height", "200px").
-		ID("crd_data").
-		Name("crd_data").
-		AutoFocus(true)
+	return app.Div().Class("input-group mb-3").Body(
+		app.Span().Class("input-group-text").Body(app.Text("CRD")),
+		app.Textarea().
+			Class("form-control").
+			ID("crd_data").
+			Name("crd_data").
+			Placeholder("Place CRD here...").
+			AutoFocus(true),
+	)
 }
 
 // input is the input button.
@@ -70,11 +72,13 @@ type input struct {
 }
 
 func (i *input) Render() app.UI {
-	return app.Input().
-		Class("url_to_crd").
-		ID("url_to_crd").
-		Name("url_to_crd").
-		Placeholder("Paste URL to CRD here...")
+	return app.Div().Class("input-group mb-3").Body(
+		app.Span().Class("input-group-text").Body(app.Text("URL")),
+		app.Input().
+			Class("url_to_crd").Class("form-control").Placeholder("Paste URL to CRD here...").
+			ID("url_to_crd").
+			Name("url_to_crd"),
+	)
 }
 
 // form is the form in which the user will submit their input.
@@ -86,15 +90,13 @@ type form struct {
 }
 
 func (f *form) Render() app.UI {
-	return app.Div().Class("mt-md-20").Body(
-		app.Div().Body(
-			app.Div().Class("mb-3").Body(
-				&textarea{},
-				&input{},
-				&checkBox{checkHandler: f.checkHandler},
-			),
-			app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler),
+	return app.Div().Body(
+		app.Div().Class("row mb-3").Body(
+			&textarea{},
+			&input{},
+			&checkBox{checkHandler: f.checkHandler},
 		),
+		app.Div().Class("text-end").Body(app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler)),
 	)
 }
 
@@ -141,12 +143,10 @@ type checkBox struct {
 }
 
 func (c *checkBox) Render() app.UI {
-	// https://halfmoonui.pythonanywhere.com/docs/checkbox/ v1.1.1
-	return app.P().Body(app.Div().Class("custom-checkbox").Body(
-		app.Input().Type("checkbox").ID("enable-comments").OnClick(c.checkHandler),
-		app.Label().For("enable-comments").Body(app.Text("enable comments")),
-	))
-
+	return app.Div().Class("form-check").Body(
+		app.Label().Class("form-check-label").For("enable-comments").Body(app.Text("Enable comments on YAML output")),
+		app.Input().Class("form-check-input").Type("checkbox").ID("enable-comments").OnClick(c.checkHandler),
+	)
 }
 
 func (i *index) OnCheck(ctx app.Context, e app.Event) {

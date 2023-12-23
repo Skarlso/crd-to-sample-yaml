@@ -50,15 +50,13 @@ func main() {
 		// Body:   func() app.HTMLBody { return app.Body().Class("dark-mode") },
 		Styles: []string{
 			"web/css/alert.css",
-			"web/css/main.css",
-			"web/css/prism.css",
-			"web/css/prism-okaidia.css",
-			"web/css/root.css",
+			"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css",
 			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css",
 			"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
 		},
 		RawHeaders: []string{
 			`
+			<script>hljs.highlightAll();</script>
 			<meta charset="utf-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1">
 			<style>
@@ -89,7 +87,8 @@ func main() {
 </style>`,
 		},
 		Scripts: []string{
-			"web/js/prism.js",
+			"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js",
+			"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js",
 			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js",
 		},
 		Icon: app.Icon{

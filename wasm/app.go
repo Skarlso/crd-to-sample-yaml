@@ -99,7 +99,7 @@ func (h *crdView) Render() app.UI {
 				),
 				app.Div().Class("accordion-collapse collapse").ID("yaml-accordion-collapse-"+version.Version).DataSet("bs-parent", "#yaml-accordion-"+version.Version).Body(
 					app.Div().Class("accordion-body").Body(
-						app.Pre().Class("language-yaml").Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
+						app.Pre().Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
 					),
 				),
 			),
@@ -139,9 +139,28 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 	if !ok {
 		borderOpacity = ""
 	}
+
 	var elements []app.UI
 	for _, prop := range p {
 		// add the parent first
+		headerElements := []app.UI{
+			app.Div().Class("col").Body(app.Text(prop.Name)),
+			app.Div().Class("text-muted col").Text(prop.Type),
+		}
+
+		if prop.Required {
+			headerElements = append(headerElements, app.Div().Class("text-bg-primary").Class("col").Text("required"))
+		}
+		if prop.Format != "" {
+			headerElements = append(headerElements, app.Div().Class("col").Text(prop.Format))
+		}
+		if prop.Default != "" {
+			headerElements = append(headerElements, app.Div().Class("col").Text(prop.Default))
+		}
+		if prop.Patterns != "" {
+			headerElements = append(headerElements, app.Div().Class("col").Class("fst-italic").Text(prop.Patterns))
+		}
+
 		header := app.H2().Class("accordion-header").Class(borderOpacity).Body(
 			app.Button().ID("accordion-button-id-"+prop.Name+accordionID).Class("accordion-button").Type("button").DataSets(
 				map[string]any{
@@ -151,36 +170,21 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 				Aria("controls", "accordion-collapse-for-"+prop.Name+accordionID).
 				Body(
 					app.Div().Class("container").Body(
-						app.Div().Class("row").Body(app.P().Class("fw-bold").Body(app.Text(prop.Name))),
-						app.Div().Class("row").Class("text-break").Body(app.Text(prop.Description)),
+						// Both row's are important here to produce the desired outcome.
+						app.Div().Class("row").Body(
+							app.P().Class("fw-bold").Class("row").Body(
+								headerElements...,
+							),
+							app.Div().Class("row").Class("text-break").Body(app.Text(prop.Description)),
+						),
 					),
-				),
-		)
+				))
+
 		elements = append(elements, header)
 		accordionDiv := app.Div().Class("accordion-collapse collapse").ID("accordion-collapse-for-"+prop.Name+accordionID).DataSet("bs-parent", "#"+accordionID)
 		accordionBody := app.Div().Class("accordion-body")
 
-		details := app.Div().Class("container")
-
-		summary := app.Div().Class("row")
-		summaryElements := make([]app.UI, 0)
-		summaryElements = append(summaryElements, app.Div().Class("text-muted").Text(prop.Type))
-		if prop.Required {
-			summaryElements = append(summaryElements, app.Div().Class("text-bg-primary").Class("col").Text("required"))
-		}
-		if prop.Format != "" {
-			summaryElements = append(summaryElements, app.Div().Class("col").Text(prop.Format))
-		}
-		if prop.Default != "" {
-			summaryElements = append(summaryElements, app.Div().Class("col").Text(prop.Default))
-		}
-		if prop.Patterns != "" {
-			summaryElements = append(summaryElements, app.Div().Class("col").Text(prop.Patterns))
-		}
-
-		summary.Body(summaryElements...)
-		details.Body(summary)
-		bodyElements := []app.UI{details}
+		bodyElements := []app.UI{}
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
@@ -196,12 +200,6 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 	// add all the elements and return the div
 	switch t := d.(type) {
 	case app.HTMLDiv:
-		t.Body(elements...)
-		d = t
-	case app.HTMLDetails:
-		t.Body(elements...)
-		d = t
-	case app.HTMLSummary:
 		t.Body(elements...)
 		d = t
 	}

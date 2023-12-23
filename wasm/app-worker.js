@@ -1,8 +1,8 @@
-const cacheName = "app-" + "a150ac9dbfc138341f3cb7d8d22cc8a31d1058a5";
-const resourcesToCache = ["/","/app.css","/app.js","/manifest.webmanifest","/wasm_exec.js","/web/app.wasm","/web/css/alert.css","/web/css/halfmoon-variables.min.css","/web/css/main.css","/web/css/prism-okaidia.css","/web/css/prism.css","/web/css/root.css","/web/img/logo.png","/web/js/prism.js","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"];
+const cacheName = "app-" + "4b705cbe38f400c5db0320ed10fc29357d6d1889";
+const resourcesToCache = ["/","/app.css","/app.js","/manifest.webmanifest","/wasm_exec.js","/web/app.wasm","/web/css/alert.css","/web/img/logo.png","https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css","https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js","https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js","https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"];
 
 self.addEventListener("install", (event) => {
-  console.log("installing app worker a150ac9dbfc138341f3cb7d8d22cc8a31d1058a5");
+  console.log("installing app worker 4b705cbe38f400c5db0320ed10fc29357d6d1889");
 
   event.waitUntil(
     caches
@@ -28,7 +28,7 @@ self.addEventListener("activate", (event) => {
       );
     })
   );
-  console.log("app worker a150ac9dbfc138341f3cb7d8d22cc8a31d1058a5 is activated");
+  console.log("app worker 4b705cbe38f400c5db0320ed10fc29357d6d1889 is activated");
 });
 
 self.addEventListener("fetch", (event) => {
