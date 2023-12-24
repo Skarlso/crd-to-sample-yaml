@@ -86,6 +86,9 @@ cty generate -c sample-crd/infrastructure.cluster.x-k8s.io_awsclusters.yaml --co
 
 The frontend also has a checkbox to add comments to the generated yaml output.
 
+TODO: add showcase for new frontend. 
+
+
 ## Showcase
 
 ![frontpage](./imgs/frontend.png)
