@@ -47,7 +47,6 @@ func main() {
 		Title:  "Preview CRDs",
 		Author: "Gergely Brautigam",
 		HTML:   func() app.HTMLHtml { return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark") },
-		// Body:   func() app.HTMLBody { return app.Body().Class("dark-mode") },
 		Styles: []string{
 			"web/css/alert.css",
 			"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css",
