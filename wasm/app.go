@@ -161,30 +161,43 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 			headerElements = append(headerElements, app.Div().Class("col").Class("fst-italic").Text(prop.Patterns))
 		}
 
-		header := app.H2().Class("accordion-header").Class(borderOpacity).Body(
-			app.Button().ID("accordion-button-id-"+prop.Name+accordionID).Class("accordion-button").Type("button").DataSets(
-				map[string]any{
-					"bs-toggle": "collapse",
-					"bs-target": "#accordion-collapse-for-" + prop.Name + accordionID}).
-				Aria("expanded", "false").
-				Aria("controls", "accordion-collapse-for-"+prop.Name+accordionID).
-				Body(
-					app.Div().Class("container").Body(
-						// Both row's are important here to produce the desired outcome.
-						app.Div().Class("row").Body(
-							app.P().Class("fw-bold").Class("row").Body(
-								headerElements...,
-							),
-							app.Div().Class("row").Class("text-break").Body(app.Text(prop.Description)),
-						),
-					),
-				))
+		headerContainer := app.Div().Class("container").Body(
+			// Both rows are important here to produce the desired outcome.
+			app.Div().Class("row").Body(
+				app.P().Class("fw-bold").Class("row").Body(
+					headerElements...,
+				),
+				app.Div().Class("row").Class("text-break").Body(app.Text(prop.Description)),
+			),
+		)
+
+		button := app.Button().ID("accordion-button-id-"+prop.Name+accordionID).Class("accordion-button").Type("button").DataSets(
+			map[string]any{
+				"bs-toggle": "collapse",
+				"bs-target": "#accordion-collapse-for-" + prop.Name + accordionID}).
+			Aria("expanded", "false").
+			Aria("controls", "accordion-collapse-for-"+prop.Name+accordionID).
+			Body(
+				headerContainer,
+			)
+
+		if len(prop.Properties) != 0 {
+			button.Class("bg-success-subtle")
+		}
+
+		header := app.H2().Class("accordion-header").Class(borderOpacity).Body(button)
 
 		elements = append(elements, header)
+
+		// The next section can be skipped if there are no child properties.
+		if len(prop.Properties) == 0 {
+			continue
+		}
+
 		accordionDiv := app.Div().Class("accordion-collapse collapse").ID("accordion-collapse-for-"+prop.Name+accordionID).DataSet("bs-parent", "#"+accordionID)
 		accordionBody := app.Div().Class("accordion-body")
 
-		bodyElements := []app.UI{}
+		var bodyElements []app.UI
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
