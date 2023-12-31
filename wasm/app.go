@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
+	"strconv"
 
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
@@ -89,17 +90,30 @@ func (h *crdView) Render() app.UI {
 		yamlContent := app.Div().Class("accordion").ID("yaml-accordion-" + version.Version).Body(
 			app.Div().Class("accordion-item").Body(
 				app.H2().Class("accordion-header").Body(
-					app.Button().Class("accordion-button").Type("button").DataSets(
-						map[string]any{
-							"bs-toggle": "collapse",
-							"bs-target": "#yaml-accordion-collapse-" + version.Version}).
-						Aria("expanded", "false").
-						Aria("controls", "yaml-accordion-collapse-"+version.Version).
-						Body(app.Text("Details")),
+					app.Div().Class("container").Body(app.Div().Class("row").Body(
+						app.Div().Class("col").Body(
+							app.Button().Class("accordion-button").Type("button").DataSets(
+								map[string]any{
+									"bs-toggle": "collapse",
+									"bs-target": "#yaml-accordion-collapse-" + version.Version}).
+								Aria("expanded", "false").
+								Aria("controls", "yaml-accordion-collapse-"+version.Version).
+								Body(app.Text("Details")),
+						),
+						app.Div().Class("col").Body(
+							app.Button().Class("clippy-"+strconv.Itoa(i)).DataSet("clipboard-target", "#yaml-sample-"+version.Version).Body(
+								app.Script().Text(fmt.Sprintf("new ClipboardJS('.clippy-%d');", i)),
+								app.I().Class("fa fa-clipboard"),
+							),
+						),
+					)),
 				),
 				app.Div().Class("accordion-collapse collapse").ID("yaml-accordion-collapse-"+version.Version).DataSet("bs-parent", "#yaml-accordion-"+version.Version).Body(
 					app.Div().Class("accordion-body").Body(
-						app.Pre().Body(app.Code().Class("language-yaml").Body(app.Text(version.YAML))),
+						app.Pre().Body(
+							app.Code().Class("language-yaml").ID("yaml-sample-"+version.Version).Body(
+								app.Text(version.YAML),
+							)),
 					),
 				),
 			),
@@ -123,7 +137,11 @@ func (h *crdView) Render() app.UI {
 		return div
 	}))
 
-	return wrapper.Body(container)
+	return wrapper.Body(
+		app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
+		app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
+		container,
+	)
 }
 
 var borderOpacity = map[int]string{

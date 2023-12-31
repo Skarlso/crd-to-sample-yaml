@@ -49,46 +49,44 @@ func main() {
 		HTML:   func() app.HTMLHtml { return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark") },
 		Styles: []string{
 			"web/css/alert.css",
-			"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css",
+			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css",
 			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css",
 			"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
 		},
 		RawHeaders: []string{
 			`
-			<script>hljs.highlightAll();</script>
 			<meta charset="utf-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1">
 			<style>
-    header{
-        margin: 0px;
-        padding: 20px 20px 0px  ;
-        border-bottom: 1px solid black;
-    }
-    nav{
-        display: flex;
-    }
-    .title{
-        position: relative;
-        top: -5px;
-        margin-right: auto;
-        font-size: 25px;
-    }
-    .title:hover{
-        color: rgb(0, 0, 164);
-        cursor: pointer;
-    }
-    li{
-        width: 50px;
-        margin-left: 20px;
-        display: inline-block;
-        list-style: none;
-    }
-</style>`,
+				header{
+					margin: 0px;
+					padding: 20px 20px 0px  ;
+					border-bottom: 1px solid black;
+				}
+				nav{
+					display: flex;
+				}
+				.title{
+					position: relative;
+					top: -5px;
+					margin-right: auto;
+					font-size: 25px;
+				}
+				.title:hover{
+					color: rgb(0, 0, 164);
+					cursor: pointer;
+				}
+				li{
+					width: 50px;
+					margin-left: 20px;
+					display: inline-block;
+					list-style: none;
+				}
+			</style>`,
 		},
 		Scripts: []string{
-			"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js",
 			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js",
+			"https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js",
 		},
 		Icon: app.Icon{
 			Default: "/web/img/logo.png",
