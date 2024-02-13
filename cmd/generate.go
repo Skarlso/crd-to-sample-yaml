@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -65,7 +66,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(content, crd); err != nil {
-		return fmt.Errorf("failed to unmarshal into custom resource definition")
+		return errors.New("failed to unmarshal into custom resource definition")
 	}
 	if stdOut {
 		w = os.Stdout
@@ -73,7 +74,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 		if output == "" {
 			output = filepath.Dir(fileLocation)
 		}
-		outputLocation := filepath.Join(output, fmt.Sprintf("%s_sample.yaml", crd.Name))
+		outputLocation := filepath.Join(output, crd.Name+"_sample.yaml")
 		outputFile, err := os.Create(outputLocation)
 		if err != nil {
 			return fmt.Errorf("failed to create file at: '%s': %w", outputLocation, err)

@@ -57,7 +57,7 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 	w := &writer{}
 	for _, k := range sortedKeys {
 		if inArray {
-			w.write(file, fmt.Sprintf("%s:", k))
+			w.write(file, k+":")
 			inArray = false
 		} else {
 			if comments && properties[k].Description != "" {

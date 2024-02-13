@@ -126,7 +126,7 @@ func (h *crdView) Render() app.UI {
 					version.Group,
 					version.Version,
 				))),
-				app.P().Body(app.Text(fmt.Sprintf("Kind: %s", version.Kind)))),
+				app.P().Body(app.Text("Kind: "+version.Kind))),
 			app.P().Body(app.Text(version.Description)),
 			app.P().Body(app.Text("Generated YAML sample:")),
 			yamlContent,
