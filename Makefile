@@ -11,6 +11,13 @@ VERSION ?= 0.0.1
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
+# Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
+ifeq (,$(shell go env GOBIN))
+GOBIN=$(shell go env GOPATH)/bin
+else
+GOBIN=$(shell go env GOBIN)
+endif
+
 # List the GOOS and GOARCH to build
 GO_LDFLAGS_STATIC="-s -w $(CTIMEVAR) -extldflags -static"
 
