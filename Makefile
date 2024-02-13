@@ -11,6 +11,11 @@ VERSION ?= 0.0.1
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
+## Location to install dependencies to
+LOCALBIN ?= $(shell pwd)/bin
+$(LOCALBIN):
+	mkdir -p $(LOCALBIN)
+
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -42,16 +47,11 @@ bootstrap: ## Installs necessary third party components
 
 ##@ Testing
 
-test: lint ## Lints the project then runs all tests
+test: ## Runs all tests
 	go test -count=1 ./...
 
 clean: ## Runs go clean
 	go clean -i
-
-## Location to install dependencies to
-LOCALBIN ?= $(shell pwd)/bin
-$(LOCALBIN):
-	mkdir -p $(LOCALBIN)
 
 GOLANGCI_LINT ?= $(LOCALBIN)/golangci-lint
 GOLANGCI_LINT_VERSION ?= v1.56.1
