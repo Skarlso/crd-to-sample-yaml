@@ -3,54 +3,32 @@ on:
   push:
     tags:
       - 'v*'
-
-permissions:
-  contents: read
-env:
-  REGISTRY: ghcr.io
-  DOCKERFILE: ${{ github.workspace }}/goreleaser.dockerfile
-
 jobs:
-  release:
-    permissions:
-      contents: 'write'
-      id-token: 'write'
-      pull-requests: 'read'
-      repository-projects: 'write'
-      packages: 'write'
+  build-push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - name: Prepare
         id: prep
         run: |
-          VERSION=sha-${GITHUB_SHA::8}
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF/refs\/tags\//}
-          fi
-          echo ::set-output name=BUILD_DATE::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          echo ::set-output name=VERSION::${VERSION}
-      - name: Generate manifests
-        run: |
-          mkdir -p output
-          kustomize build ./config/default > ./output/install.yaml
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set up Go
+        uses: actions/setup-go@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install Helm
-        uses: azure/setup-helm@v3
+          go-version-file: '${{ github.workspace }}/go.mod'
+      - name: Cache go-build and mod
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build/
+            ~/go/pkg/mod/
+          key: go-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            go-
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v3.2.0
         with:
           version: latest
-          args: release --release-notes=docs/release_notes/${{ steps.prep.outputs.VERSION }}.md --skip-validate
+          args: release --release-notes=docs/release_notes/${{ env.RELEASE_VERSION }}.md --skip-validate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and release the helm charts
-        run: |
-          helm registry login ghcr.io -u skarlso -p ${{ secrets.GITHUB_TOKEN }}
-          helm package --version ${{ steps.prep.outputs.VERSION }} --app-version ${{ steps.prep.outputs.VERSION }} ./crd-bootstrap
-          helm push ${{ github.event.repository.name }}-${{ steps.prep.outputs.VERSION }}.tgz oci://ghcr.io/skarlso/helm
