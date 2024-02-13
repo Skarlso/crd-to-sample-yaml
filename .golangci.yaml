@@ -1,0 +1,154 @@
+run:
+  go: "1.21"
+  timeout: 10m
+  tests: false
+  allow-parallel-runners: true
+  issues-exit-code: 2
+  skip-dirs:
+    - "hack"
+
+linters:
+  enable-all: true
+  disable:
+    # We are working on it
+    - wrapcheck
+    - depguard
+    # Logical next step
+    - forcetypeassert  # Priority: that can lead to serious crashes.
+    - exportloopref
+    - goerr113         # Do not define dynamic errors with Errorf.
+    - varnamelen       # m, d, p < These are not so meaningful variables.
+    - testpackage      # Blackbox testing is preffered.
+    - funlen           # Break long functions.
+    - gomnd            # Give constant values a name with constants.
+    - ireturn          # Accept interface, return concrate.
+    - nestif           # Some nexted if statements are 8 or 9 deep.
+    - dupl             # Check code duplications.
+    - cyclop           # Complex functions are not good.
+    - gochecknoinits   # Init functions cause an import to have side effects,
+                       #   and side effects are hard to test,
+                       #   reduce readability and increase the complexity of code.
+    - containedctx     # Struct should not contain context, action does.
+    - nilnil           # A function should return either something valuable
+                       #   or an error, but both value and error as nil is
+                       #   useless. Like when I call it, why is it nil? Tell me
+                       #   in an error why.
+    - bodyclose
+    - unparam
+    - nonamedreturns   # Either named return, or use simply `return`.
+
+    # Opinionated (we may want to keep it disabled)
+    - gochecknoglobals
+    - lll
+    - paralleltest
+    - tagliatelle
+    - wsl
+    - interfacebloat
+
+
+    # Disabled with reason
+    - dogsled
+    - exhaustruct      # Doesn't really make sense.
+    - exhaustive       # Doesn't really make sense.
+    - logrlint         # Doesn't really make sense.
+    - goimports        # acts weirdly, dci handles imports anyway
+
+    # Disabled because of generics in go 1.18
+    - contextcheck
+    - rowserrcheck
+    - sqlclosecheck
+    - wastedassign
+
+    # Deprecated
+    - deadcode
+    - exhaustivestruct
+    - golint
+    - ifshort
+    - interfacer
+    - maligned
+    - scopelint
+    - structcheck
+    - varcheck
+    - gci
+    - nosnakecase
+
+linters-settings:
+  gci:
+    sections:
+      - standard
+      - blank
+      - dot
+      - default
+      - prefix(github.com/open-component-model/ocm)
+    custom-order: true
+  staticcheck:
+    go: "1.21"
+  stylecheck:
+    go: "1.21"
+  funlen:
+    lines: 110
+    statements: 60
+  cyclop:
+    max-complexity: 45
+    skip-tests: true
+  gocognit:
+    # Minimal code complexity to report.
+    # Default: 30 (but we recommend 10-20)
+    min-complexity: 45
+  nolintlint:
+    allow-unused: false
+    require-explanation: true
+    require-specific: false
+  varnamelen:
+    ignore-names:
+    - err
+    - wg
+    - id
+  govet:
+    check-shadowing: true
+  lll:
+    line-length: 120
+  gosec:
+    exclude-generated: true
+
+issues:
+  exclude:
+    - composites
+  exclude-rules:
+    - path: cmds/
+      linters:
+      - forbidigo
+    - text: "should not use dot imports|don't use an underscore in package name"
+      linters:
+      - golint
+    - source: "https://"
+      linters:
+      - lll
+    - text: "shadow: declaration of \"err\""
+      linters:
+        - govet
+    - text: "shadow: declaration of \"ok\""
+      linters:
+        - govet
+    - path: _test\.go
+      linters:
+      - goerr113
+      - gocyclo
+      - errcheck
+      - gosec
+      - dupl
+      - funlen
+      - scopelint
+    - text: "Spec.DeepCopyInto undefined"
+      linters:
+      - typecheck
+    - text: "G601: Implicit memory aliasing in for loop"
+      # Ignored cos why not, that was the request.
+      linters:
+      - gosec
+    - source: "// .* #\\d+"
+      linters:
+      - godox
+    - path: ignore/.*\.go
+      linters:
+      - dupword

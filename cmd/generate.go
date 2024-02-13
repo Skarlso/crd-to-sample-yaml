@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,12 +17,13 @@ import (
 )
 
 var (
-	// generateCmd is root for various `generate ...` commands
+	// generateCmd is root for various `generate ...` commands.
 	generateCmd = &cobra.Command{
 		Use:   "generate",
 		Short: "Simply generate a CRD output.",
 		RunE:  runGenerate,
 	}
+
 	fileLocation string
 	url          string
 	output       string
@@ -40,7 +42,7 @@ func init() {
 	f.BoolVarP(&comments, "comments", "m", false, "If set, it will add descriptions as comments to each line where available")
 }
 
-func runGenerate(cmd *cobra.Command, args []string) error {
+func runGenerate(_ *cobra.Command, _ []string) error {
 	var (
 		content []byte
 		err     error
@@ -64,7 +66,7 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(content, crd); err != nil {
-		return fmt.Errorf("failed to unmarshal into custom resource definition")
+		return errors.New("failed to unmarshal into custom resource definition")
 	}
 	if stdOut {
 		w = os.Stdout
@@ -72,7 +74,7 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 		if output == "" {
 			output = filepath.Dir(fileLocation)
 		}
-		outputLocation := filepath.Join(output, fmt.Sprintf("%s_sample.yaml", crd.Name))
+		outputLocation := filepath.Join(output, crd.Name+"_sample.yaml")
 		outputFile, err := os.Create(outputLocation)
 		if err != nil {
 			return fmt.Errorf("failed to create file at: '%s': %w", outputLocation, err)

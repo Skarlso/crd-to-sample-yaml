@@ -10,7 +10,7 @@ import (
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
-// Generate takes a CRD content and path, and outputs
+// Generate takes a CRD content and path, and outputs.
 func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments bool) (err error) {
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
@@ -48,15 +48,16 @@ func (w *writer) write(wc io.Writer, msg string) {
 // It will recursively parse every "properties:" and "additionalProperties:". Using the types, it will also output
 // some sample data based on those types.
 func ParseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file io.Writer, indent int, inArray, comments bool) error {
-	var sortedKeys []string
+	sortedKeys := make([]string, 0, len(properties))
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
 	}
 	sort.Strings(sortedKeys)
+
 	w := &writer{}
 	for _, k := range sortedKeys {
 		if inArray {
-			w.write(file, fmt.Sprintf("%s:", k))
+			w.write(file, k+":")
 			inArray = false
 		} else {
 			if comments && properties[k].Description != "" {
@@ -68,15 +69,19 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 
 				w.write(file, comment.String())
 			}
+
 			w.write(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", indent), k))
 		}
-		if len(properties[k].Properties) == 0 && properties[k].AdditionalProperties == nil {
+		switch {
+		case len(properties[k].Properties) == 0 && properties[k].AdditionalProperties == nil:
 			if k == "apiVersion" {
 				w.write(file, fmt.Sprintf(" %s/%s\n", group, version))
+
 				continue
 			}
 			if k == "kind" {
 				w.write(file, fmt.Sprintf(" %s\n", kind))
+
 				continue
 			}
 			// If we are dealing with an array, and we have properties to parse
@@ -91,13 +96,13 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 				result = outputValueType(properties[k])
 				w.write(file, fmt.Sprintf(" %s\n", result))
 			}
-		} else if len(properties[k].Properties) > 0 {
+		case len(properties[k].Properties) > 0:
 			w.write(file, "\n")
 			// recursively parse all sub-properties
 			if err := ParseProperties(group, version, kind, properties[k].Properties, file, indent+2, false, comments); err != nil {
 				return err
 			}
-		} else if properties[k].AdditionalProperties != nil {
+		case properties[k].AdditionalProperties != nil:
 			if len(properties[k].AdditionalProperties.Schema.Properties) == 0 {
 				w.write(file, " {}\n")
 			} else {
@@ -108,9 +113,11 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 			}
 		}
 	}
+
 	if w.err != nil {
 		return fmt.Errorf("failed to write to file: %w", w.err)
 	}
+
 	return nil
 }
 
@@ -120,9 +127,10 @@ func outputValueType(v v1beta1.JSONSchemaProps) string {
 		return string(v.Default.Raw)
 	}
 
+	st := "string"
 	switch v.Type {
-	case "string":
-		return "string"
+	case st:
+		return st
 	case "integer":
 		return "1"
 	case "boolean":
@@ -132,12 +140,14 @@ func outputValueType(v v1beta1.JSONSchemaProps) string {
 	case "array": // deal with arrays of other types that weren't objects
 		t := v.Items.Schema.Type
 		var s string
-		if t == "string" {
+		if t == st {
 			s = fmt.Sprintf("[\"%s\"]", t)
 		} else {
 			s = fmt.Sprintf("[%s]", t)
 		}
+
 		return s
 	}
+
 	return v.Type
 }

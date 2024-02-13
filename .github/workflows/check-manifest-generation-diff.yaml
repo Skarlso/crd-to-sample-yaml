@@ -1,0 +1,31 @@
+name: Check for diff after manifest and generated targets
+
+on:
+  pull_request: {}
+
+jobs:
+  diff-check-manifests:
+    name: Check for diff
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: '${{ github.workspace }}/go.mod'
+    - name: Restore Go cache
+      uses: actions/cache@v4
+      with:
+        path: /home/runner/work/_temp/_github_home/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    - name: go mod tidy
+      run: |
+        go mod tidy
+    - name: Check for diff
+      run: |
+        git diff --exit-code --shortstat
