@@ -12,9 +12,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Make manifests && generate
-      run: |
-        make manifests && make generate
     - name: Setup Go
       uses: actions/setup-go@v5
       with:

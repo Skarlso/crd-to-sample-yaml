@@ -1,5 +1,6 @@
 crd-to-yaml
 dist/
 .idea
+bin
 cty
 wasm/wasm
