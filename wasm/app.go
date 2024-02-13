@@ -95,7 +95,8 @@ func (h *crdView) Render() app.UI {
 							app.Button().Class("accordion-button").Type("button").DataSets(
 								map[string]any{
 									"bs-toggle": "collapse",
-									"bs-target": "#yaml-accordion-collapse-" + version.Version}).
+									"bs-target": "#yaml-accordion-collapse-" + version.Version,
+								}).
 								Aria("expanded", "false").
 								Aria("controls", "yaml-accordion-collapse-"+version.Version).
 								Body(app.Text("Details")),
@@ -134,6 +135,7 @@ func (h *crdView) Render() app.UI {
 				render(app.Div().Class("accordion-item"), version.Properties, "version-accordion-"+version.Version, 0),
 			),
 		)
+
 		return div
 	}))
 
@@ -158,7 +160,7 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 		borderOpacity = ""
 	}
 
-	var elements []app.UI
+	elements := make([]app.UI, 0, len(p))
 	for _, prop := range p {
 		// add the parent first
 		headerElements := []app.UI{
@@ -189,12 +191,14 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 			),
 		)
 
-		button := app.Button().ID("accordion-button-id-"+prop.Name+accordionID).Class("accordion-button").Type("button").DataSets(
+		buttonID := "accordion-button-id-" + prop.Name + accordionID
+		button := app.Button().ID(buttonID).Class("accordion-button").Type("button").DataSets(
 			map[string]any{
 				"bs-toggle": "collapse",
-				"bs-target": "#accordion-collapse-for-" + prop.Name + accordionID}).
+				"bs-target": buttonID,
+			}).
 			Aria("expanded", "false").
-			Aria("controls", "accordion-collapse-for-"+prop.Name+accordionID).
+			Aria("controls", buttonID).
 			Body(
 				headerContainer,
 			)
@@ -212,14 +216,15 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 			continue
 		}
 
-		accordionDiv := app.Div().Class("accordion-collapse collapse").ID("accordion-collapse-for-"+prop.Name+accordionID).DataSet("bs-parent", "#"+accordionID)
+		accordionDivID := "accordion-collapse-for-" + prop.Name + accordionID
+		accordionDiv := app.Div().Class("accordion-collapse collapse").ID(accordionDivID).DataSet("bs-parent", "#"+accordionID)
 		accordionBody := app.Div().Class("accordion-body")
 
 		var bodyElements []app.UI
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
-			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, "accordion-collapse-for-"+prop.Name+accordionID, depth+1)
+			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, accordionDivID, depth+1)
 			bodyElements = append(bodyElements, element)
 		}
 
@@ -229,6 +234,7 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 	}
 
 	// add all the elements and return the div
+	//nolint: gocritic // type switch
 	switch t := d.(type) {
 	case app.HTMLDiv:
 		t.Body(elements...)
@@ -241,14 +247,15 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
 func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, requiredList []string) ([]*Property, error) {
-	var (
-		sortedKeys []string
-		output     []*Property
-	)
+	sortedKeys := make([]string, 0, len(properties))
+	output := make([]*Property, 0, len(properties))
+
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
 	}
+
 	sort.Strings(sortedKeys)
+
 	for _, k := range sortedKeys {
 		// Create the Property with the values necessary.
 		// Check if there are properties for it in Properties or in Array -> Properties.
@@ -259,6 +266,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 		for _, item := range requiredList {
 			if item == k {
 				required = true
+
 				break
 			}
 		}
@@ -276,21 +284,22 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 			p.Default = string(v.Default.Raw)
 		}
 
-		if len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil {
+		switch {
+		case len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil:
 			requiredList = v.Required
 			out, err := parseCRD(properties[k].Properties, version, requiredList)
 			if err != nil {
 				return nil, err
 			}
 			p.Properties = out
-		} else if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
+		case properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0:
 			requiredList = v.Required
 			out, err := parseCRD(properties[k].Items.Schema.Properties, version, requiredList)
 			if err != nil {
 				return nil, err
 			}
 			p.Properties = out
-		} else if properties[k].AdditionalProperties != nil {
+		case properties[k].AdditionalProperties != nil:
 			requiredList = v.Required
 			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, requiredList)
 			if err != nil {
@@ -298,7 +307,9 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 			}
 			p.Properties = out
 		}
+
 		output = append(output, p)
 	}
+
 	return output, nil
 }

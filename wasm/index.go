@@ -29,7 +29,7 @@ func (i *index) buildError() app.UI {
 	)
 }
 
-func (i *index) dismissError(ctx app.Context, e app.Event) {
+func (i *index) dismissError(_ app.Context, _ app.Event) {
 	i.err = nil
 }
 
@@ -100,7 +100,7 @@ func (f *form) Render() app.UI {
 	)
 }
 
-func (i *index) OnClick(ctx app.Context, e app.Event) {
+func (i *index) OnClick(_ app.Context, _ app.Event) {
 	ta := app.Window().GetElementByID("crd_data").Get("value")
 	if v := ta.String(); v != "" {
 		if len(v) > maximumBytes {
@@ -149,11 +149,11 @@ func (c *checkBox) Render() app.UI {
 	)
 }
 
-func (i *index) OnCheck(ctx app.Context, e app.Event) {
+func (i *index) OnCheck(_ app.Context, _ app.Event) {
 	i.comments = !i.comments
 }
 
-func (i *index) OnMount(ctx app.Context) {
+func (i *index) OnMount(_ app.Context) {
 	i.isMounted = true
 }
 

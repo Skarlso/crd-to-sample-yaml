@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -20,17 +21,19 @@ func NewFetcher(client *http.Client) *Fetcher {
 
 // Fetch constructs a request and does a client.Do with it.
 func (f *Fetcher) Fetch(url string) ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate request for url '%s': %w", url, err)
 	}
+
 	resp, err := f.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch data: %w", err)
 	}
+
 	defer func() {
 		if closeErr := resp.Body.Close(); closeErr != nil {
-			err = fmt.Errorf("failed to close with %s after %w", closeErr, err)
+			err = fmt.Errorf("failed to close with %w after %w", closeErr, err)
 		}
 	}()
 
@@ -42,5 +45,6 @@ func (f *Fetcher) Fetch(url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read body: %w", err)
 	}
+
 	return content, nil
 }

@@ -16,12 +16,13 @@ import (
 )
 
 var (
-	// generateCmd is root for various `generate ...` commands
+	// generateCmd is root for various `generate ...` commands.
 	generateCmd = &cobra.Command{
 		Use:   "generate",
 		Short: "Simply generate a CRD output.",
 		RunE:  runGenerate,
 	}
+
 	fileLocation string
 	url          string
 	output       string
@@ -40,7 +41,7 @@ func init() {
 	f.BoolVarP(&comments, "comments", "m", false, "If set, it will add descriptions as comments to each line where available")
 }
 
-func runGenerate(cmd *cobra.Command, args []string) error {
+func runGenerate(_ *cobra.Command, _ []string) error {
 	var (
 		content []byte
 		err     error

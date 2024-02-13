@@ -1,0 +1,38 @@
+name: test and lint
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'CODE_OF_CONDUCT.md'
+      - 'README.md'
+      - 'Contributing.md'
+  workflow_call:
+
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read # for actions/checkout to fetch code
+
+jobs:
+  run-test-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: '${{ github.workspace }}/go.mod'
+      - name: Restore Go cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/work/_temp/_github_home/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Run lint
+        run: make lint
+      - name: Run tests
+        run: make test
