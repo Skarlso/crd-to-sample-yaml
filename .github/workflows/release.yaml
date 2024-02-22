@@ -17,7 +17,7 @@ jobs:
         with:
           go-version-file: '${{ github.workspace }}/go.mod'
       - name: Cache go-build and mod
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/go-build/
