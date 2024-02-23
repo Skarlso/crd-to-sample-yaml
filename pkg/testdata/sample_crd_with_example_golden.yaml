@@ -1,0 +1,15 @@
+apiVersion: delivery.krok.app/v1alpha1
+kind: KrokCommand
+metadata: {}
+spec:
+  commandHasOutputToWrite: true
+  complex: {"key":"value"}
+  dependencies: ["string"]
+  enabled: true
+  image: "krok-hook/slack-notification:v0.0.1"
+  platforms: ["string"]
+  readInputFromSecret:
+    name: string
+    namespace: string
+  schedule: string
+status: {}

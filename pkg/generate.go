@@ -127,6 +127,10 @@ func outputValueType(v v1beta1.JSONSchemaProps) string {
 		return string(v.Default.Raw)
 	}
 
+	if v.Example != nil {
+		return string(v.Example.Raw)
+	}
+
 	st := "string"
 	switch v.Type {
 	case st:
