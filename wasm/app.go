@@ -191,14 +191,14 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 			),
 		)
 
-		buttonID := "accordion-button-id-" + prop.Name + accordionID
-		button := app.Button().ID(buttonID).Class("accordion-button").Type("button").DataSets(
+		targetID := "accordion-collapse-for-" + prop.Name + accordionID
+		button := app.Button().ID("accordion-button-id-"+prop.Name+accordionID).Class("accordion-button").Type("button").DataSets(
 			map[string]any{
 				"bs-toggle": "collapse",
-				"bs-target": buttonID,
+				"bs-target": "#" + targetID, // the # is important
 			}).
 			Aria("expanded", "false").
-			Aria("controls", buttonID).
+			Aria("controls", targetID).
 			Body(
 				headerContainer,
 			)
@@ -216,15 +216,14 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 			continue
 		}
 
-		accordionDivID := "accordion-collapse-for-" + prop.Name + accordionID
-		accordionDiv := app.Div().Class("accordion-collapse collapse").ID(accordionDivID).DataSet("bs-parent", "#"+accordionID)
+		accordionDiv := app.Div().Class("accordion-collapse collapse").ID(targetID).DataSet("bs-parent", "#"+accordionID)
 		accordionBody := app.Div().Class("accordion-body")
 
 		var bodyElements []app.UI
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
-			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, accordionDivID, depth+1)
+			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, targetID, depth+1)
 			bodyElements = append(bodyElements, element)
 		}
 
