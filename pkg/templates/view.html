@@ -6,15 +6,34 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css"
+    />
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/css/halfmoon.min.css"
+    />
+
     <title>Preview CRDs</title>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="static/css/main.css" rel="stylesheet" type="text/css">
-    <link href="static/css/prism.css" rel="stylesheet" type="text/css">
-    <link href="static/css/prism-okaidia.css" rel="stylesheet" type="text/css">
-    <link href="static/css/root.css" rel="stylesheet" type="text/css">
-    <link href="static/css/halfmoon-variables.min.css" rel="stylesheet" type="text/css">
+    <style>
+        @media (max-width: 576px) {
+            body .content-wrapper > div {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+
+        body .content-wrapper {
+            padding-bottom: 2rem;
+        }
+    </style>
+    <style>
+
+    </style>
 </head>
 
 <body class="dark-mode" data-dm-shortcut-enabled="true" data-sidebar-shortcut-enabled="true">
@@ -87,10 +106,6 @@
     function collapseAll() {
         console.log("todo: loop through all elements and collapse them")
     }
-</script>
-<script src="static/js/prism.js">
-</script>
-<script src="static/js/clipboard.min.js">
 </script>
 </body>
 </html>

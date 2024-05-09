@@ -10,6 +10,8 @@ import (
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
+const array = "array"
+
 // Generate takes a CRD content and path, and outputs.
 func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments bool) (err error) {
 	defer func() {
@@ -87,7 +89,7 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 			// If we are dealing with an array, and we have properties to parse
 			// we need to reparse all of them again.
 			var result string
-			if properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
+			if properties[k].Type == array && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
 				w.write(file, fmt.Sprintf("\n%s- ", strings.Repeat(" ", indent)))
 				if err := ParseProperties(group, version, kind, properties[k].Items.Schema.Properties, file, indent+2, true, comments); err != nil {
 					return err
@@ -141,7 +143,7 @@ func outputValueType(v v1beta1.JSONSchemaProps) string {
 		return "true"
 	case "object":
 		return "{}"
-	case "array": // deal with arrays of other types that weren't objects
+	case array: // deal with arrays of other types that weren't objects
 		t := v.Items.Schema.Type
 		var s string
 		if t == st {
