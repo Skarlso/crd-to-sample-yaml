@@ -48,6 +48,16 @@ Optionally, you can provide the flag `-s` which will output the generated conten
 
 Future plans include generating proper, schema validated values for all fields.
 
+### HTML output
+
+It's possible to generate a pre-rendered HTML based output for self-hosting what the website produces online.
+
+To get an HTML output provide the format flag like this:
+
+```
+cty generate -c delivery.krok.app_krokcommands --comments --format html
+```
+
 ## WASM frontend
 
 There is a WASM based frontend that can be started by navigating into the `wasm` folder and running the following make
@@ -86,7 +96,7 @@ cty generate -c sample-crd/infrastructure.cluster.x-k8s.io_awsclusters.yaml --co
 
 The frontend also has a checkbox to add comments to the generated yaml output.
 
-TODO: add showcase for new frontend. 
+TODO: add showcase for new frontend.
 
 
 ## Showcase
