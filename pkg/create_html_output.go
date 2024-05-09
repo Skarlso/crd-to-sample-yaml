@@ -150,21 +150,22 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 			p.Default = string(v.Default.Raw)
 		}
 
-		if len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil {
+		switch {
+		case len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil:
 			requiredList = v.Required
 			out, err := parseCRD(properties[k].Properties, version, requiredList)
 			if err != nil {
 				return nil, err
 			}
 			p.Properties = out
-		} else if properties[k].Type == array && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
+		case properties[k].Type == array && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0:
 			requiredList = v.Required
 			out, err := parseCRD(properties[k].Items.Schema.Properties, version, requiredList)
 			if err != nil {
 				return nil, err
 			}
 			p.Properties = out
-		} else if properties[k].AdditionalProperties != nil {
+		case properties[k].AdditionalProperties != nil:
 			requiredList = v.Required
 			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, requiredList)
 			if err != nil {
@@ -172,6 +173,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 			}
 			p.Properties = out
 		}
+
 		output = append(output, p)
 	}
 
