@@ -35,6 +35,7 @@ var (
 	format       string
 	stdOut       bool
 	comments     bool
+	minimal      bool
 )
 
 func init() {
@@ -45,8 +46,9 @@ func init() {
 	f.StringVarP(&url, "url", "u", "", "If provided, will use this URL to fetch CRD YAML content from.")
 	f.StringVarP(&output, "output", "o", "", "The location of the output file. Default is next to the CRD.")
 	f.StringVarP(&format, "format", "f", FormatYAML, "The format in which to output. Default is YAML. Options are: yaml, html.")
-	f.BoolVarP(&stdOut, "stdout", "s", false, "If set, it will output the generated content to stdout")
-	f.BoolVarP(&comments, "comments", "m", false, "If set, it will add descriptions as comments to each line where available")
+	f.BoolVarP(&stdOut, "stdout", "s", false, "If set, it will output the generated content to stdout.")
+	f.BoolVarP(&comments, "comments", "m", false, "If set, it will add descriptions as comments to each line where available.")
+	f.BoolVarP(&minimal, "minimal", "l", false, "If set, only the minimal required example yaml is generated.")
 }
 
 func runGenerate(_ *cobra.Command, _ []string) error {
@@ -95,8 +97,8 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			return fmt.Errorf("failed to load templates: %w", err)
 		}
 
-		return pkg.RenderContent(w, content, comments)
+		return pkg.RenderContent(w, content, comments, minimal)
 	}
 
-	return pkg.Generate(crd, w, comments)
+	return pkg.Generate(crd, w, comments, minimal)
 }

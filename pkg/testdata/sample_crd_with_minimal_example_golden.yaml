@@ -1,0 +1,4 @@
+apiVersion: delivery.krok.app/v1alpha1
+kind: KrokCommand
+spec:
+  image: string

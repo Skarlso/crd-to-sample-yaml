@@ -58,6 +58,27 @@ To get an HTML output provide the format flag like this:
 cty generate -c delivery.krok.app_krokcommands --comments --format html
 ```
 
+### Minimal required CRD sample
+
+It's possible to generate a sample YAML for a CRD that will make the CRD validation pass. Meaning, it will only contain
+samples for fields that are actually required. All other fields will be ignored.
+
+For example, a CRD having a single required field with an example and the rest being optional would generate something
+like this:
+
+```yaml
+apiVersion: delivery.krok.app/v1alpha1
+kind: KrokCommand
+spec:
+  image: "krok-hook/slack-notification:v0.0.1"
+```
+
+To run cty with minimal required fields, pass in `--minimal` to the command like this:
+
+```
+cty generate -c delivery.krok.app_krokcommands --comments --minimal --format html
+```
+
 ## WASM frontend
 
 There is a WASM based frontend that can be started by navigating into the `wasm` folder and running the following make
