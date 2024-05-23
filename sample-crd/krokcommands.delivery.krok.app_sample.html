@@ -42,23 +42,25 @@
         <div class="versions">
             
             <h1>
-                Version: infrastructure.cluster.x-k8s.io/v1beta1<br>
-                Kind: AWSCluster
+                Version: delivery.krok.app/v1alpha1<br>
+                Kind: KrokCommand
             </h1>
             <p class="font-size-18">
                 <div>
-                    <p>AWSCluster is the schema for Amazon EC2 based Kubernetes Cluster API.</p>
+                    <p>KrokCommand is the Schema for the krokcommands API</p>
                 </div>
                 <label>Generated YAML sample:</label>
                 <div class="collapse-group">
                     <details class="collapse-panel">
-                        <div id="yaml-v1beta1" class="collapse-content">
+                        <div id="yaml-v1alpha1" class="collapse-content">
                             <pre class="language-yaml"><code class="language-yaml"># APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: delivery.krok.app/v1alpha1
 # Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-kind: AWSCluster
-# AWSClusterSpec defines the desired state of an EC2-based Kubernetes cluster.
+kind: KrokCommand
+# KrokCommandSpec defines the desired state of KrokCommand
 spec:
+  # Image defines the image name and tag of the command example: krok-hook/slack-notification:v0.0.1
+  image: string
 </code></pre>
                         </div>
                     </details>
@@ -128,107 +130,35 @@ spec:
                     </summary>
                     <div id="spec" class="collapse-content">
                         <div class="property-description">
-                            <p>AWSClusterSpec defines the desired state of an EC2-based Kubernetes cluster.</p>
+                            <p>KrokCommandSpec defines the desired state of KrokCommand</p>
                         </div>
                         
 
 
-                    </div>
-                    <br>
-                </details>
-                
-            </div>
+<details class="collapse-panel">
+    <summary class="collapse-header position-relative">
+        image <kbd class="text-muted">string</kbd>
+        
+        
+        
+        
+        <span class="badge badge-primary">required</span>
+        
+    </summary>
+    <div id="image" class="collapse-content">
+        <div class="property-description">
+            <p>Image defines the image name and tag of the command example: krok-hook/slack-notification:v0.0.1</p>
+        </div>
+        <div class="collapse-group">
             
-            <h1>
-                Version: infrastructure.cluster.x-k8s.io/v1beta2<br>
-                Kind: AWSCluster
-            </h1>
-            <p class="font-size-18">
-                <div>
-                    <p>AWSCluster is the schema for Amazon EC2 based Kubernetes Cluster API.</p>
-                </div>
-                <label>Generated YAML sample:</label>
-                <div class="collapse-group">
-                    <details class="collapse-panel">
-                        <div id="yaml-v1beta2" class="collapse-content">
-                            <pre class="language-yaml"><code class="language-yaml"># APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
-# Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-kind: AWSCluster
-# AWSClusterSpec defines the desired state of an EC2-based Kubernetes cluster.
-spec:
-</code></pre>
-                        </div>
-                    </details>
-                </div>
-            </p>
-            <div class="d-flex flex-row-reverse mb-10 mt-10">
-                <button class="btn ml-10" type="button" onclick="expandAll()">
-                    + expand all
-                </button>
-                <button class="btn" type="button" onclick="collapseAll()">
-                    - collapse all
-                </button>
-            </div>
-            <div class="collapse-group">
-                
-                <details class="collapse-panel">
-                    <summary class="collapse-header position-relative">
-                        apiVersion <kbd class="text-muted">string</kbd>
-                        
-                        
-                        
-                        
-                        <span class="badge badge-primary">required</span>
-                        
-                    </summary>
-                    <div id="apiVersion" class="collapse-content">
-                        <div class="property-description">
-                            <p>APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources</p>
-                        </div>
-                        
+            
 
 
-                    </div>
-                    <br>
-                </details>
-                
-                <details class="collapse-panel">
-                    <summary class="collapse-header position-relative">
-                        kind <kbd class="text-muted">string</kbd>
-                        
-                        
-                        
-                        
-                        <span class="badge badge-primary">required</span>
-                        
-                    </summary>
-                    <div id="kind" class="collapse-content">
-                        <div class="property-description">
-                            <p>Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds</p>
-                        </div>
-                        
+        </div>
+    </div>
+    <br>
+</details>
 
-
-                    </div>
-                    <br>
-                </details>
-                
-                <details class="collapse-panel">
-                    <summary class="collapse-header position-relative">
-                        spec <kbd class="text-muted">object</kbd>
-                        
-                        
-                        
-                        
-                        <span class="badge badge-primary">required</span>
-                        
-                    </summary>
-                    <div id="spec" class="collapse-content">
-                        <div class="property-description">
-                            <p>AWSClusterSpec defines the desired state of an EC2-based Kubernetes cluster.</p>
-                        </div>
-                        
 
 
                     </div>

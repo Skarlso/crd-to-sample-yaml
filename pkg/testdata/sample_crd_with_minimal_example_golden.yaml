@@ -1,4 +1,4 @@
 apiVersion: delivery.krok.app/v1alpha1
 kind: KrokCommand
 spec:
-  image: "krok-hook/slack-notification:v0.0.1"
+  image: string

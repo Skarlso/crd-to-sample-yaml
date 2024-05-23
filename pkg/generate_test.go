@@ -24,7 +24,7 @@ func TestGenerate(t *testing.T) {
 
 	version := crd.Spec.Versions[0]
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false)
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, rootRequiredFields))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_golden.yaml"))
 	require.NoError(t, err)
@@ -44,7 +44,7 @@ func TestGenerateWithExample(t *testing.T) {
 
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false)
 	version := crd.Spec.Versions[0]
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, rootRequiredFields))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_example_golden.yaml"))
 	require.NoError(t, err)
@@ -64,7 +64,7 @@ func TestGenerateWithComments(t *testing.T) {
 
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, true, false)
 	version := crd.Spec.Versions[0]
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, rootRequiredFields))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_comments_golden.yaml"))
 	require.NoError(t, err)
@@ -84,7 +84,7 @@ func TestGenerateMinimal(t *testing.T) {
 
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, true)
 	version := crd.Spec.Versions[0]
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, rootRequiredFields))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_minimal_example_golden.yaml"))
 	require.NoError(t, err)

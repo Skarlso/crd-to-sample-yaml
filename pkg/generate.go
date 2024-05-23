@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"sort"
 	"strings"
 
@@ -12,16 +13,18 @@ import (
 
 const array = "array"
 
+var rootRequiredFields = []string{"apiVersion", "kind", "spec"}
+
 // Generate takes a CRD content and path, and outputs.
-func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments bool) (err error) {
+func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments, minimal bool) (err error) {
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
 			err = errors.Join(err, cerr)
 		}
 	}()
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, enableComments, false)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, enableComments, minimal)
 	for i, version := range crd.Spec.Versions {
-		if err := parser.ParseProperties(version.Name, w, version.Schema.OpenAPIV3Schema.Properties); err != nil {
+		if err := parser.ParseProperties(version.Name, w, version.Schema.OpenAPIV3Schema.Properties, rootRequiredFields); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 
@@ -68,7 +71,7 @@ func NewParser(group, kind string, comments, requiredOnly bool) *Parser {
 // ParseProperties takes a writer and puts out any information / properties it encounters during the runs.
 // It will recursively parse every "properties:" and "additionalProperties:". Using the types, it will also output
 // some sample data based on those types.
-func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]v1beta1.JSONSchemaProps) error {
+func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]v1beta1.JSONSchemaProps, requiredFields []string) error {
 	sortedKeys := make([]string, 0, len(properties))
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
@@ -77,6 +80,13 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 
 	w := &writer{}
 	for _, k := range sortedKeys {
+		// if field is not required, skip the entire flow.
+		if p.onlyRequired {
+			if !slices.Contains(requiredFields, k) {
+				continue
+			}
+		}
+
 		if p.inArray {
 			w.write(file, k+":")
 			p.inArray = false
@@ -112,7 +122,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 				w.write(file, fmt.Sprintf("\n%s- ", strings.Repeat(" ", p.indent)))
 				p.indent += 2
 				p.inArray = true
-				if err := p.ParseProperties(version, file, properties[k].Items.Schema.Properties); err != nil {
+				if err := p.ParseProperties(version, file, properties[k].Items.Schema.Properties, properties[k].Items.Schema.Required); err != nil {
 					return err
 				}
 				p.indent -= 2
@@ -124,7 +134,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 			w.write(file, "\n")
 			// recursively parse all sub-properties
 			p.indent += 2
-			if err := p.ParseProperties(version, file, properties[k].Properties); err != nil {
+			if err := p.ParseProperties(version, file, properties[k].Properties, properties[k].Required); err != nil {
 				return err
 			}
 			p.indent -= 2
@@ -133,8 +143,9 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 				w.write(file, " {}\n")
 			} else {
 				w.write(file, "\n")
+
 				p.indent += 2
-				if err := p.ParseProperties(version, file, properties[k].AdditionalProperties.Schema.Properties); err != nil {
+				if err := p.ParseProperties(version, file, properties[k].AdditionalProperties.Schema.Properties, properties[k].AdditionalProperties.Schema.Required); err != nil {
 					return err
 				}
 				p.indent -= 2
