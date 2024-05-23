@@ -62,6 +62,7 @@ func (h *crdView) Render() app.UI {
 	}
 
 	versions := make([]Version, 0)
+	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, h.comment)
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, version.Schema.OpenAPIV3Schema.Required)
 		if err != nil {
@@ -69,7 +70,7 @@ func (h *crdView) Render() app.UI {
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := pkg.ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false, h.comment); err != nil {
+		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
 			return h.buildError(err)
 		}
 		versions = append(versions, Version{

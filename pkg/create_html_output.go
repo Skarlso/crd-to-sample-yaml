@@ -66,6 +66,8 @@ func RenderContent(w io.Writer, crdContent []byte, comments bool) error {
 		return fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
 	}
 	versions := make([]Version, 0)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, comments, true)
+
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, version.Schema.OpenAPIV3Schema.Required)
 		if err != nil {
@@ -73,7 +75,7 @@ func RenderContent(w io.Writer, crdContent []byte, comments bool) error {
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, buf, 0, false, comments); err != nil {
+		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
 			return fmt.Errorf("failed to generate yaml sample: %w", err)
 		}
 		versions = append(versions, Version{

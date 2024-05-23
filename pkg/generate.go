@@ -19,9 +19,9 @@ func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableCom
 			err = errors.Join(err, cerr)
 		}
 	}()
-
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, enableComments, false)
 	for i, version := range crd.Spec.Versions {
-		if err := ParseProperties(crd.Spec.Group, version.Name, crd.Spec.Names.Kind, version.Schema.OpenAPIV3Schema.Properties, w, 0, false, enableComments); err != nil {
+		if err := parser.ParseProperties(version.Name, w, version.Schema.OpenAPIV3Schema.Properties); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 
@@ -46,10 +46,29 @@ func (w *writer) write(wc io.Writer, msg string) {
 	_, w.err = wc.Write([]byte(msg))
 }
 
+type Parser struct {
+	comments     bool
+	inArray      bool
+	indent       int
+	group        string
+	kind         string
+	onlyRequired bool
+}
+
+// NewParser creates a new parser contains most of the things that do not change over each call.
+func NewParser(group, kind string, comments, requiredOnly bool) *Parser {
+	return &Parser{
+		group:        group,
+		kind:         kind,
+		comments:     comments,
+		onlyRequired: requiredOnly,
+	}
+}
+
 // ParseProperties takes a writer and puts out any information / properties it encounters during the runs.
 // It will recursively parse every "properties:" and "additionalProperties:". Using the types, it will also output
 // some sample data based on those types.
-func ParseProperties(group, version, kind string, properties map[string]v1beta1.JSONSchemaProps, file io.Writer, indent int, inArray, comments bool) error {
+func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]v1beta1.JSONSchemaProps) error {
 	sortedKeys := make([]string, 0, len(properties))
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
@@ -58,31 +77,31 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 
 	w := &writer{}
 	for _, k := range sortedKeys {
-		if inArray {
+		if p.inArray {
 			w.write(file, k+":")
-			inArray = false
+			p.inArray = false
 		} else {
-			if comments && properties[k].Description != "" {
+			if p.comments && properties[k].Description != "" {
 				comment := strings.Builder{}
 				multiLine := strings.Split(properties[k].Description, "\n")
 				for _, line := range multiLine {
-					comment.WriteString(fmt.Sprintf("%s# %s\n", strings.Repeat(" ", indent), line))
+					comment.WriteString(fmt.Sprintf("%s# %s\n", strings.Repeat(" ", p.indent), line))
 				}
 
 				w.write(file, comment.String())
 			}
 
-			w.write(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", indent), k))
+			w.write(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", p.indent), k))
 		}
 		switch {
 		case len(properties[k].Properties) == 0 && properties[k].AdditionalProperties == nil:
 			if k == "apiVersion" {
-				w.write(file, fmt.Sprintf(" %s/%s\n", group, version))
+				w.write(file, fmt.Sprintf(" %s/%s\n", p.group, version))
 
 				continue
 			}
 			if k == "kind" {
-				w.write(file, fmt.Sprintf(" %s\n", kind))
+				w.write(file, fmt.Sprintf(" %s\n", p.kind))
 
 				continue
 			}
@@ -90,10 +109,13 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 			// we need to reparse all of them again.
 			var result string
 			if properties[k].Type == array && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0 {
-				w.write(file, fmt.Sprintf("\n%s- ", strings.Repeat(" ", indent)))
-				if err := ParseProperties(group, version, kind, properties[k].Items.Schema.Properties, file, indent+2, true, comments); err != nil {
+				w.write(file, fmt.Sprintf("\n%s- ", strings.Repeat(" ", p.indent)))
+				p.indent += 2
+				p.inArray = true
+				if err := p.ParseProperties(version, file, properties[k].Items.Schema.Properties); err != nil {
 					return err
 				}
+				p.indent -= 2
 			} else {
 				result = outputValueType(properties[k])
 				w.write(file, fmt.Sprintf(" %s\n", result))
@@ -101,17 +123,21 @@ func ParseProperties(group, version, kind string, properties map[string]v1beta1.
 		case len(properties[k].Properties) > 0:
 			w.write(file, "\n")
 			// recursively parse all sub-properties
-			if err := ParseProperties(group, version, kind, properties[k].Properties, file, indent+2, false, comments); err != nil {
+			p.indent += 2
+			if err := p.ParseProperties(version, file, properties[k].Properties); err != nil {
 				return err
 			}
+			p.indent -= 2
 		case properties[k].AdditionalProperties != nil:
 			if len(properties[k].AdditionalProperties.Schema.Properties) == 0 {
 				w.write(file, " {}\n")
 			} else {
 				w.write(file, "\n")
-				if err := ParseProperties(group, version, kind, properties[k].AdditionalProperties.Schema.Properties, file, indent+2, false, comments); err != nil {
+				p.indent += 2
+				if err := p.ParseProperties(version, file, properties[k].AdditionalProperties.Schema.Properties); err != nil {
 					return err
 				}
+				p.indent -= 2
 			}
 		}
 	}
