@@ -70,13 +70,13 @@ func RenderContent(w io.Writer, crdContent []byte, comments, minimal bool) error
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, comments, minimal)
 
 	for _, version := range crd.Spec.Versions {
-		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, minimal, rootRequiredFields)
+		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, minimal, RootRequiredFields)
 		if err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties, rootRequiredFields); err != nil {
+		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields); err != nil {
 			return fmt.Errorf("failed to generate yaml sample: %w", err)
 		}
 		versions = append(versions, Version{

@@ -1,8 +1,8 @@
-const cacheName = "app-" + "f12aae0089af3c57e2d86eef472876387bf42dc1";
+const cacheName = "app-" + "0bbe4f618b019a028888bfd14fb564d3bd34e87d";
 const resourcesToCache = ["/","/app.css","/app.js","/manifest.webmanifest","/wasm_exec.js","/web/app.wasm","/web/css/alert.css","/web/img/logo.png","https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css","https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css","https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css"];
 
 self.addEventListener("install", (event) => {
-  console.log("installing app worker f12aae0089af3c57e2d86eef472876387bf42dc1");
+  console.log("installing app worker 0bbe4f618b019a028888bfd14fb564d3bd34e87d");
 
   event.waitUntil(
     caches
@@ -28,7 +28,7 @@ self.addEventListener("activate", (event) => {
       );
     })
   );
-  console.log("app worker f12aae0089af3c57e2d86eef472876387bf42dc1 is activated");
+  console.log("app worker 0bbe4f618b019a028888bfd14fb564d3bd34e87d is activated");
 });
 
 self.addEventListener("fetch", (event) => {
