@@ -13,7 +13,7 @@ import (
 
 const array = "array"
 
-var RootRequiredFields = []string{"apiVersion", "kind", "spec"}
+var RootRequiredFields = []string{"apiVersion", "kind", "spec", "metadata"}
 
 // Generate takes a CRD content and path, and outputs.
 func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments, minimal bool) (err error) {
