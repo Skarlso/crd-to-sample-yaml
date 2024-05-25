@@ -48,10 +48,11 @@ func main() {
 	// required resources to make it work into a web browser. Here it is
 	// configured to handle requests with a path that starts with "/".
 	handler := &app.Handler{
-		Name:   "Preview CRDs",
-		Title:  "Preview CRDs",
-		Author: "Gergely Brautigam",
-		HTML:   func() app.HTMLHtml { return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark") },
+		Name:    "Preview CRDs",
+		Title:   "Preview CRDs",
+		Author:  "Gergely Brautigam",
+		Version: "v0.6.1",
+		HTML:    func() app.HTMLHtml { return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark") },
 		Styles: []string{
 			"web/css/alert.css",
 			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css",
