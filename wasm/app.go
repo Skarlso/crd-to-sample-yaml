@@ -60,32 +60,34 @@ func (h *crdView) buildError(err error) app.UI {
 }
 
 func (h *crdView) OnNav(ctx app.Context) {
-	if strings.Contains(ctx.Page().URL().String(), "share") {
-		u := ctx.Page().URL().Query().Get("url")
-		if u == "" {
-			h.preRenderErr = errors.New(
-				"url parameter has to be define in the following format: " +
-					"/share?url=https://example.com/crd.yaml")
-
-			return
-		}
-
-		if _, err := url.Parse(u); err != nil {
-			h.preRenderErr = fmt.Errorf("invald url provided in query: %w", err)
-
-			return
-		}
-
-		f := fetcher.NewFetcher(http.DefaultClient)
-		content, err := f.Fetch(u)
-		if err != nil {
-			h.preRenderErr = err
-
-			return
-		}
-
-		h.content = content
+	if !strings.Contains(ctx.Page().URL().String(), "share") {
+		return
 	}
+
+	u := ctx.Page().URL().Query().Get("url")
+	if u == "" {
+		h.preRenderErr = errors.New(
+			"url parameter has to be define in the following format: " +
+				"/share?url=https://example.com/crd.yaml")
+
+		return
+	}
+
+	if _, err := url.Parse(u); err != nil {
+		h.preRenderErr = fmt.Errorf("invald url provided in query: %w", err)
+
+		return
+	}
+
+	f := fetcher.NewFetcher(http.DefaultClient)
+	content, err := f.Fetch(u)
+	if err != nil {
+		h.preRenderErr = err
+
+		return
+	}
+
+	h.content = content
 }
 
 // The Render method is where the component appearance is defined. Here, a
