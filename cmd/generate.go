@@ -122,6 +122,7 @@ func constructHandler(args *rootArgs) (Handler, error) {
 	case args.fileLocation != "":
 		crdHandler = &FileHandler{location: args.fileLocation}
 	case args.folderLocation != "":
+		crdHandler = &FolderHandler{location: args.folderLocation}
 	case args.url != "":
 		crdHandler = &URLHandler{url: args.url}
 	}

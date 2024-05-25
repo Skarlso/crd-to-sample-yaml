@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -24,7 +23,7 @@ func (h *FileHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(content, crd); err != nil {
-		return nil, errors.New("failed to unmarshal into custom resource definition")
+		return nil, fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
 	}
 
 	return []*v1beta1.CustomResourceDefinition{crd}, nil
