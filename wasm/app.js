@@ -2,11 +2,20 @@
 // go-app
 // -----------------------------------------------------------------------------
 var goappNav = function () {};
-var goappOnUpdate = function () {};
-var goappOnAppInstallChange = function () {};
 
-const goappEnv = {"GOAPP_INTERNAL_URLS":"null","GOAPP_ROOT_PREFIX":"","GOAPP_STATIC_RESOURCES_URL":"","GOAPP_VERSION":"3b331e016b66866228750cf2fe2424dd99820a15"};
+var goappUpdatedBeforeWasmLoaded = false;
+var goappOnUpdate = function () {
+  goappUpdatedBeforeWasmLoaded = true;
+};
+
+var goappAppInstallChangedBeforeWasmLoaded = false;
+var goappOnAppInstallChange = function () {
+  goappAppInstallChangedBeforeWasmLoaded = true;
+};
+
+const goappEnv = {"GOAPP_INTERNAL_URLS":"null","GOAPP_ROOT_PREFIX":"/","GOAPP_STATIC_RESOURCES_URL":"/web","GOAPP_VERSION":"65fbac8be5b22d2841d916b839e784627375616c"};
 const goappLoadingLabel = "{progress}%";
+const goappWasmContentLength = "";
 const goappWasmContentLengthHeader = "";
 
 let goappServiceWorkerRegistration;
@@ -29,7 +38,6 @@ async function goappInitServiceWorker() {
 
       goappServiceWorkerRegistration = registration;
       goappSetupNotifyUpdate(registration);
-      goappSetupAutoUpdate(registration);
       goappSetupPushNotification();
     } catch (err) {
       console.error("goapp service worker registration failed", err);
@@ -55,7 +63,7 @@ function goappSetupNotifyUpdate(registration) {
       if (!navigator.serviceWorker.controller) {
         return;
       }
-      if (newSW.state != "installed") {
+      if (newSW.state != "activated") {
         return;
       }
       goappOnUpdate();
@@ -63,15 +71,11 @@ function goappSetupNotifyUpdate(registration) {
   });
 }
 
-function goappSetupAutoUpdate(registration) {
-  const autoUpdateInterval = "0";
-  if (autoUpdateInterval == 0) {
+function goappTryUpdate() {
+  if (!goappServiceWorkerRegistration) {
     return;
   }
-
-  window.setInterval(() => {
-    registration.update();
-  }, autoUpdateInterval);
+  goappServiceWorkerRegistration.update();
 }
 
 // -----------------------------------------------------------------------------
@@ -240,12 +244,14 @@ function goappCanLoadWebAssembly() {
 async function fetchWithProgress(url, progess) {
   const response = await fetch(url);
 
-  let contentLength;
-  try {
-    contentLength = response.headers.get(goappWasmContentLengthHeader);
-  } catch {}
-  if (!goappWasmContentLengthHeader || !contentLength) {
-    contentLength = response.headers.get("Content-Length");
+  let contentLength = goappWasmContentLength;
+  if (contentLength <= 0) {
+    try {
+      contentLength = response.headers.get(goappWasmContentLengthHeader);
+    } catch {}
+    if (!goappWasmContentLengthHeader || !contentLength) {
+      contentLength = response.headers.get("Content-Length");
+    }
   }
 
   const total = parseInt(contentLength, 10);

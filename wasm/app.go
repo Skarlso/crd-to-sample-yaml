@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
-	"github.com/maxence-charriere/go-app/v9/pkg/app"
+	"github.com/maxence-charriere/go-app/v10/pkg/app"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
