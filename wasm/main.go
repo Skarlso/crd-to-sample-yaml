@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/maxence-charriere/go-app/v9/pkg/app"
+	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 
 // The main function is the entry point where the app is configured and started.
@@ -21,7 +21,12 @@ func main() {
 	//
 	// This is done by calling the Route() function,  which tells go-app what
 	// component to display for a given path, on both client and server-side.
-	app.Route("/", &index{})
+	app.Route("/", func() app.Composer {
+		return &index{}
+	})
+	app.RouteWithRegexp("^/share.*$", func() app.Composer {
+		return &crdView{}
+	})
 
 	// Once the routes set up, the next thing to do is to either launch the app
 	// or the server that serves the app.

@@ -9,13 +9,19 @@
       "sizes": "any"
     },
     {
-      "src": "",
+      "src": "/",
       "type": "image/png",
       "sizes": "512x512"
     },
     {
       "src": "/web/img/logo.png",
       "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/web/img/logo.png",
+      "type": "image/png",
+      "purpose": "maskable",
       "sizes": "192x192"
     }
   ],

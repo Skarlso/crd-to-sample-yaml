@@ -4,8 +4,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/maxence-charriere/go-app/v10/pkg/app"
+
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
-	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
 const maximumBytes = 200 * 1000 // 200KB
