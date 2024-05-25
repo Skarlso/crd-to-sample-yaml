@@ -24,7 +24,7 @@ func main() {
 	app.Route("/", func() app.Composer {
 		return &index{}
 	})
-	app.RouteWithRegexp("^/share.*$", func() app.Composer {
+	app.Route("/share", func() app.Composer {
 		return &crdView{}
 	})
 
