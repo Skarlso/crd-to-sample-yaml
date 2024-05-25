@@ -46,8 +46,6 @@ A single file will be created containing all versions in the CRD delimited by `-
 
 Optionally, you can provide the flag `-s` which will output the generated content to `stdout`.
 
-Future plans include generating proper, schema validated values for all fields.
-
 ### HTML output
 
 It's possible to generate a pre-rendered HTML based output for self-hosting what the website produces online.
@@ -78,6 +76,16 @@ To run cty with minimal required fields, pass in `--minimal` to the command like
 ```
 cty generate -c delivery.krok.app_krokcommands --comments --minimal --format html
 ```
+
+### Folder source
+
+To parse mutliple CRDs in a single folder, just pass in the whole folder like this:
+
+```
+cty generate -r folder
+```
+
+Any other flag will work as before.
 
 ## WASM frontend
 
