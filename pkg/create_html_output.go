@@ -3,6 +3,7 @@ package pkg
 import (
 	"bytes"
 	"embed"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -11,7 +12,6 @@ import (
 	"sort"
 
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
 // Version wraps a top level version resource which contains the underlying openAPIV3Schema.
@@ -61,11 +61,13 @@ func LoadTemplates() error {
 }
 
 // RenderContent creates an HTML website from the CRD content.
-func RenderContent(w io.Writer, crdContent []byte, comments, minimal bool) error {
-	crd := &v1beta1.CustomResourceDefinition{}
-	if err := yaml.Unmarshal(crdContent, crd); err != nil {
-		return fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
-	}
+func RenderContent(w io.WriteCloser, crd *v1beta1.CustomResourceDefinition, comments, minimal bool) (err error) {
+	defer func() {
+		if cerr := w.Close(); cerr != nil {
+			err = errors.Join(err, cerr)
+		}
+	}()
+
 	versions := make([]Version, 0)
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, comments, minimal)
 

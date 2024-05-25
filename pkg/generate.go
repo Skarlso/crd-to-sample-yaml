@@ -22,6 +22,7 @@ func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableCom
 			err = errors.Join(err, cerr)
 		}
 	}()
+
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, enableComments, minimal)
 	for i, version := range crd.Spec.Versions {
 		if err := parser.ParseProperties(version.Name, w, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields); err != nil {
