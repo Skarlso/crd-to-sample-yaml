@@ -2,10 +2,15 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
 	"sort"
 	"strconv"
+	"strings"
 
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -16,6 +21,7 @@ import (
 // crdView is the main component to display a rendered CRD.
 type crdView struct {
 	app.Compo
+	preRenderErr error
 
 	content []byte
 	comment bool
@@ -53,9 +59,42 @@ func (h *crdView) buildError(err error) app.UI {
 		app.Text(err.Error()))
 }
 
+func (h *crdView) OnNav(ctx app.Context) {
+	if strings.Contains(ctx.Page().URL().String(), "share") {
+		u := ctx.Page().URL().Query().Get("url")
+		if u == "" {
+			h.preRenderErr = errors.New(
+				"url parameter has to be define in the following format: " +
+					"/share?url=https://example.com/crd.yaml")
+
+			return
+		}
+
+		if _, err := url.Parse(u); err != nil {
+			h.preRenderErr = fmt.Errorf("invald url provided in query: %w", err)
+
+			return
+		}
+
+		f := fetcher.NewFetcher(http.DefaultClient)
+		content, err := f.Fetch(u)
+		if err != nil {
+			h.preRenderErr = err
+
+			return
+		}
+
+		h.content = content
+	}
+}
+
 // The Render method is where the component appearance is defined. Here, a
 // "Hello World!" is displayed as a heading.
 func (h *crdView) Render() app.UI {
+	if h.preRenderErr != nil {
+		return h.buildError(h.preRenderErr)
+	}
+
 	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(h.content, crd); err != nil {
 		return h.buildError(err)

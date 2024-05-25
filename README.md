@@ -79,7 +79,7 @@ cty generate -c delivery.krok.app_krokcommands --comments --minimal --format htm
 
 ### Folder source
 
-To parse mutliple CRDs in a single folder, just pass in the whole folder like this:
+To parse multiple CRDs in a single folder, just pass in the whole folder like this:
 
 ```
 cty generate -r folder
@@ -97,6 +97,16 @@ make run
 ```
 
 This will start a front-end that can be used to paste in and parse CRDs.
+
+## Shareable Link
+
+It's possible to provide a link that can be shared using a url parameter like this:
+
+```
+https://crdtoyaml.com/share?url=https://raw.githubusercontent.com/Skarlso/crd-to-sample-yaml/main/sample-crd/infrastructure.cluster.x-k8s.io_awsclusters.yaml
+```
+
+Will load the content, or display an appropriate error message.
 
 ## Comments
 

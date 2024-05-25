@@ -22,6 +22,7 @@ func main() {
 	// This is done by calling the Route() function,  which tells go-app what
 	// component to display for a given path, on both client and server-side.
 	app.Route("/", &index{})
+	app.RouteWithRegexp("^/share.*$", &crdView{})
 
 	// Once the routes set up, the next thing to do is to either launch the app
 	// or the server that serves the app.
