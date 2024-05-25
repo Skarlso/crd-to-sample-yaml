@@ -86,7 +86,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 
 	var w io.WriteCloser
 
-	var errs []error
+	var errs []error //nolint:prealloc // nope
 	for _, crd := range crds {
 		if args.stdOut {
 			w = os.Stdout

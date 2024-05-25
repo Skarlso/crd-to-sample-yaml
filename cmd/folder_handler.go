@@ -21,13 +21,17 @@ func (h *FolderHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 
 	var crds []*v1beta1.CustomResourceDefinition
 
-	if err := filepath.WalkDir(h.location, func(path string, d fs.DirEntry, err error) error {
-		if d.IsDir() {
+	if err := filepath.Walk(h.location, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
 			return nil
 		}
 
 		if filepath.Ext(path) != ".yaml" {
-			fmt.Println("skipping file " + path)
+			fmt.Fprintln(os.Stderr, "skipping file "+path)
 
 			return nil
 		}
@@ -39,9 +43,9 @@ func (h *FolderHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 
 		crd := &v1beta1.CustomResourceDefinition{}
 		if err := yaml.Unmarshal(content, crd); err != nil {
-			fmt.Println("skipping none CRD file: ", path)
+			fmt.Fprintln(os.Stderr, "skipping none CRD file: "+path)
 
-			return nil
+			return nil //nolint:nilerr // intentional
 		}
 
 		crds = append(crds, crd)
