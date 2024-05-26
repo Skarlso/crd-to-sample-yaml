@@ -143,16 +143,16 @@ func (h *crdView) Render() app.UI {
 								Aria("controls", "yaml-accordion-collapse-"+version.Version).
 								Body(app.Text("Details")),
 						),
+					)),
+				),
+				app.Div().Class("accordion-collapse collapse").ID("yaml-accordion-collapse-"+version.Version).DataSet("bs-parent", "#yaml-accordion-"+version.Version).Body(
+					app.Div().Class("accordion-body").Body(
 						app.Div().Class("col").Body(
 							app.Button().Class("clippy-"+strconv.Itoa(i)).DataSet("clipboard-target", "#yaml-sample-"+version.Version).Body(
 								app.Script().Text(fmt.Sprintf("new ClipboardJS('.clippy-%d');", i)),
 								app.I().Class("fa fa-clipboard"),
 							),
 						),
-					)),
-				),
-				app.Div().Class("accordion-collapse collapse").ID("yaml-accordion-collapse-"+version.Version).DataSet("bs-parent", "#yaml-accordion-"+version.Version).Body(
-					app.Div().Class("accordion-body").Body(
 						app.Pre().Body(
 							app.Code().Class("language-yaml").ID("yaml-sample-"+version.Version).Body(
 								app.Text(version.YAML),
@@ -175,7 +175,7 @@ func (h *crdView) Render() app.UI {
 			yamlContent,
 			app.H1().Text(version.Version),
 			app.Div().Class("accordion").ID("version-accordion-"+version.Version).Body(
-				render(app.Div().Class("accordion-item"), version.Properties, "version-accordion-"+version.Version, 0),
+				render(app.Div().Class("accordion-item"), version.Properties, "version-accordion-"+version.Version),
 			),
 		)
 
@@ -189,20 +189,7 @@ func (h *crdView) Render() app.UI {
 	)
 }
 
-var borderOpacity = map[int]string{
-	0: "border border-secondary-subtle",
-	1: "border border-secondary-subtle border-opacity-75",
-	2: "border border-secondary-subtle border-opacity-50",
-	3: "border border-secondary-subtle border-opacity-25",
-	4: "border border-secondary-subtle border-opacity-10",
-}
-
-func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
-	borderOpacity, ok := borderOpacity[depth]
-	if !ok {
-		borderOpacity = ""
-	}
-
+func render(d app.UI, p []*Property, accordionID string) app.UI {
 	elements := make([]app.UI, 0, len(p))
 	for _, prop := range p {
 		// add the parent first
@@ -250,7 +237,7 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 			button.Class("bg-success-subtle")
 		}
 
-		header := app.H2().Class("accordion-header").Class(borderOpacity).Body(button)
+		header := app.H2().Class("accordion-header").Body(button)
 
 		elements = append(elements, header)
 
@@ -266,7 +253,7 @@ func render(d app.UI, p []*Property, accordionID string, depth int) app.UI {
 
 		// add any children that the parent has
 		if len(prop.Properties) > 0 {
-			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, targetID, depth+1)
+			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, targetID)
 			bodyElements = append(bodyElements, element)
 		}
 

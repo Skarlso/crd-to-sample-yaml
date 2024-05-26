@@ -52,11 +52,14 @@ func main() {
 		Title:   "Preview CRDs",
 		Author:  "Gergely Brautigam",
 		Version: "v0.6.4",
-		HTML:    func() app.HTMLHtml { return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark") },
+		HTML: func() app.HTMLHtml {
+			return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark")
+		},
 		Styles: []string{
 			"web/css/alert.css",
 			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css",
 			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css",
+			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css",
 			"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
 		},
 		RawHeaders: []string{
