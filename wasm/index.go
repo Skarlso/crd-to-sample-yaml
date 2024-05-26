@@ -34,6 +34,18 @@ func (i *index) dismissError(_ app.Context, _ app.Event) {
 	i.err = nil
 }
 
+type back struct {
+	app.Compo
+}
+
+func (b *back) Render() app.UI {
+	return app.A().Href("#").Body(app.I().OnClick(b.OnClick).Class("fa fa-arrow-left fa-2x"))
+}
+
+func (b *back) OnClick(ctx app.Context, _ app.Event) {
+	ctx.Reload()
+}
+
 // header is the site header.
 type header struct {
 	app.Compo
@@ -46,6 +58,7 @@ func (h *header) Render() app.UI {
 			app.Li().Body(
 				app.A().Href("https://github.com/Skarlso/crd-to-sample-yaml").Target("_blank").Body(
 					app.I().Class("fa fa-github fa-2x")),
+				&back{},
 			)),
 	))
 }

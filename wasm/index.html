@@ -13,19 +13,19 @@
     <meta property="og:image" content="https://">
     <title>Preview CRDs</title>
     <link href="/app.css" type="text/css" rel="preload" as="style">
-    <link href="/web/css/alert.css" type="text/css" rel="preload" as="style">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css" type="text/css" rel="preload" as="style">
-    <link type="text/css" rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css">
-    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+    <link as="style" href="/web/css/alert.css" type="text/css" rel="preload">
+    <link type="text/css" rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" type="text/css" rel="preload" as="style">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" rel="preload" as="style">
     <link rel="icon" href="https://raw.githubusercontent.com/maxence-charriere/go-app/master/docs/web/icon.svg">
     <link rel="apple-touch-icon" href="/web/img/logo.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link href="/app.css" type="text/css" rel="stylesheet">
     <link href="/web/css/alert.css" type="text/css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css" type="text/css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" type="text/css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
-    <script src="/wasm_exec.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" type="text/css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
+    <script defer src="/wasm_exec.js"></script>
     <script defer src="/app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
@@ -60,8 +60,8 @@
   </head>
   <body>
     <main></main>
-    <aside id="app-wasm-loader" class="goapp-app-info">
-      <img alt="wasm loader icon" src="/web/img/logo.png" id="app-wasm-loader-icon" class="goapp-logo goapp-spin">
+    <aside class="goapp-app-info" id="app-wasm-loader">
+      <img id="app-wasm-loader-icon" class="goapp-logo goapp-spin" alt="wasm loader icon" src="/web/img/logo.png">
       <p id="app-wasm-loader-label" class="goapp-label">0%</p>
     </aside>
   </body>

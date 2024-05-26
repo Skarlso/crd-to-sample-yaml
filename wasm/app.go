@@ -162,6 +162,7 @@ func (h *crdView) Render() app.UI {
 			),
 		)
 		div.Body(
+			&header{},
 			app.H1().Body(
 				app.P().Body(app.Text(fmt.Sprintf(
 					`Version: %s/%s`,
