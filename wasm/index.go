@@ -34,15 +34,15 @@ func (i *index) dismissError(_ app.Context, _ app.Event) {
 	i.err = nil
 }
 
-type back struct {
+type title struct {
 	app.Compo
 }
 
-func (b *back) Render() app.UI {
-	return app.A().Href("#").Body(app.I().OnClick(b.OnClick).Class("fa fa-arrow-left fa-2x"))
+func (b *title) Render() app.UI {
+	return app.Div().Class("title").Text("CRD Parser").OnClick(b.OnClick)
 }
 
-func (b *back) OnClick(ctx app.Context, _ app.Event) {
+func (b *title) OnClick(ctx app.Context, _ app.Event) {
 	ctx.Reload()
 }
 
@@ -53,12 +53,11 @@ type header struct {
 
 func (h *header) Render() app.UI {
 	return app.Header().Body(app.Nav().Body(
-		app.Div().Class("title").Text("CRD Parser"),
+		&title{},
 		app.Ul().Body(
 			app.Li().Body(
 				app.A().Href("https://github.com/Skarlso/crd-to-sample-yaml").Target("_blank").Body(
 					app.I().Class("fa fa-github fa-2x")),
-				&back{},
 			)),
 	))
 }
