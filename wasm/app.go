@@ -25,6 +25,7 @@ type crdView struct {
 
 	content []byte
 	comment bool
+	minimal bool
 }
 
 // Version wraps a top level version resource which contains the underlying openAPIV3Schema.
@@ -103,9 +104,9 @@ func (h *crdView) Render() app.UI {
 	}
 
 	versions := make([]Version, 0)
-	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, h.comment, false)
+	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, h.comment, h.minimal)
 	for _, version := range crd.Spec.Versions {
-		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, pkg.RootRequiredFields)
+		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, pkg.RootRequiredFields, h.minimal)
 		if err != nil {
 			return h.buildError(err)
 		}
@@ -162,7 +163,6 @@ func (h *crdView) Render() app.UI {
 			),
 		)
 		div.Body(
-			&header{},
 			app.H1().Body(
 				app.P().Body(app.Text(fmt.Sprintf(
 					`Version: %s/%s`,
@@ -185,6 +185,7 @@ func (h *crdView) Render() app.UI {
 	return wrapper.Body(
 		app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
 		app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
+		&header{},
 		container,
 	)
 }
@@ -275,7 +276,7 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
-func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, requiredList []string) ([]*Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, requiredList []string, minimal bool) ([]*Property, error) {
 	sortedKeys := make([]string, 0, len(properties))
 	output := make([]*Property, 0, len(properties))
 
@@ -299,6 +300,12 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 				break
 			}
 		}
+
+		// skip if only minimal is required
+		if minimal && !required {
+			continue
+		}
+
 		p := &Property{
 			Name:        k,
 			Type:        v.Type,
@@ -316,21 +323,21 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 		switch {
 		case len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil:
 			requiredList = v.Required
-			out, err := parseCRD(properties[k].Properties, version, requiredList)
+			out, err := parseCRD(properties[k].Properties, version, requiredList, minimal)
 			if err != nil {
 				return nil, err
 			}
 			p.Properties = out
 		case properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0:
 			requiredList = v.Required
-			out, err := parseCRD(properties[k].Items.Schema.Properties, version, requiredList)
+			out, err := parseCRD(properties[k].Items.Schema.Properties, version, requiredList, minimal)
 			if err != nil {
 				return nil, err
 			}
 			p.Properties = out
 		case properties[k].AdditionalProperties != nil:
 			requiredList = v.Required
-			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, requiredList)
+			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, requiredList, minimal)
 			if err != nil {
 				return nil, err
 			}

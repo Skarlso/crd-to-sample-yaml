@@ -20,6 +20,7 @@ type index struct {
 	isMounted bool
 	err       error
 	comments  bool
+	minimal   bool
 }
 
 func (i *index) buildError() app.UI {
@@ -98,8 +99,9 @@ func (i *input) Render() app.UI {
 type form struct {
 	app.Compo
 
-	formHandler  app.EventHandler
-	checkHandler app.EventHandler
+	formHandler         app.EventHandler
+	checkHandlerMinimal app.EventHandler
+	checkHandlerComment app.EventHandler
 }
 
 func (f *form) Render() app.UI {
@@ -107,7 +109,7 @@ func (f *form) Render() app.UI {
 		app.Div().Class("row mb-3").Body(
 			&textarea{},
 			&input{},
-			&checkBox{checkHandler: f.checkHandler},
+			&checkBox{checkHandlerComment: f.checkHandlerComment, checkHandlerMinimal: f.checkHandlerMinimal},
 		),
 		app.Div().Class("text-end").Body(app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler)),
 	)
@@ -152,18 +154,29 @@ func (i *index) OnClick(_ app.Context, _ app.Event) {
 type checkBox struct {
 	app.Compo
 
-	checkHandler app.EventHandler
+	checkHandlerComment app.EventHandler
+	checkHandlerMinimal app.EventHandler
 }
 
 func (c *checkBox) Render() app.UI {
-	return app.Div().Class("form-check").Body(
-		app.Label().Class("form-check-label").For("enable-comments").Body(app.Text("Enable comments on YAML output")),
-		app.Input().Class("form-check-input").Type("checkbox").ID("enable-comments").OnClick(c.checkHandler),
+	return app.Div().Body(
+		app.Div().Class("form-check").Body(
+			app.Label().Class("form-check-label").For("enable-comments").Body(app.Text("Enable comments on YAML output")),
+			app.Input().Class("form-check-input").Type("checkbox").ID("enable-comments").OnClick(c.checkHandlerComment),
+		),
+		app.Div().Class("form-check").Body(
+			app.Label().Class("form-check-label").For("enable-minimal").Body(app.Text("Enable minimal required YAML output")),
+			app.Input().Class("form-check-input").Type("checkbox").ID("enable-minimal").OnClick(c.checkHandlerMinimal),
+		),
 	)
 }
 
-func (i *index) OnCheck(_ app.Context, _ app.Event) {
+func (i *index) OnCheckComment(_ app.Context, _ app.Event) {
 	i.comments = !i.comments
+}
+
+func (i *index) OnCheckMinimal(_ app.Context, _ app.Event) {
+	i.minimal = !i.minimal
 }
 
 func (i *index) OnMount(_ app.Context) {
@@ -179,10 +192,10 @@ func (i *index) Render() app.UI {
 			}
 
 			if i.content != nil {
-				return &crdView{content: i.content, comment: i.comments}
+				return &crdView{content: i.content, comment: i.comments, minimal: i.minimal}
 			}
 
-			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick, checkHandler: i.OnCheck})
+			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick, checkHandlerComment: i.OnCheckComment, checkHandlerMinimal: i.OnCheckMinimal})
 		}()))
 	}
 
