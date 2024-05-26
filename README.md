@@ -56,6 +56,9 @@ To get an HTML output provide the format flag like this:
 cty generate -c delivery.krok.app_krokcommands --comments --format html
 ```
 
+![parsed1_cli](./imgs/parsed1_cli.png)
+![parsed2_cli](./imgs/parsed2_cli.png)
+
 ### Minimal required CRD sample
 
 It's possible to generate a sample YAML for a CRD that will make the CRD validation pass. Meaning, it will only contain
@@ -142,5 +145,8 @@ TODO: add showcase for new frontend.
 
 ![frontpage](./imgs/frontend.png)
 
-![parsed1](./imgs/parsed1.png)
-![parsed2](./imgs/parsed2.png)
+Parsed Yaml output on the website:
+
+![parsed1](./imgs/parsed1_website.png)
+![parsed2](./imgs/parsed2_website.png)
+![parsed3](./imgs/parsed1_sample_website.png)
