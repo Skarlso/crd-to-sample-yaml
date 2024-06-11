@@ -2,8 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
@@ -137,12 +139,19 @@ func (i *index) OnClick(_ app.Context, _ app.Event) {
 	f := fetcher.NewFetcher(http.DefaultClient)
 	content, err := f.Fetch(inp.String())
 	if err != nil {
-		i.err = err
+		i.err = fmt.Errorf("failed to fetch CRD content: %w", err)
 
 		return
 	}
 	if len(content) > maximumBytes {
 		i.err = errors.New("content exceeds maximum length of 200KB")
+
+		return
+	}
+
+	content, err = sanitize.Sanitize(content)
+	if err != nil {
+		i.err = fmt.Errorf("failed to sanitize content: %w", err)
 
 		return
 	}
