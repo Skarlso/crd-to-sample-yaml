@@ -29,6 +29,6 @@ jobs:
         uses: goreleaser/goreleaser-action@v6.0.0
         with:
           version: latest
-          args: release --release-notes=docs/release_notes/${{ env.RELEASE_VERSION }}.md --skip-validate
+          args: release --release-notes=docs/release_notes/${{ env.RELEASE_VERSION }}.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
