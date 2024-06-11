@@ -1,11 +1,9 @@
 run:
-  go: "1.21"
+  go: "1.22"
   timeout: 10m
   tests: false
   allow-parallel-runners: true
   issues-exit-code: 2
-  skip-dirs:
-    - "hack"
 
 linters:
   enable-all: true
@@ -16,7 +14,7 @@ linters:
     # Logical next step
     - forcetypeassert  # Priority: that can lead to serious crashes.
     - exportloopref
-    - goerr113         # Do not define dynamic errors with Errorf.
+    - goerr113
     - varnamelen       # m, d, p < These are not so meaningful variables.
     - testpackage      # Blackbox testing is preffered.
     - funlen           # Break long functions.
@@ -50,7 +48,7 @@ linters:
     - dogsled
     - exhaustruct      # Doesn't really make sense.
     - exhaustive       # Doesn't really make sense.
-    - logrlint         # Doesn't really make sense.
+    - loggercheck         # Doesn't really make sense.
     - goimports        # acts weirdly, dci handles imports anyway
 
     # Disabled because of generics in go 1.18
@@ -60,6 +58,7 @@ linters:
     - wastedassign
 
     # Deprecated
+    - execinquery
     - deadcode
     - exhaustivestruct
     - golint
@@ -81,10 +80,6 @@ linters-settings:
       - default
       - prefix(github.com/open-component-model/ocm)
     custom-order: true
-  staticcheck:
-    go: "1.21"
-  stylecheck:
-    go: "1.21"
   funlen:
     lines: 110
     statements: 60
@@ -104,8 +99,6 @@ linters-settings:
     - err
     - wg
     - id
-  govet:
-    check-shadowing: true
   lll:
     line-length: 120
   gosec:
@@ -132,7 +125,6 @@ issues:
         - govet
     - path: _test\.go
       linters:
-      - goerr113
       - gocyclo
       - errcheck
       - gosec

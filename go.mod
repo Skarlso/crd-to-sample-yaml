@@ -1,6 +1,6 @@
 module github.com/Skarlso/crd-to-sample-yaml
 
-go 1.22.0
+go 1.22.4
 
 require (
 	github.com/maxence-charriere/go-app/v10 v10.0.4
