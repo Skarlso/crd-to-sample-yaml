@@ -8,6 +8,8 @@ import (
 
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
+
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 )
 
 type FolderHandler struct {
@@ -39,6 +41,11 @@ func (h *FolderHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("failed to read file: %w", err)
+		}
+
+		content, err = sanitize.Sanitize(content)
+		if err != nil {
+			return fmt.Errorf("failed to sanitize content: %w", err)
 		}
 
 		crd := &v1beta1.CustomResourceDefinition{}

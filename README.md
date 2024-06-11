@@ -138,8 +138,36 @@ cty generate -c sample-crd/infrastructure.cluster.x-k8s.io_awsclusters.yaml --co
 
 The frontend also has a checkbox to add comments to the generated yaml output.
 
-TODO: add showcase for new frontend.
+## Templated CRDs
 
+It's possible to provide a templated CRD like this one for flux: [Helm Controller](https://raw.githubusercontent.com/fluxcd-community/helm-charts/main/charts/flux2/templates/helm-controller.crds.yaml).
+
+It contains template definition like:
+
+```yaml
+{{- if and .Values.installCRDs .Values.helmController.create }}
+```
+
+These are trimmed so that the CRD parses correctly. Any values that might be in-lined are replaced with `replaced`.
+This is done to avoid trying to parse a breaking yaml.
+
+Things like this:
+```yaml
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.15.0
+  labels:
+    app.kubernetes.io/component: helm-controller
+    app.kubernetes.io/instance: {{ .Release.Namespace }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+  name: helmreleases.helm.toolkit.fluxcd.io
+```
+
+Where some templated value isn't escaped with `'` will create an invalid YAML that fails to parse.
 
 ## Showcase
 
