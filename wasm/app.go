@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -82,6 +83,13 @@ func (h *crdView) OnNav(ctx app.Context) {
 
 	f := fetcher.NewFetcher(http.DefaultClient)
 	content, err := f.Fetch(u)
+	if err != nil {
+		h.preRenderErr = err
+
+		return
+	}
+
+	content, err = sanitize.Sanitize(content)
 	if err != nil {
 		h.preRenderErr = err
 

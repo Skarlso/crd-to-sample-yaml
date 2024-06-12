@@ -22,7 +22,7 @@
     <link rel="apple-touch-icon" href="/web/img/logo.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link href="/app.css" type="text/css" rel="stylesheet">
-    <link rel="stylesheet" href="/web/css/alert.css" type="text/css">
+    <link href="/web/css/alert.css" type="text/css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css" type="text/css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" type="text/css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css" type="text/css" rel="stylesheet">
@@ -63,8 +63,8 @@
   <body>
     <main></main>
     <aside id="app-wasm-loader" class="goapp-app-info">
-      <img id="app-wasm-loader-icon" class="goapp-logo goapp-spin" alt="wasm loader icon" src="/web/img/logo.png">
-      <p id="app-wasm-loader-label" class="goapp-label">0%</p>
+      <img class="goapp-logo goapp-spin" alt="wasm loader icon" src="/web/img/logo.png" id="app-wasm-loader-icon">
+      <p class="goapp-label" id="app-wasm-loader-label">0%</p>
     </aside>
   </body>
 </html>
