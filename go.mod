@@ -4,7 +4,7 @@ go 1.22.4
 
 require (
 	github.com/maxence-charriere/go-app/v10 v10.0.5
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	k8s.io/apiextensions-apiserver v0.30.2
 	k8s.io/apimachinery v0.30.2
