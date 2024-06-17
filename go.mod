@@ -3,7 +3,7 @@ module github.com/Skarlso/crd-to-sample-yaml
 go 1.22.4
 
 require (
-	github.com/maxence-charriere/go-app/v10 v10.0.4
+	github.com/maxence-charriere/go-app/v10 v10.0.5
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
 	k8s.io/apiextensions-apiserver v0.30.2
@@ -23,8 +23,8 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
