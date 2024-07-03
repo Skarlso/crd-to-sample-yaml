@@ -10,13 +10,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
-	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 )
 
 // crdView is the main component to display a rendered CRD.
@@ -81,7 +81,8 @@ func (h *crdView) OnNav(ctx app.Context) {
 		return
 	}
 
-	f := fetcher.NewFetcher(http.DefaultClient)
+	// authentication is not available here.
+	f := fetcher.NewFetcher(http.DefaultClient, "", "", "")
 	content, err := f.Fetch(u)
 	if err != nil {
 		h.preRenderErr = err

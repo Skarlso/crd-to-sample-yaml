@@ -15,14 +15,17 @@ import (
 const timeout = 10
 
 type URLHandler struct {
-	url string
+	url      string
+	username string
+	password string
+	token    string
 }
 
 func (h *URLHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 	client := http.DefaultClient
 	client.Timeout = timeout * time.Second
 
-	f := fetcher.NewFetcher(client)
+	f := fetcher.NewFetcher(client, h.username, h.password, h.token)
 	content, err := f.Fetch(h.url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch content: %w", err)
