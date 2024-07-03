@@ -9,13 +9,19 @@ import (
 
 // Fetcher wraps an HTTP client.
 type Fetcher struct {
-	client *http.Client
+	client   *http.Client
+	username string
+	password string
+	token    string
 }
 
 // NewFetcher constructs a new client wrapper with a given client.
-func NewFetcher(client *http.Client) *Fetcher {
+func NewFetcher(client *http.Client, username, password, token string) *Fetcher {
 	return &Fetcher{
-		client: client,
+		client:   client,
+		username: username,
+		password: password,
+		token:    token,
 	}
 }
 
@@ -24,6 +30,14 @@ func (f *Fetcher) Fetch(url string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate request for url '%s': %w", url, err)
+	}
+
+	if f.username != "" && f.password != "" {
+		req.SetBasicAuth(f.username, f.password)
+	}
+
+	if f.token != "" {
+		req.Header.Add("Authorization", "Bearer "+f.token)
 	}
 
 	resp, err := f.client.Do(req)

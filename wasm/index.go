@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 )
 
 const maximumBytes = 200 * 1000 // 200KB
@@ -94,6 +94,9 @@ func (i *input) Render() app.UI {
 			Class("url_to_crd").Class("form-control").Placeholder("Paste URL to CRD here...").
 			ID("url_to_crd").
 			Name("url_to_crd"),
+		app.Input().Class("url_username").Class("form-control").Placeholder("Optional username here...").ID("url_username"),
+		app.Input().Class("url_password").Class("form-control").Placeholder("Optional password here...").ID("url_password").Type("password"),
+		app.Input().Class("url_token").Class("form-control").Placeholder("Optional token here...").ID("url_token").Type("password"),
 	)
 }
 
@@ -136,13 +139,18 @@ func (i *index) OnClick(_ app.Context, _ app.Event) {
 		return
 	}
 
-	f := fetcher.NewFetcher(http.DefaultClient)
+	username := app.Window().GetElementByID("url_username").Get("value")
+	password := app.Window().GetElementByID("url_password").Get("value")
+	token := app.Window().GetElementByID("url_token").Get("value")
+
+	f := fetcher.NewFetcher(http.DefaultClient, username.String(), password.String(), token.String())
 	content, err := f.Fetch(inp.String())
 	if err != nil {
 		i.err = fmt.Errorf("failed to fetch CRD content: %w", err)
 
 		return
 	}
+
 	if len(content) > maximumBytes {
 		i.err = errors.New("content exceeds maximum length of 200KB")
 

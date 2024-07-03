@@ -7,9 +7,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 	"github.com/spf13/cobra"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+
+	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 )
 
 const (
@@ -21,6 +22,9 @@ type rootArgs struct {
 	fileLocation   string
 	folderLocation string
 	url            string
+	username       string
+	password       string
+	token          string
 	output         string
 	format         string
 	stdOut         bool
@@ -50,6 +54,9 @@ func init() {
 	f.StringVarP(&args.fileLocation, "crd", "c", "", "The CRD file to generate a yaml from.")
 	f.StringVarP(&args.folderLocation, "folder", "r", "", "A folder from which to parse a series of CRDs.")
 	f.StringVarP(&args.url, "url", "u", "", "If provided, will use this URL to fetch CRD YAML content from.")
+	f.StringVar(&args.username, "username", "", "Optional username to authenticate a URL.")
+	f.StringVar(&args.password, "password", "", "Optional password to authenticate a URL.")
+	f.StringVar(&args.token, "token", "", "A bearer token to authenticate a URL.")
 	f.StringVarP(&args.output, "output", "o", "", "The location of the output file. Default is next to the CRD.")
 	f.StringVarP(&args.format, "format", "f", FormatYAML, "The format in which to output. Default is YAML. Options are: yaml, html.")
 	f.BoolVarP(&args.stdOut, "stdout", "s", false, "If set, it will output the generated content to stdout.")
@@ -124,7 +131,12 @@ func constructHandler(args *rootArgs) (Handler, error) {
 	case args.folderLocation != "":
 		crdHandler = &FolderHandler{location: args.folderLocation}
 	case args.url != "":
-		crdHandler = &URLHandler{url: args.url}
+		crdHandler = &URLHandler{
+			url:      args.url,
+			username: args.username,
+			password: args.password,
+			token:    args.token,
+		}
 	}
 
 	if crdHandler == nil {
