@@ -140,7 +140,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 			}
 			p.indent -= 2
 		case properties[k].AdditionalProperties != nil:
-			if len(properties[k].AdditionalProperties.Schema.Properties) == 0 {
+			if properties[k].AdditionalProperties.Schema == nil || len(properties[k].AdditionalProperties.Schema.Properties) == 0 {
 				w.write(file, " {}\n")
 			} else {
 				w.write(file, "\n")
