@@ -54,7 +54,7 @@ clean: ## Runs go clean
 	go clean -i
 
 GOLANGCI_LINT ?= $(LOCALBIN)/golangci-lint
-GOLANGCI_LINT_VERSION ?= v1.56.1
+GOLANGCI_LINT_VERSION ?= v1.57.2
 
 golangci-lint: $(GOLANGCI_LINT)
 $(GOLANGCI_LINT): $(LOCALBIN)
