@@ -344,7 +344,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 				return nil, err
 			}
 			p.Properties = out
-		case properties[k].AdditionalProperties != nil:
+		case properties[k].AdditionalProperties != nil && properties[k].AdditionalProperties.Schema != nil:
 			requiredList = v.Required
 			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, properties[k].AdditionalProperties.Schema.Required, minimal)
 			if err != nil {
