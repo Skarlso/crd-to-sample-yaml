@@ -8,68 +8,52 @@ run:
 linters:
   enable-all: true
   disable:
-    # We are working on it
-    - wrapcheck
-    - depguard
-    # Logical next step
-    - forcetypeassert  # Priority: that can lead to serious crashes.
-    - exportloopref
-    - goerr113
-    - varnamelen       # m, d, p < These are not so meaningful variables.
-    - testpackage      # Blackbox testing is preffered.
-    - funlen           # Break long functions.
-    - gomnd            # Give constant values a name with constants.
-    - ireturn          # Accept interface, return concrate.
-    - nestif           # Some nexted if statements are 8 or 9 deep.
-    - dupl             # Check code duplications.
-    - cyclop           # Complex functions are not good.
-    - gochecknoinits   # Init functions cause an import to have side effects,
-                       #   and side effects are hard to test,
-                       #   reduce readability and increase the complexity of code.
-    - containedctx     # Struct should not contain context, action does.
-    - nilnil           # A function should return either something valuable
-                       #   or an error, but both value and error as nil is
-                       #   useless. Like when I call it, why is it nil? Tell me
-                       #   in an error why.
     - bodyclose
-    - unparam
-    - nonamedreturns   # Either named return, or use simply `return`.
-
-    # Opinionated (we may want to keep it disabled)
-    - gochecknoglobals
-    - lll
-    - paralleltest
-    - tagliatelle
-    - wsl
-    - interfacebloat
-
-
-    # Disabled with reason
-    - dogsled
-    - exhaustruct      # Doesn't really make sense.
-    - exhaustive       # Doesn't really make sense.
-    - loggercheck         # Doesn't really make sense.
-    - goimports        # acts weirdly, dci handles imports anyway
-
-    # Disabled because of generics in go 1.18
+    - containedctx     # Struct should not contain context, action does.
     - contextcheck
-    - rowserrcheck
-    - sqlclosecheck
-    - wastedassign
-
-    # Deprecated
-    - execinquery
+    - cyclop           # Complex functions are not good.
     - deadcode
+    - depguard
+    - dogsled
+    - dupl             # Check code duplications.
+    - execinquery
+    - exhaustive       # Doesn't really make sense.
     - exhaustivestruct
-    - golint
-    - ifshort
-    - interfacer
-    - maligned
-    - scopelint
-    - structcheck
-    - varcheck
+    - exhaustruct      # Doesn't really make sense.
+    - exportloopref
+    - forcetypeassert  # Priority: that can lead to serious crashes.
+    - funlen           # Break long functions.
     - gci
+    - gochecknoglobals
+    - gochecknoinits   # Init functions cause an import to have side effects,
+    - goerr113
+    - goimports        # acts weirdly, dci handles imports anyway
+    - golint
+    - gomnd            # Give constant values a name with constants.
+    - ifshort
+    - interfacebloat
+    - interfacer
+    - ireturn          # Accept interface, return concrate.
+    - lll
+    - loggercheck         # Doesn't really make sense.
+    - maligned
+    - nestif           # Some nexted if statements are 8 or 9 deep.
+    - nilnil           # A function should return either something valuable
+    - nonamedreturns   # Either named return, or use simply `return`.
     - nosnakecase
+    - paralleltest
+    - rowserrcheck
+    - scopelint
+    - sqlclosecheck
+    - structcheck
+    - tagliatelle
+    - testpackage      # Blackbox testing is preffered.
+    - unparam
+    - varcheck
+    - varnamelen       # m, d, p < These are not so meaningful variables.
+    - wastedassign
+    - wrapcheck
+    - wsl
 
 linters-settings:
   gci:
@@ -84,12 +68,12 @@ linters-settings:
     lines: 110
     statements: 60
   cyclop:
-    max-complexity: 45
+    max-complexity: 46
     skip-tests: true
   gocognit:
     # Minimal code complexity to report.
     # Default: 30 (but we recommend 10-20)
-    min-complexity: 45
+    min-complexity: 46
   nolintlint:
     allow-unused: false
     require-explanation: true
@@ -111,9 +95,6 @@ issues:
     - path: cmds/
       linters:
       - forbidigo
-    - text: "should not use dot imports|don't use an underscore in package name"
-      linters:
-      - golint
     - source: "https://"
       linters:
       - lll

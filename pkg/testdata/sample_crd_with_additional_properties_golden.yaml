@@ -1,0 +1,15 @@
+apiVersion: delivery.krok.app/v1alpha1
+kind: KrokCommand
+metadata: {}
+spec:
+  annotations: {}
+  commandHasOutputToWrite: true
+  dependencies: ["string"]
+  enabled: true
+  image: string
+  platforms: ["string"]
+  readInputFromSecret:
+    name: string
+    namespace: string
+  schedule: string
+status: {}

@@ -111,3 +111,23 @@ func TestGenerateMinimalWithExample(t *testing.T) {
 
 	assert.Equal(t, golden, buffer.Bytes())
 }
+
+func TestGenerateWithAdditionalProperties(t *testing.T) {
+	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_additional_properties.yaml"))
+	require.NoError(t, err)
+
+	crd := &v1beta1.CustomResourceDefinition{}
+	require.NoError(t, yaml.Unmarshal(content, crd))
+
+	var output []byte
+	buffer := bytes.NewBuffer(output)
+
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false)
+	version := crd.Spec.Versions[0]
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
+
+	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_additional_properties_golden.yaml"))
+	require.NoError(t, err)
+
+	assert.Equal(t, golden, buffer.Bytes())
+}
