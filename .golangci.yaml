@@ -1,5 +1,5 @@
 run:
-  go: "1.22"
+  go: "1.23"
   timeout: 10m
   tests: false
   allow-parallel-runners: true
@@ -12,13 +12,11 @@ linters:
     - containedctx     # Struct should not contain context, action does.
     - contextcheck
     - cyclop           # Complex functions are not good.
-    - deadcode
     - depguard
     - dogsled
     - dupl             # Check code duplications.
     - execinquery
     - exhaustive       # Doesn't really make sense.
-    - exhaustivestruct
     - exhaustruct      # Doesn't really make sense.
     - exportloopref
     - forcetypeassert  # Priority: that can lead to serious crashes.
@@ -26,30 +24,22 @@ linters:
     - gci
     - gochecknoglobals
     - gochecknoinits   # Init functions cause an import to have side effects,
-    - goerr113
+    - err113
     - goimports        # acts weirdly, dci handles imports anyway
-    - golint
     - gomnd            # Give constant values a name with constants.
-    - ifshort
     - interfacebloat
-    - interfacer
     - ireturn          # Accept interface, return concrate.
     - lll
     - loggercheck         # Doesn't really make sense.
-    - maligned
     - nestif           # Some nexted if statements are 8 or 9 deep.
     - nilnil           # A function should return either something valuable
     - nonamedreturns   # Either named return, or use simply `return`.
-    - nosnakecase
     - paralleltest
     - rowserrcheck
-    - scopelint
     - sqlclosecheck
-    - structcheck
     - tagliatelle
     - testpackage      # Blackbox testing is preffered.
     - unparam
-    - varcheck
     - varnamelen       # m, d, p < These are not so meaningful variables.
     - wastedassign
     - wrapcheck
