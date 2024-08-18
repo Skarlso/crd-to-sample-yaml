@@ -17,5 +17,6 @@ tests:
           apiVersion: v1alpha1
           kind: Bootstrap
           spec:
-            url:
-              url: https://github.com/Skarlso/test
+            source:
+              url:
+                url: https://github.com/Skarlso/test

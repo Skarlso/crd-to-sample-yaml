@@ -35,8 +35,18 @@ func Validate(sourceCRD []byte, sampleFile []byte) error {
 			return fmt.Errorf("invalid schema: %w", err)
 		}
 
-		if err := eval.Validate(v).AsError(); err != nil {
-			return fmt.Errorf("failed to validate kind %s: %w", crd.Spec.Names.Kind, err)
+		var resultErrors error
+		result := eval.Validate(obj)
+		for _, e := range result.Errors {
+			resultErrors = errors.Join(resultErrors, e)
+		}
+
+		for _, e := range result.Warnings {
+			resultErrors = errors.Join(resultErrors, e)
+		}
+
+		if resultErrors != nil {
+			return fmt.Errorf("failed to validate kind %s: %w", crd.Spec.Names.Kind, resultErrors)
 		}
 	}
 

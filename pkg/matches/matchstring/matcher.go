@@ -1,6 +1,10 @@
 package matchstring
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/Skarlso/crd-to-sample-yaml/pkg/matches"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
@@ -15,7 +19,12 @@ func (m *Matcher) Match(sourceTemplateLocation string, payload []byte) error {
 		return err
 	}
 
-	return nil
+	crdContent, err := os.ReadFile(sourceTemplateLocation)
+	if err != nil {
+		return fmt.Errorf("error reading file %s: %w", sourceTemplateLocation, err)
+	}
+
+	return matches.Validate(crdContent, payload)
 }
 
 func init() {
