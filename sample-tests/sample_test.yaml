@@ -1,0 +1,21 @@
+suite: test crd bootstrap
+template: sample-tests/crds/bootstrap_crd.yaml
+tests:
+  - it: matches bootstrap crds correctly
+    asserts:
+      - matchSnapshot:
+          name: sample-tests/__snapshots__/bootstrap_crd_all.yaml
+      - matchSnapshot:
+          name: sample-tests/__snapshots__/bootstrap_crd_min.yaml
+          # think about this. The matcher doesn't need to know about minimal.. but
+          # we have to somehow pass in that the snapshot needs to be minimal...
+          # maybe we don't care...?
+          minimal: true
+  - it: matches some custom stuff
+    asserts:
+      - matchString:
+          apiVersion: v1alpha1
+          kind: Bootstrap
+          spec:
+            url:
+              url: https://github.com/Skarlso/test
