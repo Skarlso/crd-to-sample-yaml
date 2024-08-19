@@ -1,0 +1,21 @@
+suite: test crd bootstrap
+template: sample-tests/crds/bootstrap_crd.yaml
+tests:
+  - it: matches bootstrap crds correctly
+    asserts:
+      - matchSnapshot:
+          # this will generate one snapshot / CRD version and match all of them to the right version of the CRD
+          path: sample-tests/__snapshots__
+      - matchSnapshot:
+          path: sample-tests/__snapshots__
+          # generates a yaml file
+          minimal: true
+  - it: matches some custom stuff
+    asserts:
+      - matchString:
+          apiVersion: v1alpha1 # this will match this exact version only from the list of versions in the CRD
+          kind: Bootstrap
+          spec:
+            source:
+              url:
+                url: https://github.com/Skarlso/test

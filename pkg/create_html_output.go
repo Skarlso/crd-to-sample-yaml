@@ -69,7 +69,7 @@ func RenderContent(w io.WriteCloser, crd *v1beta1.CustomResourceDefinition, comm
 	}()
 
 	versions := make([]Version, 0)
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, comments, minimal)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, comments, minimal, false)
 
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, minimal, RootRequiredFields)

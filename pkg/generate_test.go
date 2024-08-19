@@ -23,7 +23,7 @@ func TestGenerate(t *testing.T) {
 	buffer := bytes.NewBuffer(output)
 
 	version := crd.Spec.Versions[0]
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, true)
 	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_golden.yaml"))
@@ -42,7 +42,7 @@ func TestGenerateWithExample(t *testing.T) {
 	var output []byte
 	buffer := bytes.NewBuffer(output)
 
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, true)
 	version := crd.Spec.Versions[0]
 	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
 
@@ -62,7 +62,7 @@ func TestGenerateWithComments(t *testing.T) {
 	var output []byte
 	buffer := bytes.NewBuffer(output)
 
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, true, false)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, true, false, true)
 	version := crd.Spec.Versions[0]
 	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
 
@@ -82,7 +82,7 @@ func TestGenerateMinimal(t *testing.T) {
 	var output []byte
 	buffer := bytes.NewBuffer(output)
 
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, true)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, true, true)
 	version := crd.Spec.Versions[0]
 	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
 
@@ -102,7 +102,7 @@ func TestGenerateMinimalWithExample(t *testing.T) {
 	var output []byte
 	buffer := bytes.NewBuffer(output)
 
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, true)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, true, true)
 	version := crd.Spec.Versions[0]
 	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
 
@@ -122,7 +122,7 @@ func TestGenerateWithAdditionalProperties(t *testing.T) {
 	var output []byte
 	buffer := bytes.NewBuffer(output)
 
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, true)
 	version := crd.Spec.Versions[0]
 	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
 

@@ -52,6 +52,7 @@ type Property struct {
 	Default     string
 	Required    bool
 	Properties  []*Property
+	Enums       []string
 }
 
 func (h *crdView) buildError(err error) app.UI {
@@ -113,7 +114,7 @@ func (h *crdView) Render() app.UI {
 	}
 
 	versions := make([]Version, 0)
-	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, h.comment, h.minimal)
+	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, h.comment, h.minimal, false)
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, pkg.RootRequiredFields, h.minimal)
 		if err != nil {
@@ -210,6 +211,9 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 
 		if prop.Required {
 			headerElements = append(headerElements, app.Div().Class("text-bg-primary").Class("col").Text("required"))
+		}
+		if prop.Enums != nil {
+			headerElements = append(headerElements, app.Div().Class("text-bg-primary").Class("col").Text(strings.Join(prop.Enums, ",")))
 		}
 		if prop.Format != "" {
 			headerElements = append(headerElements, app.Div().Class("col").Text(prop.Format))
@@ -315,6 +319,13 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 			continue
 		}
 
+		var enums []string
+		if v.Enum != nil {
+			for _, e := range v.Enum {
+				enums = append(enums, string(e.Raw))
+			}
+		}
+
 		p := &Property{
 			Name:        k,
 			Type:        v.Type,
@@ -324,6 +335,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 			Nullable:    v.Nullable,
 			Version:     version,
 			Required:    required,
+			Enums:       enums,
 		}
 		if v.Default != nil {
 			p.Default = string(v.Default.Raw)

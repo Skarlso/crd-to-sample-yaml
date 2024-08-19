@@ -128,6 +128,7 @@ spec:
                       items:
                         type: string
                       type: array
+                      minItems: 5
                     crossZoneLoadBalancing:
                       description: "CrossZoneLoadBalancing enables the classic ELB cross
                       availability zone balancing. \n With cross-zone load balancing,

@@ -3,10 +3,10 @@ kind: KrokCommand
 metadata: {}
 spec:
   commandHasOutputToWrite: true
-  dependencies: ["string"]
+  dependencies: [] # minItems 0 of type string
   enabled: true
   image: string
-  platforms: ["string"]
+  platforms: [] # minItems 0 of type string
   readInputFromSecret:
     name: string
     namespace: string

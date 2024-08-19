@@ -1,0 +1,57 @@
+apiVersion: delivery.crd-bootstrap/v1alpha1
+kind: Bootstrap
+metadata: {}
+spec:
+  continueOnValidationError: true
+  interval: string
+  kubeConfig:
+    secretRef:
+      secretRef:
+        key: string
+        name: string
+    serviceAccount: string
+  prune: true
+  source:
+    configMap:
+      name: string
+      namespace: string
+    github:
+      baseAPIURL: string
+      baseURL: string
+      manifest: string
+      owner: string
+      repo: string
+      secretRef:
+        name: ""
+    gitlab:
+      baseAPIURL: string
+      manifest: string
+      owner: string
+      repo: string
+      secretRef:
+        name: ""
+    helm:
+      chartName: string
+      chartReference: string
+      secretRef:
+        name: ""
+    url:
+      secretRef:
+        name: ""
+      url: string
+  template: {}
+  version:
+    digest: string
+    semver: string
+status:
+  conditions:
+  - lastTransitionTime: string
+    message: string
+    observedGeneration: 0
+    reason: i # ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+    status: "True"
+    type: d # ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+  lastAppliedCRDNames: {}
+  lastAppliedRevision: string
+  lastAttemptedRevision: string
+  observedGeneration: 1

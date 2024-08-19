@@ -58,12 +58,12 @@ linters-settings:
     lines: 110
     statements: 60
   cyclop:
-    max-complexity: 46
+    max-complexity: 50
     skip-tests: true
   gocognit:
     # Minimal code complexity to report.
     # Default: 30 (but we recommend 10-20)
-    min-complexity: 46
+    min-complexity: 50
   nolintlint:
     allow-unused: false
     require-explanation: true

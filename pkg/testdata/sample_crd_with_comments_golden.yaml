@@ -8,13 +8,13 @@ spec:
   # CommandHasOutputToWrite if defined, it signals the underlying Job, to put its output into a generated and created secret.
   commandHasOutputToWrite: true
   # Dependencies defines a list of command names that this command depends on.
-  dependencies: ["string"]
+  dependencies: [] # minItems 0 of type string
   # Enabled defines if this command can be executed or not.
   enabled: true
   # Image defines the image name and tag of the command example: krok-hook/slack-notification:v0.0.1
   image: string
   # Platforms holds all the platforms which this command supports.
-  platforms: ["string"]
+  platforms: [] # minItems 0 of type string
   # ReadInputFromSecret if defined, the command will take a list of key/value pairs in a secret and apply them as arguments to the command.
   readInputFromSecret:
     name: string

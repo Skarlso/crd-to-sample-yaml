@@ -30,6 +30,7 @@ type rootArgs struct {
 	stdOut         bool
 	comments       bool
 	minimal        bool
+	skipRandom     bool
 }
 
 var (
@@ -62,6 +63,7 @@ func init() {
 	f.BoolVarP(&args.stdOut, "stdout", "s", false, "If set, it will output the generated content to stdout.")
 	f.BoolVarP(&args.comments, "comments", "m", false, "If set, it will add descriptions as comments to each line where available.")
 	f.BoolVarP(&args.minimal, "minimal", "l", false, "If set, only the minimal required example yaml is generated.")
+	f.BoolVar(&args.skipRandom, "no-random", false, "Skip generating random values that satisfy the property patterns.")
 }
 
 func runGenerate(_ *cobra.Command, _ []string) error {
@@ -116,7 +118,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			continue
 		}
 
-		errs = append(errs, pkg.Generate(crd, w, args.comments, args.minimal))
+		errs = append(errs, pkg.Generate(crd, w, args.comments, args.minimal, args.skipRandom))
 	}
 
 	return errors.Join(errs...)
