@@ -31,14 +31,14 @@ func init() {
 	f.BoolVarP(&testArgs.update, "update", "u", false, "Update any existing snapshots.")
 }
 
-func runTest(_ *cobra.Command, args []string) error {
+func runTest(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return errors.New("test needs an argument where the tests are located at")
 	}
 
 	path := args[0]
 	runner := tests.NewSuiteRunner(path, testArgs.update)
-	outcome, err := runner.Run()
+	outcome, err := runner.Run(cmd.Context())
 	if err != nil {
 		return err
 	}

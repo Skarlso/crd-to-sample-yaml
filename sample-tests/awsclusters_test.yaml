@@ -1,0 +1,27 @@
+suite: test aws clusters infrastructure crds
+template: sample-tests/crds/infrastructure.cluster.x-k8s.io_awsclusters.yaml
+tests:
+  - it: matches AWSCluster crds correctly
+    asserts:
+      - matchSnapshot:
+          # this will generate one snapshot / CRD version and match all of them to the right version of the CRD
+          path: sample-tests/__snapshots__
+      - matchSnapshot:
+          path: sample-tests/__snapshots__
+          # generates a yaml file
+          minimal: true
+      - matchString:
+          apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+          kind: AWSCluster
+          spec:
+            controlPlaneEndpoint:
+              host: string
+              port: 1
+      - matchString:
+          apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+          kind: AWSCluster
+          spec:
+            controlPlaneEndpoint:
+              # this is failing the test because the type is number and not string
+              host: 12345
+              port: 1

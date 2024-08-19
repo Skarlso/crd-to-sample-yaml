@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -33,7 +34,6 @@ func NewSuiteRunner(location string, update bool) *SuiteRunner {
 	return &SuiteRunner{
 		Location: location,
 		Update:   update,
-		Updater:  &Update{},
 	}
 }
 
@@ -41,7 +41,6 @@ func NewSuiteRunner(location string, update bool) *SuiteRunner {
 type SuiteRunner struct {
 	Location string
 	Update   bool
-	Updater  Updater
 }
 
 type Test struct {
@@ -64,13 +63,17 @@ type Outcome struct {
 }
 
 // Run runs a suite of tests in sequence.
-func (s *SuiteRunner) Run() ([]Outcome, error) {
+func (s *SuiteRunner) Run(ctx context.Context) ([]Outcome, error) {
 	testMatrix, err := s.constructTestMatrix()
 	if err != nil {
 		return nil, fmt.Errorf("failed to construct test matrix: %w", err)
 	}
 
 	var outcome []Outcome
+
+	if s.Update {
+		ctx = context.WithValue(ctx, matches.UpdateSnapshotKey, "update")
+	}
 
 	for file, v := range testMatrix {
 		for _, t := range v {
@@ -86,6 +89,7 @@ func (s *SuiteRunner) Run() ([]Outcome, error) {
 
 					continue
 				}
+
 				for k, payload := range m {
 					if _, ok := matchers[k]; !ok {
 						outcome = append(outcome, Outcome{
@@ -98,21 +102,8 @@ func (s *SuiteRunner) Run() ([]Outcome, error) {
 						continue
 					}
 
-					if k == "matchSnapshot" && s.Update {
-						if err := s.UpdateSnapshot(file, payload.Raw); err != nil {
-							outcome = append(outcome, Outcome{
-								Name:     t.It,
-								Error:    fmt.Errorf("updater.Update() returned %w", err),
-								Matcher:  k,
-								Template: file,
-							})
-
-							continue
-						}
-					}
-
 					matcher := matchers[k]
-					if err := matcher.Match(file, payload.Raw); err != nil {
+					if err := matcher.Match(ctx, file, payload.Raw); err != nil {
 						// test failed
 						outcome = append(outcome, Outcome{
 							Name:     t.It,
@@ -166,7 +157,7 @@ func (s *SuiteRunner) constructTestMatrix() (map[string][]Test, error) {
 	for _, testFile := range testFiles {
 		content, err := os.ReadFile(testFile)
 		if err != nil {
-			return nil, fmt.Errorf("ioutil.ReadFile() returned %w", err)
+			return nil, fmt.Errorf("os.ReadFile() returned %w", err)
 		}
 
 		suite := &Suite{}
@@ -178,20 +169,4 @@ func (s *SuiteRunner) constructTestMatrix() (map[string][]Test, error) {
 	}
 
 	return testMatrix, nil
-}
-
-func (s *SuiteRunner) UpdateSnapshot(file string, payload []byte) error {
-	var snapshotLocation struct {
-		Name    string
-		Minimal bool
-	}
-	if err := yaml.Unmarshal(payload, &snapshotLocation); err != nil {
-		return fmt.Errorf("yaml.Unmarshal() returned %w", err)
-	}
-
-	if err := s.Updater.Update(file, snapshotLocation.Name, snapshotLocation.Minimal); err != nil {
-		return fmt.Errorf("updater.Update() returned %w", err)
-	}
-
-	return nil
 }
