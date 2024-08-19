@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -16,7 +15,7 @@ var (
 	testCmd = &cobra.Command{
 		Use:   "test",
 		Short: "Run a set of tests to check CRD schema stability.",
-		RunE:  runTest,
+		Run:   runTest,
 	}
 
 	testArgs struct {
@@ -31,19 +30,23 @@ func init() {
 	f.BoolVarP(&testArgs.update, "update", "u", false, "Update any existing snapshots.")
 }
 
-func runTest(cmd *cobra.Command, args []string) error {
+func runTest(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
-		return errors.New("test needs an argument where the tests are located at")
+		fmt.Fprintf(os.Stderr, "test needs an argument where the tests are located at")
+
+		os.Exit(1)
 	}
 
 	path := args[0]
 	runner := tests.NewSuiteRunner(path, testArgs.update)
 	outcome, err := runner.Run(cmd.Context())
 	if err != nil {
-		return err
+		os.Exit(1)
 	}
 
-	return displayWarnings(outcome)
+	if err := displayWarnings(outcome); err != nil {
+		os.Exit(1)
+	}
 }
 
 func displayWarnings(warnings []tests.Outcome) error {
