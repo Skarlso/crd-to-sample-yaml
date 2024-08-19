@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math/rand/v2"
 	"regexp"
 	"slices"
 	"sort"
@@ -195,9 +194,7 @@ func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
 	}
 
 	if v.Enum != nil {
-		i := rand.IntN(len(v.Enum)) //nolint:gosec // enough for our purposes
-
-		return string(v.Enum[i].Raw)
+		return string(v.Enum[0].Raw)
 	}
 
 	st := "string"

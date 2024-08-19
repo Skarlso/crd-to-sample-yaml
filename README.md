@@ -4,6 +4,13 @@
 
 Generate a sample YAML file from a CRD definition.
 
+## CRD Testing using CTY
+
+For more information about how to use `cty` for helm-like unit testing your CRD schemas,
+please follow the [How to test CRDs with CTY Readme](./crd-testing-README.md).
+
+![crd-unittest-sample-output](./imgs/crd-unittest-outcome.png)
+
 ## Getting started
 - Prerequisites: Go installed on your machine. (Check out this link for details: https://go.dev/doc/install)
 - Clone the repository
