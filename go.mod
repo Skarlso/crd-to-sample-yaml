@@ -3,6 +3,8 @@ module github.com/Skarlso/crd-to-sample-yaml
 go 1.23
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.28.0
+	github.com/fatih/color v1.17.0
 	github.com/jedib0t/go-pretty/v6 v6.5.9
 	github.com/maxence-charriere/go-app/v10 v10.0.5
 	github.com/spf13/cobra v1.8.1
@@ -33,6 +35,8 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect

@@ -53,7 +53,7 @@ func Validate(sourceCRD []byte, sampleFile []byte) error {
 			}
 
 			if resultErrors != nil {
-				return fmt.Errorf("failed to validate kind %s: %w", crd.Spec.Names.Kind, resultErrors)
+				return fmt.Errorf("failed to validate kind %s and version %s: %w", crd.Spec.Names.Kind, v.Name, resultErrors)
 			}
 
 			return nil

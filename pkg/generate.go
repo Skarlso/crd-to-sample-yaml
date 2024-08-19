@@ -4,10 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
+	"regexp"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
@@ -16,14 +20,14 @@ const array = "array"
 var RootRequiredFields = []string{"apiVersion", "kind", "spec", "metadata"}
 
 // Generate takes a CRD content and path, and outputs.
-func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments, minimal bool) (err error) {
+func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments, minimal, skipRandom bool) (err error) {
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
 			err = errors.Join(err, cerr)
 		}
 	}()
 
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, enableComments, minimal)
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, enableComments, minimal, skipRandom)
 	for i, version := range crd.Spec.Versions {
 		if err := parser.ParseProperties(version.Name, w, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
@@ -57,15 +61,17 @@ type Parser struct {
 	group        string
 	kind         string
 	onlyRequired bool
+	skipRandom   bool
 }
 
 // NewParser creates a new parser contains most of the things that do not change over each call.
-func NewParser(group, kind string, comments, requiredOnly bool) *Parser {
+func NewParser(group, kind string, comments, requiredOnly, skipRandom bool) *Parser {
 	return &Parser{
 		group:        group,
 		kind:         kind,
 		comments:     comments,
 		onlyRequired: requiredOnly,
+		skipRandom:   skipRandom,
 	}
 }
 
@@ -111,7 +117,8 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 
 				continue
 			}
-			if k == "kind" {
+			// only set kind at the first level, after that it mist be something else.
+			if k == "kind" && p.indent == 0 {
 				w.write(file, fmt.Sprintf(" %s\n", p.kind))
 
 				continue
@@ -128,7 +135,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 				}
 				p.indent -= 2
 			} else {
-				result = outputValueType(properties[k])
+				result = outputValueType(properties[k], p.skipRandom)
 				w.write(file, fmt.Sprintf(" %s\n", result))
 			}
 		case len(properties[k].Properties) > 0:
@@ -140,13 +147,21 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 			}
 			p.indent -= 2
 		case properties[k].AdditionalProperties != nil:
-			if properties[k].AdditionalProperties.Schema == nil || len(properties[k].AdditionalProperties.Schema.Properties) == 0 {
+			// if there are no properties defined but only additional properties, we will not generate the
+			// additional properties because they are forbidden fields by the Schema Validation.
+			if len(properties[k].Properties) == 0 ||
+				(properties[k].AdditionalProperties.Schema == nil || len(properties[k].AdditionalProperties.Schema.Properties) == 0) {
 				w.write(file, " {}\n")
 			} else {
 				w.write(file, "\n")
 
 				p.indent += 2
-				if err := p.ParseProperties(version, file, properties[k].AdditionalProperties.Schema.Properties, properties[k].AdditionalProperties.Schema.Required); err != nil {
+				if err := p.ParseProperties(
+					version,
+					file,
+					properties[k].AdditionalProperties.Schema.Properties,
+					properties[k].AdditionalProperties.Schema.Required,
+				); err != nil {
 					return err
 				}
 				p.indent -= 2
@@ -162,7 +177,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 }
 
 // outputValueType generate an output value based on the given type.
-func outputValueType(v v1beta1.JSONSchemaProps) string {
+func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
 	if v.Default != nil {
 		return string(v.Default.Raw)
 	}
@@ -171,11 +186,29 @@ func outputValueType(v v1beta1.JSONSchemaProps) string {
 		return string(v.Example.Raw)
 	}
 
+	if v.Pattern != "" && !skipRandom {
+		// if it's a valid regex, let's return a value that matches the regex
+		// if not, we don't care
+		if _, err := regexp.Compile(v.Pattern); err == nil {
+			return gofakeit.Regex(v.Pattern) + " # " + v.Pattern
+		}
+	}
+
+	if v.Enum != nil {
+		i := rand.IntN(len(v.Enum)) //nolint:gosec // enough for our purposes
+
+		return string(v.Enum[i].Raw)
+	}
+
 	st := "string"
 	switch v.Type {
 	case st:
 		return st
 	case "integer":
+		if v.Minimum != nil {
+			return strconv.Itoa(int(*v.Minimum))
+		}
+
 		return "1"
 	case "boolean":
 		return "true"
@@ -184,11 +217,14 @@ func outputValueType(v v1beta1.JSONSchemaProps) string {
 	case array: // deal with arrays of other types that weren't objects
 		t := v.Items.Schema.Type
 		var s string
-		if t == st {
-			s = fmt.Sprintf("[\"%s\"]", t)
-		} else {
-			s = fmt.Sprintf("[%s]", t)
+		var items []string
+		if v.MinItems != nil {
+			for range int(*v.MinItems) {
+				items = append(items, t)
+			}
 		}
+
+		s = fmt.Sprintf("[%s] # minItems %d of type %s", strings.Join(items, ","), len(items), t)
 
 		return s
 	}

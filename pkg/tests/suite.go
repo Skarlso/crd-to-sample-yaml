@@ -56,6 +56,7 @@ type Suite struct {
 
 // Outcome is returned by a run.
 type Outcome struct {
+	Status   string
 	Name     string
 	Error    error
 	Matcher  string
@@ -81,6 +82,7 @@ func (s *SuiteRunner) Run(ctx context.Context) ([]Outcome, error) {
 				m := map[string]*apiextensionsv1.JSON{}
 				if err := yaml.Unmarshal(assert.Raw, &m); err != nil {
 					outcome = append(outcome, Outcome{
+						Status:   "FAIL",
 						Name:     t.It,
 						Error:    fmt.Errorf("yaml.Unmarshal() returned %w", err),
 						Matcher:  "unknown",
@@ -93,6 +95,7 @@ func (s *SuiteRunner) Run(ctx context.Context) ([]Outcome, error) {
 				for k, payload := range m {
 					if _, ok := matchers[k]; !ok {
 						outcome = append(outcome, Outcome{
+							Status:   "FAIL",
 							Name:     t.It,
 							Error:    fmt.Errorf("matcher %s not registered", k),
 							Matcher:  k,
@@ -106,6 +109,7 @@ func (s *SuiteRunner) Run(ctx context.Context) ([]Outcome, error) {
 					if err := matcher.Match(ctx, file, payload.Raw); err != nil {
 						// test failed
 						outcome = append(outcome, Outcome{
+							Status:   "FAIL",
 							Name:     t.It,
 							Error:    fmt.Errorf("matcher returned failure: %w", err),
 							Matcher:  k,
@@ -117,6 +121,7 @@ func (s *SuiteRunner) Run(ctx context.Context) ([]Outcome, error) {
 
 					// test passed
 					outcome = append(outcome, Outcome{
+						Status:   "PASS",
 						Name:     t.It,
 						Matcher:  k,
 						Template: file,

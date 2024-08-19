@@ -1498,6 +1498,11 @@ spec:
                     type: object
                   type: array
                 failureDomains:
+                  properties:
+                    message:
+                      description: A human readable message indicating details about
+                        the transition. This field may be empty.
+                      type: string
                   additionalProperties:
                     description: FailureDomainSpec is the Schema for Cluster API failure
                       domains. It allows controllers to understand how many failure
@@ -1641,7 +1646,7 @@ spec:
                       additionalProperties:
                         description: SecurityGroup defines an AWS security group.
                         properties:
-                          id:
+                          asdf:
                             description: ID is a unique identifier.
                             type: string
                           ingressRule:
@@ -1701,6 +1706,11 @@ spec:
                           - id
                           - name
                         type: object
+                      properties:
+                        message:
+                          description: A human readable message indicating details about
+                            the transition. This field may be empty.
+                          type: string
                       description: SecurityGroups is a map from the role/kind of the
                         security group to its unique name, if any.
                       type: object

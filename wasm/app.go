@@ -113,7 +113,7 @@ func (h *crdView) Render() app.UI {
 	}
 
 	versions := make([]Version, 0)
-	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, h.comment, h.minimal)
+	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, h.comment, h.minimal, false)
 	for _, version := range crd.Spec.Versions {
 		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, pkg.RootRequiredFields, h.minimal)
 		if err != nil {

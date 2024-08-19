@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/spf13/cobra"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/tests"
 )
+
+const wrapLen = 80
 
 var (
 	// testCmd is root for various `test ...` commands.
@@ -54,15 +58,23 @@ func displayWarnings(warnings []tests.Outcome) error {
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"It", "Matcher", "Error", "Template"})
+	t.AppendHeader(table.Row{"Status", "It", "Matcher", "Error", "Template"})
 	rows := make([]table.Row, 0, len(warnings))
 	for _, w := range warnings {
 		if w.Error != nil {
 			errs++
 		}
 
+		status := color.GreenString(w.Status)
+		if w.Status == "FAIL" {
+			status = color.RedString(w.Status)
+		}
+		var errText string
+		if w.Error != nil {
+			errText = text.WrapText(w.Error.Error(), wrapLen)
+		}
 		rows = append(rows, table.Row{
-			w.Name, w.Matcher, w.Error, w.Template,
+			status, w.Name, w.Matcher, errText, w.Template,
 		})
 	}
 	t.AppendRows(rows)

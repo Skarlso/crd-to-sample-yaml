@@ -4,7 +4,7 @@ metadata: {}
 spec:
   additionalTags: {}
   bastion:
-    allowedCIDRBlocks: ["string"]
+    allowedCIDRBlocks: [] # minItems 0 of type string
     ami: string
     disableIngressRules: true
     enabled: true
@@ -13,14 +13,14 @@ spec:
     host: string
     port: 1
   controlPlaneLoadBalancer:
-    additionalSecurityGroups: ["string"]
+    additionalSecurityGroups: [] # minItems 0 of type string
     crossZoneLoadBalancing: true
     healthCheckProtocol: string
-    name: string
+    name: RxVC # ^[A-Za-z0-9]([A-Za-z0-9]{0,31}|[-A-Za-z0-9]{0,30}[A-Za-z0-9])$
     scheme: "internet-facing"
-    subnets: ["string"]
+    subnets: [] # minItems 0 of type string
   identityRef:
-    kind: AWSCluster
+    kind: "AWSClusterRoleIdentity"
     name: string
   imageLookupBaseOS: string
   imageLookupFormat: string
@@ -57,8 +57,8 @@ spec:
   region: string
   s3Bucket:
     controlPlaneIAMInstanceProfile: string
-    name: string
-    nodesIAMInstanceProfiles: ["string"]
+    name: o.2eu8tg7pq # ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$
+    nodesIAMInstanceProfiles: [] # minItems 0 of type string
   sshKeyName: string
 status:
   bastion:
@@ -72,13 +72,13 @@ status:
     id: string
     imageId: string
     instanceState: string
-    networkInterfaces: ["string"]
+    networkInterfaces: [] # minItems 0 of type string
     nonRootVolumes:
     - deviceName: string
       encrypted: true
       encryptionKey: string
       iops: 1
-      size: 1
+      size: 8
       throughput: 1
       type: string
     privateIp: string
@@ -88,10 +88,10 @@ status:
       encrypted: true
       encryptionKey: string
       iops: 1
-      size: 1
+      size: 8
       throughput: 1
       type: string
-    securityGroupIds: ["string"]
+    securityGroupIds: [] # minItems 0 of type string
     spotMarketOptions:
       maxPrice: string
     sshKeyName: string
@@ -100,7 +100,7 @@ status:
     tenancy: string
     type: string
     userData: string
-    volumeIDs: ["string"]
+    volumeIDs: [] # minItems 0 of type string
   conditions:
   - lastTransitionTime: string
     message: string
@@ -108,15 +108,13 @@ status:
     severity: string
     status: string
     type: string
-  failureDomains:
-    attributes: {}
-    controlPlane: true
+  failureDomains: {}
   networkStatus:
     apiServerElb:
       attributes:
         crossZoneLoadBalancing: true
         idleTimeout: 1
-      availabilityZones: ["string"]
+      availabilityZones: [] # minItems 0 of type string
       dnsName: string
       healthChecks:
         healthyThreshold: 1
@@ -131,19 +129,8 @@ status:
         protocol: string
       name: string
       scheme: string
-      securityGroupIds: ["string"]
-      subnetIds: ["string"]
+      securityGroupIds: [] # minItems 0 of type string
+      subnetIds: [] # minItems 0 of type string
       tags: {}
-    securityGroups:
-      id: string
-      ingressRule:
-      - cidrBlocks: ["string"]
-        description: string
-        fromPort: 1
-        ipv6CidrBlocks: ["string"]
-        protocol: string
-        sourceSecurityGroupIds: ["string"]
-        toPort: 1
-      name: string
-      tags: {}
+    securityGroups: {}
   ready: false

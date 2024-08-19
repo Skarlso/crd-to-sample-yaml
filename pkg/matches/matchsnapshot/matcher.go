@@ -56,7 +56,8 @@ func (m *Matcher) Match(ctx context.Context, crdLocation string, payload []byte)
 		}
 
 		// make sure we only check the snapshots that belong to this crd being checked.
-		if strings.Contains(filepath.Base(path), filepath.Base(crdLocation)) {
+		baseCrdName := strings.Trim(filepath.Base(crdLocation), filepath.Ext(crdLocation))
+		if strings.Contains(filepath.Base(path), baseCrdName) {
 			if filepath.Ext(path) == ".yaml" {
 				if c.Minimal {
 					// only check files that have the min extension.

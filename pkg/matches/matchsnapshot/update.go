@@ -6,9 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
+
+	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 )
 
 const (
@@ -46,7 +47,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 
 		defer file.Close()
 
-		parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, minimal)
+		parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, minimal, false)
 		if err := parser.ParseProperties(version.Name, file, version.Schema.OpenAPIV3Schema.Properties, pkg.RootRequiredFields); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}

@@ -4,10 +4,10 @@ metadata: {}
 spec:
   commandHasOutputToWrite: true
   complex: {"key":"value"}
-  dependencies: ["string"]
+  dependencies: [] # minItems 0 of type string
   enabled: true
   image: "krok-hook/slack-notification:v0.0.1"
-  platforms: ["string"]
+  platforms: [] # minItems 0 of type string
   readInputFromSecret:
     name: string
     namespace: string

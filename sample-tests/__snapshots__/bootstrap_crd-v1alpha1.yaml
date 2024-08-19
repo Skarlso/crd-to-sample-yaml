@@ -47,10 +47,10 @@ status:
   conditions:
   - lastTransitionTime: string
     message: string
-    observedGeneration: 1
-    reason: string
-    status: string
-    type: string
+    observedGeneration: 0
+    reason: h_AhqJ # ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+    status: "False"
+    type: 51lg51/V5kVn # ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
   lastAppliedCRDNames: {}
   lastAppliedRevision: string
   lastAttemptedRevision: string
