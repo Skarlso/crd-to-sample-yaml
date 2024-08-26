@@ -88,8 +88,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-runewidth v0.0.15 h1:UNAjwbU9l54TA3KzvqLGxwWjHmMgBUVhBiTjelZgg3U=
 github.com/mattn/go-runewidth v0.0.15/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
-github.com/maxence-charriere/go-app/v10 v10.0.5 h1:gp0dCP+wj/YN7wzm/qdxvfjktihR8aAYj5SNfDYINFc=
-github.com/maxence-charriere/go-app/v10 v10.0.5/go.mod h1:VjRZs2rvkJaI5ftI0pleB5tRKpt8p9cVwVq8V43uP0g=
+github.com/maxence-charriere/go-app/v10 v10.0.6 h1:6sz/zCVJLUDTi0vV3F/b0btUCX3YKH/cydV3TxWYDMM=
+github.com/maxence-charriere/go-app/v10 v10.0.6/go.mod h1:VjRZs2rvkJaI5ftI0pleB5tRKpt8p9cVwVq8V43uP0g=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
