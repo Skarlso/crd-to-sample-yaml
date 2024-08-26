@@ -6,7 +6,7 @@ require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/fatih/color v1.17.0
 	github.com/jedib0t/go-pretty/v6 v6.5.9
-	github.com/maxence-charriere/go-app/v10 v10.0.5
+	github.com/maxence-charriere/go-app/v10 v10.0.6
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	k8s.io/apiextensions-apiserver v0.31.0
