@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
 
 const array = "array"
@@ -19,7 +19,7 @@ const array = "array"
 var RootRequiredFields = []string{"apiVersion", "kind", "spec", "metadata"}
 
 // Generate takes a CRD content and path, and outputs.
-func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments, minimal, skipRandom bool) (err error) {
+func Generate(crd *v1.CustomResourceDefinition, w io.WriteCloser, enableComments, minimal, skipRandom bool) (err error) {
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
 			err = errors.Join(err, cerr)
@@ -77,7 +77,7 @@ func NewParser(group, kind string, comments, requiredOnly, skipRandom bool) *Par
 // ParseProperties takes a writer and puts out any information / properties it encounters during the runs.
 // It will recursively parse every "properties:" and "additionalProperties:". Using the types, it will also output
 // some sample data based on those types.
-func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]v1beta1.JSONSchemaProps, requiredFields []string) error {
+func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]v1.JSONSchemaProps, requiredFields []string) error {
 	sortedKeys := make([]string, 0, len(properties))
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
@@ -176,7 +176,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 }
 
 // outputValueType generate an output value based on the given type.
-func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
+func outputValueType(v v1.JSONSchemaProps, skipRandom bool) string {
 	if v.Default != nil {
 		return string(v.Default.Raw)
 	}

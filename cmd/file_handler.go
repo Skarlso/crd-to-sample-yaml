@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
@@ -14,7 +14,7 @@ type FileHandler struct {
 	location string
 }
 
-func (h *FileHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
+func (h *FileHandler) CRDs() ([]*v1.CustomResourceDefinition, error) {
 	if _, err := os.Stat(h.location); os.IsNotExist(err) {
 		return nil, fmt.Errorf("file under '%s' does not exist", h.location)
 	}
@@ -28,10 +28,10 @@ func (h *FileHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 		return nil, fmt.Errorf("failed to sanitize content: %w", err)
 	}
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(content, crd); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
 	}
 
-	return []*v1beta1.CustomResourceDefinition{crd}, nil
+	return []*v1.CustomResourceDefinition{crd}, nil
 }

@@ -11,7 +11,7 @@ import (
 	"slices"
 	"sort"
 
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
 
 // Version wraps a top level version resource which contains the underlying openAPIV3Schema.
@@ -61,7 +61,7 @@ func LoadTemplates() error {
 }
 
 // RenderContent creates an HTML website from the CRD content.
-func RenderContent(w io.WriteCloser, crd *v1beta1.CustomResourceDefinition, comments, minimal bool) (err error) {
+func RenderContent(w io.WriteCloser, crd *v1.CustomResourceDefinition, comments, minimal bool) (err error) {
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
 			err = errors.Join(err, cerr)
@@ -118,7 +118,7 @@ type Property struct {
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
-func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, minimal bool, requiredList []string) ([]*Property, error) {
+func parseCRD(properties map[string]v1.JSONSchemaProps, version string, minimal bool, requiredList []string) ([]*Property, error) {
 	output := make([]*Property, 0, len(properties))
 	sortedKeys := make([]string, 0, len(properties))
 

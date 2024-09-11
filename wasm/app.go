@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
@@ -108,7 +108,7 @@ func (h *crdView) Render() app.UI {
 		return h.buildError(h.preRenderErr)
 	}
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(h.content, crd); err != nil {
 		return h.buildError(err)
 	}
@@ -289,7 +289,7 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
-func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, requiredList []string, minimal bool) ([]*Property, error) {
+func parseCRD(properties map[string]v1.JSONSchemaProps, version string, requiredList []string, minimal bool) ([]*Property, error) {
 	sortedKeys := make([]string, 0, len(properties))
 	output := make([]*Property, 0, len(properties))
 

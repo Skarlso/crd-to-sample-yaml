@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
@@ -16,7 +16,7 @@ func TestGenerate(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd.yaml"))
 	require.NoError(t, err)
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	require.NoError(t, yaml.Unmarshal(content, crd))
 
 	var output []byte
@@ -36,7 +36,7 @@ func TestGenerateWithExample(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_example.yaml"))
 	require.NoError(t, err)
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	require.NoError(t, yaml.Unmarshal(content, crd))
 
 	var output []byte
@@ -56,7 +56,7 @@ func TestGenerateWithComments(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd.yaml"))
 	require.NoError(t, err)
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	require.NoError(t, yaml.Unmarshal(content, crd))
 
 	var output []byte
@@ -76,7 +76,7 @@ func TestGenerateMinimal(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd.yaml"))
 	require.NoError(t, err)
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	require.NoError(t, yaml.Unmarshal(content, crd))
 
 	var output []byte
@@ -96,7 +96,7 @@ func TestGenerateMinimalWithExample(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_example.yaml"))
 	require.NoError(t, err)
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	require.NoError(t, yaml.Unmarshal(content, crd))
 
 	var output []byte
@@ -116,7 +116,7 @@ func TestGenerateWithAdditionalProperties(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_additional_properties.yaml"))
 	require.NoError(t, err)
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	require.NoError(t, yaml.Unmarshal(content, crd))
 
 	var output []byte
