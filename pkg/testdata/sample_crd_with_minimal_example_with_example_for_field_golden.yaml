@@ -3,3 +3,4 @@ kind: KrokCommand
 metadata: {}
 spec:
   image: "krok-hook/slack-notification:v0.0.1"
+status: {}

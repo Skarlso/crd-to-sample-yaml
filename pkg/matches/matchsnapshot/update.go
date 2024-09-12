@@ -48,7 +48,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 		defer file.Close()
 
 		parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, minimal, false)
-		if err := parser.ParseProperties(version.Name, file, version.Schema.OpenAPIV3Schema.Properties, pkg.RootRequiredFields); err != nil {
+		if err := parser.ParseProperties(version.Name, file, version.Schema.OpenAPIV3Schema.Properties); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 	}

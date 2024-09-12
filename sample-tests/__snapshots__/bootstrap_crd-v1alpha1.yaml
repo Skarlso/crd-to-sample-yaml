@@ -48,9 +48,9 @@ status:
   - lastTransitionTime: string
     message: string
     observedGeneration: 0
-    reason: i # ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+    reason: N # ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
     status: "True"
-    type: d # ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+    type: 8x.46qk/L # ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
   lastAppliedCRDNames: {}
   lastAppliedRevision: string
   lastAttemptedRevision: string
