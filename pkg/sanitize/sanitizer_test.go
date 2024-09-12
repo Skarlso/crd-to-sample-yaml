@@ -24,6 +24,13 @@ func TestSanitize(t *testing.T) {
 			want: []byte(`test: replaced`),
 		},
 		{
+			name: "don't sanitize if actual value",
+			args: args{
+				content: []byte(`                  default: '{{'`),
+			},
+			want: []byte(`                  default: '{{'`),
+		},
+		{
 			name: "complex sanitize",
 			args: args{
 				content: []byte(`{{ if .something }}

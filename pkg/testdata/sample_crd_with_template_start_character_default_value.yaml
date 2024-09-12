@@ -1,0 +1,68 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: gotemplates.gotemplating.fn.crossplane.io
+spec:
+  group: gotemplating.fn.crossplane.io
+  names:
+    categories:
+      - crossplane
+    kind: GoTemplate
+    listKind: GoTemplateList
+    plural: gotemplates
+    singular: gotemplate
+  scope: Namespaced
+  versions:
+    - name: v1beta1
+      schema:
+        openAPIV3Schema:
+          description: A GoTemplate is used to provide templates to this Function.
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            delims:
+              description: Template delimiters
+              properties:
+                left:
+                  default: '{{'
+                  description: Template start characters
+                  type: string
+                right:
+                  default: '}}'
+                  description: Template end characters
+                  type: string
+              type: object
+            fileSystem:
+              description: FileSystem is the folder path where the templates are located
+              properties:
+                dirPath:
+                  type: string
+              type: object
+            inline:
+              description: Inline is the inline form input of the templates
+              properties:
+                template:
+                  type: string
+              type: object
+            kind:
+              description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            source:
+              description: Source specifies the different types of input sources that
+                can be used with this function
+              type: string
+          required:
+            - source
+          type: object
+      served: true
+      storage: true

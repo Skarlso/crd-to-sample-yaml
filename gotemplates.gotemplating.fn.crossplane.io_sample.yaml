@@ -1,0 +1,11 @@
+apiVersion: gotemplating.fn.crossplane.io/v1beta1
+delims:
+  left: string
+  right: "}}"
+fileSystem:
+  dirPath: string
+inline:
+  template: string
+kind: GoTemplate
+metadata: {}
+source: string
