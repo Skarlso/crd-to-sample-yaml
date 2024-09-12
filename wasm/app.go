@@ -122,7 +122,7 @@ func (h *crdView) Render() app.UI {
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties, pkg.RootRequiredFields); err != nil {
+		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
 			return h.buildError(err)
 		}
 		versions = append(versions, Version{

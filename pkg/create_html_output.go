@@ -78,7 +78,7 @@ func RenderContent(w io.WriteCloser, crd *v1.CustomResourceDefinition, comments,
 		}
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields); err != nil {
+		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
 			return fmt.Errorf("failed to generate yaml sample: %w", err)
 		}
 		versions = append(versions, Version{

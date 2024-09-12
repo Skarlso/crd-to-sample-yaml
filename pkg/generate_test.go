@@ -24,7 +24,7 @@ func TestGenerate(t *testing.T) {
 
 	version := crd.Spec.Versions[0]
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, true)
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_golden.yaml"))
 	require.NoError(t, err)
@@ -44,12 +44,12 @@ func TestGenerateWithTemplateDelimiter(t *testing.T) {
 
 	version := crd.Spec.Versions[0]
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, true)
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_template_start_character_default_value_golden.yaml"))
 	require.NoError(t, err)
 
-	assert.Equal(t, golden, buffer.Bytes())
+	assert.Equal(t, string(golden), buffer.String())
 }
 
 func TestGenerateWithExample(t *testing.T) {
@@ -64,12 +64,12 @@ func TestGenerateWithExample(t *testing.T) {
 
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, true)
 	version := crd.Spec.Versions[0]
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_example_golden.yaml"))
 	require.NoError(t, err)
 
-	assert.Equal(t, golden, buffer.Bytes())
+	assert.Equal(t, string(golden), buffer.String())
 }
 
 func TestGenerateWithComments(t *testing.T) {
@@ -84,12 +84,12 @@ func TestGenerateWithComments(t *testing.T) {
 
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, true, false, true)
 	version := crd.Spec.Versions[0]
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_comments_golden.yaml"))
 	require.NoError(t, err)
 
-	assert.Equal(t, golden, buffer.Bytes())
+	assert.Equal(t, string(golden), buffer.String())
 }
 
 func TestGenerateMinimal(t *testing.T) {
@@ -104,12 +104,12 @@ func TestGenerateMinimal(t *testing.T) {
 
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, true, true)
 	version := crd.Spec.Versions[0]
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_minimal_example_golden.yaml"))
 	require.NoError(t, err)
 
-	assert.Equal(t, golden, buffer.Bytes())
+	assert.Equal(t, string(golden), buffer.String())
 }
 
 func TestGenerateMinimalWithExample(t *testing.T) {
@@ -124,12 +124,32 @@ func TestGenerateMinimalWithExample(t *testing.T) {
 
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, true, true)
 	version := crd.Spec.Versions[0]
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_minimal_example_with_example_for_field_golden.yaml"))
 	require.NoError(t, err)
 
-	assert.Equal(t, golden, buffer.Bytes())
+	assert.Equal(t, string(golden), buffer.String())
+}
+
+func TestGenerateMinimalWithNoRequiredFields(t *testing.T) {
+	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_minimal_no_required_fields.yaml"))
+	require.NoError(t, err)
+
+	crd := &v1.CustomResourceDefinition{}
+	require.NoError(t, yaml.Unmarshal(content, crd))
+
+	var output []byte
+	buffer := bytes.NewBuffer(output)
+
+	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, true, true)
+	version := crd.Spec.Versions[0]
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
+
+	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_minimal_no_required_fields_golden.yaml"))
+	require.NoError(t, err)
+
+	assert.Equal(t, string(golden), buffer.String())
 }
 
 func TestGenerateWithAdditionalProperties(t *testing.T) {
@@ -144,10 +164,10 @@ func TestGenerateWithAdditionalProperties(t *testing.T) {
 
 	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, true)
 	version := crd.Spec.Versions[0]
-	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties, RootRequiredFields))
+	require.NoError(t, parser.ParseProperties(version.Name, buffer, version.Schema.OpenAPIV3Schema.Properties))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_additional_properties_golden.yaml"))
 	require.NoError(t, err)
 
-	assert.Equal(t, golden, buffer.Bytes())
+	assert.Equal(t, string(golden), buffer.String())
 }
