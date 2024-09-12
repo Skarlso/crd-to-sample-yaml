@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
@@ -30,7 +30,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 	}
 	baseName := strings.Trim(filepath.Base(sourceTemplateLocation), filepath.Ext(sourceTemplateLocation))
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &v1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(sourceTemplate, crd); err != nil {
 		return fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
 	}
