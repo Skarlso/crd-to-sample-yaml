@@ -22,6 +22,9 @@ func Sanitize(content []byte) ([]byte, error) {
 		if begin := bytes.Index(line, []byte("{{")); begin != -1 {
 			end := bytes.Index(line, []byte("}}"))
 			if end == -1 {
+				// we don't have a closing bracket so apply the line.
+				result = append(result, line)
+
 				continue
 			}
 
