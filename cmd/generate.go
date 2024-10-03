@@ -95,6 +95,21 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 
 	var w io.WriteCloser
 
+	if args.format == FormatHTML {
+		if args.stdOut {
+			w = os.Stdout
+		} else {
+			w, err = os.Create(args.output)
+			if err != nil {
+				return fmt.Errorf("failed to create output file: %w", err)
+			}
+
+			defer w.Close()
+		}
+
+		return pkg.RenderContent(w, crds, args.comments, args.minimal)
+	}
+
 	var errs []error //nolint:prealloc // nope
 	for _, crd := range crds {
 		if args.stdOut {
@@ -110,12 +125,6 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			}
 
 			w = outputFile
-		}
-
-		if args.format == FormatHTML {
-			errs = append(errs, pkg.RenderContent(w, crd, args.comments, args.minimal))
-
-			continue
 		}
 
 		errs = append(errs, pkg.Generate(crd, w, args.comments, args.minimal, args.skipRandom))

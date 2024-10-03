@@ -14,6 +14,10 @@ import (
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
 
+type Index struct {
+	Page []ViewPage
+}
+
 // Version wraps a top level version resource which contains the underlying openAPIV3Schema.
 type Version struct {
 	Version     string
@@ -26,6 +30,7 @@ type Version struct {
 
 // ViewPage is the template for view.html.
 type ViewPage struct {
+	Title    string
 	Versions []Version
 }
 
@@ -61,40 +66,58 @@ func LoadTemplates() error {
 }
 
 // RenderContent creates an HTML website from the CRD content.
-func RenderContent(w io.WriteCloser, crd *v1.CustomResourceDefinition, comments, minimal bool) (err error) {
+func RenderContent(w io.WriteCloser, crds []*v1.CustomResourceDefinition, comments, minimal bool) (err error) {
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
 			err = errors.Join(err, cerr)
 		}
 	}()
 
-	versions := make([]Version, 0)
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, comments, minimal, false)
+	allViews := make([]ViewPage, 0, len(crds))
 
-	for _, version := range crd.Spec.Versions {
-		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, minimal, RootRequiredFields)
-		if err != nil {
-			return fmt.Errorf("failed to parse properties: %w", err)
+	for _, crd := range crds {
+		versions := make([]Version, 0)
+		parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, comments, minimal, false)
+
+		for _, version := range crd.Spec.Versions {
+			out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, minimal, RootRequiredFields)
+			if err != nil {
+				return fmt.Errorf("failed to parse properties: %w", err)
+			}
+			var buffer []byte
+			buf := bytes.NewBuffer(buffer)
+			if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
+				return fmt.Errorf("failed to generate yaml sample: %w", err)
+			}
+			versions = append(versions, Version{
+				Version:     version.Name,
+				Properties:  out,
+				Kind:        crd.Spec.Names.Kind,
+				Group:       crd.Spec.Group,
+				Description: version.Schema.OpenAPIV3Schema.Description,
+				YAML:        buf.String(),
+			})
 		}
-		var buffer []byte
-		buf := bytes.NewBuffer(buffer)
-		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
-			return fmt.Errorf("failed to generate yaml sample: %w", err)
+
+		if len(versions) == 0 {
+			continue
 		}
-		versions = append(versions, Version{
-			Version:     version.Name,
-			Properties:  out,
-			Kind:        crd.Spec.Names.Kind,
-			Group:       crd.Spec.Group,
-			Description: version.Schema.OpenAPIV3Schema.Description,
-			YAML:        buf.String(),
-		})
+
+		view := ViewPage{
+			Title:    crd.Spec.Names.Kind,
+			Versions: versions,
+		}
+
+		allViews = append(allViews, view)
 	}
-	view := ViewPage{
-		Versions: versions,
-	}
+
 	t := templates["view.html"]
-	if err := t.Execute(w, view); err != nil {
+
+	index := Index{
+		Page: allViews,
+	}
+
+	if err := t.Execute(w, index); err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
 	}
 
