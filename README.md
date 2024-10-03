@@ -66,6 +66,11 @@ cty generate -c delivery.krok.app_krokcommands --comments --format html
 ![parsed1_cli](./imgs/parsed1_cli.png)
 ![parsed2_cli](./imgs/parsed2_cli.png)
 
+In case of multiple CRD files being parsed using a `folder` target, the CRDs will be listed
+in collapsed drop-down menus where their KIND is the title.
+
+![parsed3_cli](./imgs/parsed3_cli.png)
+
 ### Minimal required CRD sample
 
 It's possible to generate a sample YAML for a CRD that will make the CRD validation pass. Meaning, it will only contain
