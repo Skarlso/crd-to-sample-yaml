@@ -42,21 +42,36 @@ type title struct {
 }
 
 func (b *title) Render() app.UI {
-	return app.Div().Class("title").Text("CRD Parser").OnClick(b.OnClick)
-}
-
-func (b *title) OnClick(ctx app.Context, _ app.Event) {
-	ctx.Reload()
+	return app.Div().Class("title").Text("CRD Parser")
 }
 
 // header is the site header.
 type header struct {
 	app.Compo
+
+	titleOnClick func(ctx app.Context, _ app.Event)
+	hidden       bool
+}
+
+type backButton struct {
+	app.Compo
+
+	hidden  bool
+	onClick func(ctx app.Context, _ app.Event)
+}
+
+func (b *backButton) Render() app.UI {
+	return app.Ul().Body(
+		app.Li().Body(
+			app.A().Href("#").Body(
+				app.I().Class("fa fa-arrow-left fa-2x")),
+		)).Hidden(b.hidden).OnClick(b.onClick)
 }
 
 func (h *header) Render() app.UI {
 	return app.Header().Body(app.Nav().Body(
 		&title{},
+		&backButton{onClick: h.titleOnClick, hidden: h.hidden},
 		app.Ul().Body(
 			app.Li().Body(
 				app.A().Href("https://github.com/Skarlso/crd-to-sample-yaml").Target("_blank").Body(
@@ -200,19 +215,23 @@ func (i *index) OnMount(_ app.Context) {
 	i.isMounted = true
 }
 
+func (i *index) NavBackOnClick(_ app.Context, _ app.Event) {
+	i.content = nil
+}
+
 func (i *index) Render() app.UI {
 	// Prevent double rendering components.
 	if i.isMounted {
 		return app.Main().Body(app.Div().Class("container").Body(func() app.UI {
 			if i.err != nil {
-				return app.Div().Class("container").Body(&header{}, i.buildError())
+				return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, i.buildError())
 			}
 
 			if i.content != nil {
-				return &crdView{content: i.content, comment: i.comments, minimal: i.minimal}
+				return &crdView{content: i.content, comment: i.comments, minimal: i.minimal, navigateBackOnClick: i.NavBackOnClick}
 			}
 
-			return app.Div().Class("container").Body(&header{}, &form{formHandler: i.OnClick, checkHandlerComment: i.OnCheckComment, checkHandlerMinimal: i.OnCheckMinimal})
+			return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, &form{formHandler: i.OnClick, checkHandlerComment: i.OnCheckComment, checkHandlerMinimal: i.OnCheckMinimal})
 		}()))
 	}
 

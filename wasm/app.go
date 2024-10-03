@@ -27,6 +27,8 @@ type crdView struct {
 	content []byte
 	comment bool
 	minimal bool
+
+	navigateBackOnClick func(ctx app.Context, _ app.Event)
 }
 
 // Version wraps a top level version resource which contains the underlying openAPIV3Schema.
@@ -195,7 +197,7 @@ func (h *crdView) Render() app.UI {
 	return wrapper.Body(
 		app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
 		app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
-		&header{},
+		&header{titleOnClick: h.navigateBackOnClick, hidden: false},
 		container,
 	)
 }
