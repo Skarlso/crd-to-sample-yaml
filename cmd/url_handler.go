@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
@@ -21,7 +21,7 @@ type URLHandler struct {
 	token    string
 }
 
-func (h *URLHandler) CRDs() ([]*v1.CustomResourceDefinition, error) {
+func (h *URLHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 	client := http.DefaultClient
 	client.Timeout = timeout * time.Second
 
@@ -36,10 +36,10 @@ func (h *URLHandler) CRDs() ([]*v1.CustomResourceDefinition, error) {
 		return nil, fmt.Errorf("failed to sanitize content: %w", err)
 	}
 
-	crd := &v1.CustomResourceDefinition{}
+	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(content, crd); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
 	}
 
-	return []*v1.CustomResourceDefinition{crd}, nil
+	return []*v1beta1.CustomResourceDefinition{crd}, nil
 }

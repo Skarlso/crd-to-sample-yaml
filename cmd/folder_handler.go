@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
@@ -16,12 +16,12 @@ type FolderHandler struct {
 	location string
 }
 
-func (h *FolderHandler) CRDs() ([]*v1.CustomResourceDefinition, error) {
+func (h *FolderHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 	if _, err := os.Stat(h.location); os.IsNotExist(err) {
 		return nil, fmt.Errorf("file under '%s' does not exist", h.location)
 	}
 
-	var crds []*v1.CustomResourceDefinition
+	var crds []*v1beta1.CustomResourceDefinition
 
 	if err := filepath.Walk(h.location, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -48,7 +48,7 @@ func (h *FolderHandler) CRDs() ([]*v1.CustomResourceDefinition, error) {
 			return fmt.Errorf("failed to sanitize content: %w", err)
 		}
 
-		crd := &v1.CustomResourceDefinition{}
+		crd := &v1beta1.CustomResourceDefinition{}
 		if err := yaml.Unmarshal(content, crd); err != nil {
 			fmt.Fprintln(os.Stderr, "skipping none CRD file: "+path)
 

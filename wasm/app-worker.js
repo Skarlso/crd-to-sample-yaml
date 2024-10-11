@@ -2,30 +2,43 @@
 // PWA
 // -----------------------------------------------------------------------------
 const cacheName = "app-" + "v0.6.5";
-const resourcesToCache = ["/","/app.css","/app.js","/manifest.webmanifest","/wasm_exec.js","/web/app.wasm","/web/css/alert.css","/web/img/logo.png","https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css","https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css","https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css"];
+const resourcesToCache = ["https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css","https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css","https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js","/web/img/logo.png","/web/css/alert.css","/web/app.wasm","/wasm_exec.js","/manifest.webmanifest","/app.js","/app.css","/"];
 
-self.addEventListener("install", (event) => {
-  console.log("installing app worker v0.6.5");
-  event.waitUntil(installWorker());
+self.addEventListener("install", async (event) => {
+  try {
+    console.log("installing app worker v0.6.5");
+    await installWorker();
+    await self.skipWaiting();
+  } catch (error) {
+    console.error("error during installation:", error);
+  }
 });
 
 async function installWorker() {
   const cache = await caches.open(cacheName);
   await cache.addAll(resourcesToCache);
-  await self.skipWaiting(); // Use this new service worker
 }
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(deletePreviousCaches());
-  console.log("app worker v0.6.5 is activated");
+self.addEventListener("activate", async (event) => {
+  try {
+    await deletePreviousCaches(); // Await cache cleanup
+    await self.clients.claim(); // Ensure the service worker takes control of the clients
+    console.log("app worker v0.6.5 is activated");
+  } catch (error) {
+    console.error("error during activation:", error);
+  }
 });
 
 async function deletePreviousCaches() {
   keys = await caches.keys();
   keys.forEach(async (key) => {
     if (key != cacheName) {
-      console.log("deleting", key, "cache");
-      await caches.delete(key);
+      try {
+        console.log("deleting", key, "cache");
+        await caches.delete(key);
+      } catch (err) {
+        console.error("deleting", key, "cache failed:", err);
+      }
     }
   });
 }
@@ -35,11 +48,11 @@ self.addEventListener("fetch", (event) => {
 });
 
 async function fetchWithCache(request) {
-  cachedResponse = await caches.match(request);
+  const cachedResponse = await caches.match(request);
   if (cachedResponse) {
     return cachedResponse;
   }
-  return fetch(request);
+  return await fetch(request);
 }
 
 // -----------------------------------------------------------------------------

@@ -1,0 +1,9 @@
+apiVersion: monitoring.coreos.com/prometheuses.monitoring.coreos.com
+kind: Prometheus
+spec: {}
+status:
+  availableReplicas: 1
+  paused: true
+  replicas: 1
+  unavailableReplicas: 1
+  updatedReplicas: 1

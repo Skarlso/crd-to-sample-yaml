@@ -28,6 +28,10 @@ func Validate(sourceCRD []byte, sampleFile []byte) error {
 		return errors.New("failed to unmarshal into custom resource definition")
 	}
 
+	if crd.Spec.Validation != nil && len(crd.Spec.Versions) == 0 {
+		return ValidateCRDValidation(crd, sampleFile)
+	}
+
 	availableVersions := make([]string, 0, len(crd.Spec.Versions))
 
 	// Add checking out the api version from the provided template and only eval against that.
@@ -37,23 +41,8 @@ func Validate(sourceCRD []byte, sampleFile []byte) error {
 		// Make sure we are only testing versions that equal to the CRD's version.
 		// This is important in case there are multiple versions in the CRD.
 		if obj.GroupVersionKind().Version == v.Name {
-			eval, _, err := validation.NewSchemaValidator(v.Schema.OpenAPIV3Schema)
-			if err != nil {
-				return fmt.Errorf("invalid schema: %w", err)
-			}
-
-			var resultErrors error
-			result := eval.Validate(obj)
-			for _, e := range result.Errors {
-				resultErrors = errors.Join(resultErrors, e)
-			}
-
-			for _, e := range result.Warnings {
-				resultErrors = errors.Join(resultErrors, e)
-			}
-
-			if resultErrors != nil {
-				return fmt.Errorf("failed to validate kind %s and version %s: %w", crd.Spec.Names.Kind, v.Name, resultErrors)
+			if err := validate(v.Schema.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, v.Name); err != nil {
+				return fmt.Errorf("failed to validate kind %s and version %s: %w", crd.Spec.Names.Kind, v.Name, err)
 			}
 
 			return nil
@@ -65,4 +54,38 @@ func Validate(sourceCRD []byte, sampleFile []byte) error {
 		obj.GroupVersionKind().Version,
 		strings.Join(availableVersions, ","),
 	)
+}
+
+func ValidateCRDValidation(crd *apiextensions.CustomResourceDefinition, sampleFile []byte) error {
+	reader := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(sampleFile), maxBufferSize)
+	obj := &unstructured.Unstructured{}
+	err := reader.Decode(obj)
+	if err != nil {
+		return fmt.Errorf("failed to decode sample file: %w", err)
+	}
+
+	return validate(crd.Spec.Validation.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, crd.Name)
+}
+
+func validate(props *apiextensions.JSONSchemaProps, obj *unstructured.Unstructured, kind, name string) error {
+	eval, _, err := validation.NewSchemaValidator(props)
+	if err != nil {
+		return fmt.Errorf("invalid schema: %w", err)
+	}
+
+	var resultErrors error
+	result := eval.Validate(obj)
+	for _, e := range result.Errors {
+		resultErrors = errors.Join(resultErrors, e)
+	}
+
+	for _, e := range result.Warnings {
+		resultErrors = errors.Join(resultErrors, e)
+	}
+
+	if resultErrors != nil {
+		return fmt.Errorf("failed to validate kind %s and version %s: %w", kind, name, resultErrors)
+	}
+
+	return nil
 }

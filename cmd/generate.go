@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 )
@@ -45,7 +45,7 @@ var (
 )
 
 type Handler interface {
-	CRDs() ([]*v1.CustomResourceDefinition, error)
+	CRDs() ([]*v1beta1.CustomResourceDefinition, error)
 }
 
 func init() {

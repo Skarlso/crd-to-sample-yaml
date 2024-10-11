@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
@@ -232,7 +232,7 @@ type editView struct {
 func (e *editView) OnInput(ctx app.Context, _ app.Event) {
 	content := ctx.JSSrc().Get("value").String()
 
-	crd := &v1.CustomResourceDefinition{}
+	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal([]byte(content), crd); err != nil {
 		e.content = []byte("invalid CRD content")
 
