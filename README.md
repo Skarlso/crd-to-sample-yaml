@@ -4,6 +4,10 @@
 
 Generate a sample YAML file from a CRD definition.
 
+## Dynamic CRD Parsing on the frontend
+
+![dynamic parsing](./imgs/dynamic-editing-showcase.gif)
+
 ## CRD Testing using CTY
 
 For more information about how to use `cty` for helm-like unit testing your CRD schemas,
