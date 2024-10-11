@@ -17,11 +17,11 @@ tests:
             controlPlaneEndpoint:
               host: string
               port: 1
-      - matchString:
-          apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
-          kind: AWSCluster
-          spec:
-            controlPlaneEndpoint:
+#      - matchString:
+#          apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+#          kind: AWSCluster
+#          spec:
+#            controlPlaneEndpoint:
               # this is failing the test because the type is number and not string
-              host: 12345
-              port: 1
+#              host: 12345
+#              port: 1

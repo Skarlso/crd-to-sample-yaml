@@ -11,7 +11,7 @@ import (
 	"slices"
 	"sort"
 
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
 type Index struct {
@@ -66,7 +66,7 @@ func LoadTemplates() error {
 }
 
 // RenderContent creates an HTML website from the CRD content.
-func RenderContent(w io.WriteCloser, crds []*v1.CustomResourceDefinition, comments, minimal bool) (err error) {
+func RenderContent(w io.WriteCloser, crds []*v1beta1.CustomResourceDefinition, comments, minimal bool) (err error) {
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
 			err = errors.Join(err, cerr)
@@ -80,26 +80,25 @@ func RenderContent(w io.WriteCloser, crds []*v1.CustomResourceDefinition, commen
 		parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, comments, minimal, false)
 
 		for _, version := range crd.Spec.Versions {
-			out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, minimal, RootRequiredFields)
+			v, err := generate(crd, version.Schema.OpenAPIV3Schema, minimal, parser)
 			if err != nil {
-				return fmt.Errorf("failed to parse properties: %w", err)
-			}
-			var buffer []byte
-			buf := bytes.NewBuffer(buffer)
-			if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
 				return fmt.Errorf("failed to generate yaml sample: %w", err)
 			}
-			versions = append(versions, Version{
-				Version:     version.Name,
-				Properties:  out,
-				Kind:        crd.Spec.Names.Kind,
-				Group:       crd.Spec.Group,
-				Description: version.Schema.OpenAPIV3Schema.Description,
-				YAML:        buf.String(),
-			})
+
+			versions = append(versions, v)
 		}
 
-		if len(versions) == 0 {
+		// parse validation instead
+		if len(versions) == 0 && crd.Spec.Validation != nil {
+			crd.Spec.Validation.OpenAPIV3Schema.Properties["kind"] = v1beta1.JSONSchemaProps{}
+			crd.Spec.Validation.OpenAPIV3Schema.Properties["apiVersion"] = v1beta1.JSONSchemaProps{}
+			version, err := generate(crd, crd.Spec.Validation.OpenAPIV3Schema, minimal, parser)
+			if err != nil {
+				return fmt.Errorf("failed to generate yaml sample: %w", err)
+			}
+
+			versions = append(versions, version)
+		} else if len(versions) == 0 {
 			continue
 		}
 
@@ -124,6 +123,27 @@ func RenderContent(w io.WriteCloser, crds []*v1.CustomResourceDefinition, commen
 	return nil
 }
 
+func generate(crd *v1beta1.CustomResourceDefinition, properties *v1beta1.JSONSchemaProps, minimal bool, parser *Parser) (Version, error) {
+	out, err := parseCRD(properties.Properties, crd.Name, minimal, RootRequiredFields)
+	if err != nil {
+		return Version{}, fmt.Errorf("failed to parse properties: %w", err)
+	}
+	var buffer []byte
+	buf := bytes.NewBuffer(buffer)
+	if err := parser.ParseProperties(crd.Name, buf, properties.Properties); err != nil {
+		return Version{}, fmt.Errorf("failed to generate yaml sample: %w", err)
+	}
+
+	return Version{
+		Version:     crd.Name,
+		Properties:  out,
+		Kind:        crd.Spec.Names.Kind,
+		Group:       crd.Spec.Group,
+		Description: properties.Description,
+		YAML:        buf.String(),
+	}, nil
+}
+
 // Property builds up a Tree structure of embedded things.
 type Property struct {
 	Name        string
@@ -141,7 +161,7 @@ type Property struct {
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
-func parseCRD(properties map[string]v1.JSONSchemaProps, version string, minimal bool, requiredList []string) ([]*Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, minimal bool, requiredList []string) ([]*Property, error) {
 	output := make([]*Property, 0, len(properties))
 	sortedKeys := make([]string, 0, len(properties))
 

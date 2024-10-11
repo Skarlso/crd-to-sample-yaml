@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
@@ -109,7 +109,7 @@ func (h *crdView) Render() app.UI {
 		return h.buildError(h.preRenderErr)
 	}
 
-	crd := &v1.CustomResourceDefinition{}
+	crd := &v1beta1.CustomResourceDefinition{}
 	if err := yaml.Unmarshal(h.content, crd); err != nil {
 		return h.buildError(err)
 	}
@@ -117,23 +117,25 @@ func (h *crdView) Render() app.UI {
 	versions := make([]Version, 0)
 	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, h.comment, h.minimal, false)
 	for _, version := range crd.Spec.Versions {
-		out, err := parseCRD(version.Schema.OpenAPIV3Schema.Properties, version.Name, pkg.RootRequiredFields, h.minimal)
+		v, err := h.generate(parser, crd, version.Schema.OpenAPIV3Schema, version.Name)
 		if err != nil {
 			return h.buildError(err)
 		}
-		var buffer []byte
-		buf := bytes.NewBuffer(buffer)
-		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
+
+		versions = append(versions, v)
+	}
+
+	// Parse validation instead.
+	if len(crd.Spec.Versions) == 0 && crd.Spec.Validation != nil {
+		crd.Spec.Validation.OpenAPIV3Schema.Properties["kind"] = v1beta1.JSONSchemaProps{}
+		crd.Spec.Validation.OpenAPIV3Schema.Properties["apiVersion"] = v1beta1.JSONSchemaProps{}
+
+		v, err := h.generate(parser, crd, crd.Spec.Validation.OpenAPIV3Schema, crd.Name)
+		if err != nil {
 			return h.buildError(err)
 		}
-		versions = append(versions, Version{
-			Version:     version.Name,
-			Properties:  out,
-			Kind:        crd.Spec.Names.Kind,
-			Group:       crd.Spec.Group,
-			Description: version.Schema.OpenAPIV3Schema.Description,
-			YAML:        buf.String(),
-		})
+
+		versions = append(versions, v)
 	}
 
 	wrapper := app.Div().Class("content-wrapper")
@@ -199,6 +201,28 @@ func (h *crdView) Render() app.UI {
 		&header{titleOnClick: h.navigateBackOnClick, hidden: false},
 		container,
 	)
+}
+
+func (h *crdView) generate(parser *pkg.Parser, crd *v1beta1.CustomResourceDefinition, properties *v1beta1.JSONSchemaProps, name string) (Version, error) {
+	out, err := parseCRD(properties.Properties, name, pkg.RootRequiredFields, h.minimal)
+	if err != nil {
+		return Version{}, err
+	}
+
+	var buffer []byte
+	buf := bytes.NewBuffer(buffer)
+	if err := parser.ParseProperties(name, buf, properties.Properties); err != nil {
+		return Version{}, err
+	}
+
+	return Version{
+		Version:     name,
+		Properties:  out,
+		Kind:        crd.Spec.Names.Kind,
+		Group:       crd.Spec.Group,
+		Description: properties.Description,
+		YAML:        buf.String(),
+	}, nil
 }
 
 func render(d app.UI, p []*Property, accordionID string) app.UI {
@@ -290,7 +314,7 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
-func parseCRD(properties map[string]v1.JSONSchemaProps, version string, requiredList []string, minimal bool) ([]*Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, requiredList []string, minimal bool) ([]*Property, error) {
 	sortedKeys := make([]string, 0, len(properties))
 	output := make([]*Property, 0, len(properties))
 

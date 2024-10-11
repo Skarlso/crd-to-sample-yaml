@@ -1,0 +1,514 @@
+apiVersion: monitoring.coreos.com/prometheuses.monitoring.coreos.com
+kind: Prometheus
+spec:
+  additionalAlertManagerConfigs:
+    key: string
+    name: string
+    optional: true
+  additionalScrapeConfigs:
+    key: string
+    name: string
+    optional: true
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - preference:
+          matchExpressions:
+          - key: string
+            operator: string
+            values: [] # minItems 0 of type string
+          matchFields:
+          - key: string
+            operator: string
+            values: [] # minItems 0 of type string
+        weight: 1
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: string
+            operator: string
+            values: [] # minItems 0 of type string
+          matchFields:
+          - key: string
+            operator: string
+            values: [] # minItems 0 of type string
+    podAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: string
+              operator: string
+              values: [] # minItems 0 of type string
+            matchLabels: {}
+          namespaces: [] # minItems 0 of type string
+          topologyKey: string
+        weight: 1
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: string
+            operator: string
+            values: [] # minItems 0 of type string
+          matchLabels: {}
+        namespaces: [] # minItems 0 of type string
+        topologyKey: string
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: string
+              operator: string
+              values: [] # minItems 0 of type string
+            matchLabels: {}
+          namespaces: [] # minItems 0 of type string
+          topologyKey: string
+        weight: 1
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: string
+            operator: string
+            values: [] # minItems 0 of type string
+          matchLabels: {}
+        namespaces: [] # minItems 0 of type string
+        topologyKey: string
+  alerting:
+    alertmanagers:
+    - bearerTokenFile: string
+      name: string
+      namespace: string
+      pathPrefix: string
+      port: 
+      scheme: string
+      tlsConfig:
+        caFile: string
+        certFile: string
+        insecureSkipVerify: true
+        keyFile: string
+        serverName: string
+  baseImage: string
+  containers:
+  - args: [] # minItems 0 of type string
+    command: [] # minItems 0 of type string
+    env:
+    - name: string
+      value: string
+      valueFrom:
+        configMapKeyRef:
+          key: string
+          name: string
+          optional: true
+        fieldRef:
+          apiVersion: monitoring.coreos.com/prometheuses.monitoring.coreos.com
+          fieldPath: string
+        resourceFieldRef:
+          containerName: string
+          divisor: 
+          resource: string
+        secretKeyRef:
+          key: string
+          name: string
+          optional: true
+    envFrom:
+    - configMapRef:
+        name: string
+        optional: true
+      prefix: string
+      secretRef:
+        name: string
+        optional: true
+    image: string
+    imagePullPolicy: string
+    lifecycle:
+      postStart:
+        exec:
+          command: [] # minItems 0 of type string
+        httpGet:
+          host: string
+          httpHeaders:
+          - name: string
+            value: string
+          path: string
+          port: 
+          scheme: string
+        tcpSocket:
+          host: string
+          port: 
+      preStop:
+        exec:
+          command: [] # minItems 0 of type string
+        httpGet:
+          host: string
+          httpHeaders:
+          - name: string
+            value: string
+          path: string
+          port: 
+          scheme: string
+        tcpSocket:
+          host: string
+          port: 
+    livenessProbe:
+      exec:
+        command: [] # minItems 0 of type string
+      failureThreshold: 1
+      httpGet:
+        host: string
+        httpHeaders:
+        - name: string
+          value: string
+        path: string
+        port: 
+        scheme: string
+      initialDelaySeconds: 1
+      periodSeconds: 1
+      successThreshold: 1
+      tcpSocket:
+        host: string
+        port: 
+      timeoutSeconds: 1
+    name: string
+    ports:
+    - containerPort: 1
+      hostIP: string
+      hostPort: 1
+      name: string
+      protocol: string
+    readinessProbe:
+      exec:
+        command: [] # minItems 0 of type string
+      failureThreshold: 1
+      httpGet:
+        host: string
+        httpHeaders:
+        - name: string
+          value: string
+        path: string
+        port: 
+        scheme: string
+      initialDelaySeconds: 1
+      periodSeconds: 1
+      successThreshold: 1
+      tcpSocket:
+        host: string
+        port: 
+      timeoutSeconds: 1
+    resources:
+      limits: {}
+      requests: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities:
+        add: [] # minItems 0 of type string
+        drop: [] # minItems 0 of type string
+      privileged: true
+      readOnlyRootFilesystem: true
+      runAsGroup: 1
+      runAsNonRoot: true
+      runAsUser: 1
+      seLinuxOptions:
+        level: string
+        role: string
+        type: string
+        user: string
+    stdin: true
+    stdinOnce: true
+    terminationMessagePath: string
+    terminationMessagePolicy: string
+    tty: true
+    volumeDevices:
+    - devicePath: string
+      name: string
+    volumeMounts:
+    - mountPath: string
+      mountPropagation: string
+      name: string
+      readOnly: true
+      subPath: string
+    workingDir: string
+  evaluationInterval: string
+  externalLabels: {}
+  externalUrl: string
+  imagePullSecrets:
+  - name: string
+  listenLocal: true
+  logLevel: string
+  nodeSelector: {}
+  paused: true
+  podMetadata:
+    annotations: {}
+    clusterName: string
+    creationTimestamp: 2024-10-11T12:48:44Z
+    deletionGracePeriodSeconds: 1
+    deletionTimestamp: 2024-10-11T12:48:44Z
+    finalizers: [] # minItems 0 of type string
+    generateName: string
+    generation: 1
+    initializers:
+      pending:
+      - name: string
+      result:
+        apiVersion: monitoring.coreos.com/prometheuses.monitoring.coreos.com
+        code: 1
+        details:
+          causes:
+          - field: string
+            message: string
+            reason: string
+          group: string
+          kind: string
+          name: string
+          retryAfterSeconds: 1
+          uid: string
+        kind: string
+        message: string
+        metadata:
+          continue: string
+          resourceVersion: string
+          selfLink: string
+        reason: string
+        status: string
+    labels: {}
+    name: string
+    namespace: string
+    ownerReferences:
+    - apiVersion: monitoring.coreos.com/prometheuses.monitoring.coreos.com
+      blockOwnerDeletion: true
+      controller: true
+      kind: string
+      name: string
+      uid: string
+    resourceVersion: string
+    selfLink: string
+    uid: string
+  remoteRead:
+  - basicAuth:
+      password:
+        key: string
+        name: string
+        optional: true
+      username:
+        key: string
+        name: string
+        optional: true
+    bearerToken: string
+    bearerTokenFile: string
+    proxyUrl: string
+    readRecent: true
+    remoteTimeout: string
+    requiredMatchers: {}
+    tlsConfig:
+      caFile: string
+      certFile: string
+      insecureSkipVerify: true
+      keyFile: string
+      serverName: string
+    url: string
+  remoteWrite:
+  - basicAuth:
+      password:
+        key: string
+        name: string
+        optional: true
+      username:
+        key: string
+        name: string
+        optional: true
+    bearerToken: string
+    bearerTokenFile: string
+    proxyUrl: string
+    queueConfig:
+      batchSendDeadline: string
+      capacity: 1
+      maxBackoff: string
+      maxRetries: 1
+      maxSamplesPerSend: 1
+      maxShards: 1
+      minBackoff: string
+    remoteTimeout: string
+    tlsConfig:
+      caFile: string
+      certFile: string
+      insecureSkipVerify: true
+      keyFile: string
+      serverName: string
+    url: string
+    writeRelabelConfigs:
+    - action: string
+      modulus: 1
+      regex: string
+      replacement: string
+      separator: string
+      sourceLabels: [] # minItems 0 of type string
+      targetLabel: string
+  replicas: 1
+  resources:
+    limits: {}
+    requests: {}
+  retention: string
+  routePrefix: string
+  ruleNamespaceSelector:
+    matchExpressions:
+    - key: string
+      operator: string
+      values: [] # minItems 0 of type string
+    matchLabels: {}
+  ruleSelector:
+    matchExpressions:
+    - key: string
+      operator: string
+      values: [] # minItems 0 of type string
+    matchLabels: {}
+  scrapeInterval: string
+  secrets: [] # minItems 0 of type string
+  securityContext:
+    fsGroup: 1
+    runAsGroup: 1
+    runAsNonRoot: true
+    runAsUser: 1
+    seLinuxOptions:
+      level: string
+      role: string
+      type: string
+      user: string
+    supplementalGroups: [] # minItems 0 of type integer
+    sysctls:
+    - name: string
+      value: string
+  serviceAccountName: string
+  serviceMonitorNamespaceSelector:
+    matchExpressions:
+    - key: string
+      operator: string
+      values: [] # minItems 0 of type string
+    matchLabels: {}
+  serviceMonitorSelector:
+    matchExpressions:
+    - key: string
+      operator: string
+      values: [] # minItems 0 of type string
+    matchLabels: {}
+  storage:
+    class: string
+    emptyDir:
+      medium: string
+      sizeLimit: 
+    resources:
+      limits: {}
+      requests: {}
+    selector:
+      matchExpressions:
+      - key: string
+        operator: string
+        values: [] # minItems 0 of type string
+      matchLabels: {}
+    volumeClaimTemplate:
+      apiVersion: monitoring.coreos.com/prometheuses.monitoring.coreos.com
+      kind: string
+      metadata:
+        annotations: {}
+        clusterName: string
+        creationTimestamp: 2024-10-11T12:48:44Z
+        deletionGracePeriodSeconds: 1
+        deletionTimestamp: 2024-10-11T12:48:44Z
+        finalizers: [] # minItems 0 of type string
+        generateName: string
+        generation: 1
+        initializers:
+          pending:
+          - name: string
+          result:
+            apiVersion: monitoring.coreos.com/prometheuses.monitoring.coreos.com
+            code: 1
+            details:
+              causes:
+              - field: string
+                message: string
+                reason: string
+              group: string
+              kind: string
+              name: string
+              retryAfterSeconds: 1
+              uid: string
+            kind: string
+            message: string
+            metadata:
+              continue: string
+              resourceVersion: string
+              selfLink: string
+            reason: string
+            status: string
+        labels: {}
+        name: string
+        namespace: string
+        ownerReferences:
+        - apiVersion: monitoring.coreos.com/prometheuses.monitoring.coreos.com
+          blockOwnerDeletion: true
+          controller: true
+          kind: string
+          name: string
+          uid: string
+        resourceVersion: string
+        selfLink: string
+        uid: string
+      spec:
+        accessModes: [] # minItems 0 of type string
+        resources:
+          limits: {}
+          requests: {}
+        selector:
+          matchExpressions:
+          - key: string
+            operator: string
+            values: [] # minItems 0 of type string
+          matchLabels: {}
+        storageClassName: string
+        volumeMode: string
+        volumeName: string
+      status:
+        accessModes: [] # minItems 0 of type string
+        capacity: {}
+        conditions:
+        - lastProbeTime: 2024-10-11T12:48:44Z
+          lastTransitionTime: 2024-10-11T12:48:44Z
+          message: string
+          reason: string
+          status: string
+          type: string
+        phase: string
+  tag: string
+  thanos:
+    baseImage: string
+    gcs:
+      bucket: string
+    peers: string
+    s3:
+      accessKey:
+        key: string
+        name: string
+        optional: true
+      bucket: string
+      endpoint: string
+      insecure: true
+      secretKey:
+        key: string
+        name: string
+        optional: true
+      signatureVersion2: true
+    tag: string
+    version: string
+  tolerations:
+  - effect: string
+    key: string
+    operator: string
+    tolerationSeconds: 1
+    value: string
+  version: string
+status:
+  availableReplicas: 1
+  paused: true
+  replicas: 1
+  unavailableReplicas: 1
+  updatedReplicas: 1

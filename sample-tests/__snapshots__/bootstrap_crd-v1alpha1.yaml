@@ -45,12 +45,12 @@ spec:
     semver: string
 status:
   conditions:
-  - lastTransitionTime: string
+  - lastTransitionTime: 2024-10-11T12:48:44Z
     message: string
     observedGeneration: 0
-    reason: N # ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+    reason: w # ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
     status: "True"
-    type: 8x.46qk/L # ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+    type: 2.ik2p.6.i/Q # ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
   lastAppliedCRDNames: {}
   lastAppliedRevision: string
   lastAttemptedRevision: string
