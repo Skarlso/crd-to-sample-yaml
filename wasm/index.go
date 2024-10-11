@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apimachinery/pkg/util/yaml"
 
+	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 )
@@ -219,20 +223,76 @@ func (i *index) NavBackOnClick(_ app.Context, _ app.Event) {
 	i.content = nil
 }
 
+type editView struct {
+	app.Compo
+
+	content []byte
+}
+
+func (e *editView) OnInput(ctx app.Context, _ app.Event) {
+	content := ctx.JSSrc().Get("value").String()
+
+	crd := &v1.CustomResourceDefinition{}
+	if err := yaml.Unmarshal([]byte(content), crd); err != nil {
+		e.content = []byte("invalid CRD content")
+
+		return
+	}
+
+	e.content = nil
+
+	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, false)
+	for _, version := range crd.Spec.Versions {
+		e.content = append(e.content, []byte("---\n")...)
+		var buffer []byte
+		buf := bytes.NewBuffer(buffer)
+		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
+			e.content = []byte(err.Error())
+
+			return
+		}
+		e.content = append(e.content, buf.Bytes()...)
+	}
+}
+
+func (e *editView) Render() app.UI {
+	return app.Div().Body(
+		app.H6().Text("Dynamically render CRD content"),
+		app.Div().Class("input-group input-group-lg").Body(
+			app.Div().Class("container").Body(
+				app.Div().Class("row justify-content-around").Body(
+					app.Textarea().Class("col form-control").Style("height", "350px").Style("max-height", "800px").Placeholder("Start typing...").ID("input-area").OnInput(e.OnInput),
+					// app.Pre().Class("col").Body(
+					//	app.Code().Style("height", "250px").Style("max-height", "800px").Class("language-yaml").ID("output-area").Body(
+					//		app.Text(string(e.content)),
+					//	)),
+					app.Textarea().Class("col form-control").Style("height", "350px").Style("max-height", "800px").ID("output-area").Text(string(e.content)),
+				),
+			),
+		))
+}
+
 func (i *index) Render() app.UI {
 	// Prevent double rendering components.
 	if i.isMounted {
-		return app.Main().Body(app.Div().Class("container").Body(func() app.UI {
-			if i.err != nil {
-				return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, i.buildError())
-			}
+		return app.Main().Body(
+			app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
+			app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
+			app.Div().Class("container").Body(func() app.UI {
+				if i.err != nil {
+					return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, i.buildError())
+				}
 
-			if i.content != nil {
-				return &crdView{content: i.content, comment: i.comments, minimal: i.minimal, navigateBackOnClick: i.NavBackOnClick}
-			}
+				if i.content != nil {
+					return &crdView{content: i.content, comment: i.comments, minimal: i.minimal, navigateBackOnClick: i.NavBackOnClick}
+				}
 
-			return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, &form{formHandler: i.OnClick, checkHandlerComment: i.OnCheckComment, checkHandlerMinimal: i.OnCheckMinimal})
-		}()))
+				return app.Div().Class("container").Body(
+					&header{titleOnClick: i.NavBackOnClick, hidden: true},
+					&editView{},
+					app.Div().Body(app.H6().Text("Render web view of CRD content")),
+					&form{formHandler: i.OnClick, checkHandlerComment: i.OnCheckComment, checkHandlerMinimal: i.OnCheckMinimal})
+			}()))
 	}
 
 	return app.Main()

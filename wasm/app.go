@@ -103,8 +103,7 @@ func (h *crdView) OnNav(ctx app.Context) {
 	h.content = content
 }
 
-// The Render method is where the component appearance is defined. Here, a
-// "Hello World!" is displayed as a heading.
+// The Render method is where the component appearance is defined.
 func (h *crdView) Render() app.UI {
 	if h.preRenderErr != nil {
 		return h.buildError(h.preRenderErr)
