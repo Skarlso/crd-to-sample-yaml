@@ -23,13 +23,13 @@ please follow the [How to test CRDs with CTY Readme](./crd-testing-README.md).
 Now you can simply run:
 
 ```
-cty generate -c delivery.krok.app_krokcommands
+cty generate crd -c delivery.krok.app_krokcommands
 ```
 
 Optionally, define a URL at which a CRD is located:
 
 ```
-cty generate -u https://raw.githubusercontent.com/kubernetes-sigs/cluster-api-provider-aws/main/config/crd/bases/infrastructure.cluster.x-k8s.io_awsclusters.yaml
+cty generate crd -u https://raw.githubusercontent.com/kubernetes-sigs/cluster-api-provider-aws/main/config/crd/bases/infrastructure.cluster.x-k8s.io_awsclusters.yaml
 ```
 
 `cty` does not support authentication modes, therefore the CRD needs to be publicly accessible.
@@ -64,7 +64,7 @@ It's possible to generate a pre-rendered HTML based output for self-hosting what
 To get an HTML output provide the format flag like this:
 
 ```
-cty generate -c delivery.krok.app_krokcommands --comments --format html
+cty generate crd -c delivery.krok.app_krokcommands --comments --format html
 ```
 
 ![parsed1_cli](./imgs/parsed1_cli.png)
@@ -93,7 +93,7 @@ spec:
 To run cty with minimal required fields, pass in `--minimal` to the command like this:
 
 ```
-cty generate -c delivery.krok.app_krokcommands --comments --minimal --format html
+cty generate crd -c delivery.krok.app_krokcommands --comments --minimal --format html
 ```
 
 ### Folder source
@@ -101,10 +101,26 @@ cty generate -c delivery.krok.app_krokcommands --comments --minimal --format htm
 To parse multiple CRDs in a single folder, just pass in the whole folder like this:
 
 ```
-cty generate -r folder
+cty generate crd -r folder
 ```
 
 Any other flag will work as before.
+
+## Schema Generation
+
+cty also provides a way to generate a JSON Schema out of a CRD. Simply use:
+
+```
+cty generate schema -c sample-crd/delivery.krok.app_krokcommands.yaml
+```
+
+to target a single file. Or
+
+```
+cty generate schema -r sample-crd
+```
+
+to target a folder.
 
 ## WASM frontend
 
