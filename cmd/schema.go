@@ -16,6 +16,18 @@ var schemaCmd = &cobra.Command{
 	RunE:  runGenerateSchema,
 }
 
+type schemaCmdArgs struct {
+	outputFolder string
+}
+
+var schemaArgs = &schemaCmdArgs{}
+
+func init() {
+	generateCmd.AddCommand(schemaCmd)
+	f := schemaCmd.PersistentFlags()
+	f.StringVarP(&schemaArgs.outputFolder, "output", "o", ".", "output location of the generated schema files")
+}
+
 func runGenerateSchema(_ *cobra.Command, _ []string) error {
 	crdHandler, err := constructHandler(args)
 	if err != nil {
@@ -23,13 +35,13 @@ func runGenerateSchema(_ *cobra.Command, _ []string) error {
 	}
 
 	// determine location of output
-	if args.output == "" {
+	if schemaArgs.outputFolder == "" {
 		loc, err := os.Executable()
 		if err != nil {
 			return fmt.Errorf("failed to determine executable location: %w", err)
 		}
 
-		args.output = filepath.Dir(loc)
+		schemaArgs.outputFolder = filepath.Dir(loc)
 	}
 
 	crds, err := crdHandler.CRDs()
@@ -51,15 +63,11 @@ func runGenerateSchema(_ *cobra.Command, _ []string) error {
 			}
 
 			const perm = 0o600
-			if err := os.WriteFile(filepath.Join(args.output, crd.Spec.Names.Kind+"."+crd.Spec.Group+"."+v.Name+".json"), content, perm); err != nil {
+			if err := os.WriteFile(filepath.Join(schemaArgs.outputFolder, crd.Spec.Names.Kind+"."+crd.Spec.Group+"."+v.Name+".schema.json"), content, perm); err != nil {
 				return fmt.Errorf("failed to write schema: %w", err)
 			}
 		}
 	}
 
 	return nil
-}
-
-func init() {
-	generateCmd.AddCommand(schemaCmd)
 }

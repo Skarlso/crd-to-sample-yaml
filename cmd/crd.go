@@ -25,12 +25,30 @@ var crdCmd = &cobra.Command{
 	RunE:  runGenerate,
 }
 
+type crdGenArgs struct {
+	comments   bool
+	minimal    bool
+	skipRandom bool
+	output     string
+	format     string
+	stdOut     bool
+}
+
+var crdArgs = &crdGenArgs{}
+
 type Handler interface {
 	CRDs() ([]*v1beta1.CustomResourceDefinition, error)
 }
 
 func init() {
 	generateCmd.AddCommand(crdCmd)
+	f := crdCmd.PersistentFlags()
+	f.BoolVarP(&crdArgs.comments, "comments", "m", false, "If set, it will add descriptions as comments to each line where available.")
+	f.BoolVarP(&crdArgs.minimal, "minimal", "l", false, "If set, only the minimal required example yaml is generated.")
+	f.BoolVar(&crdArgs.skipRandom, "no-random", false, "Skip generating random values that satisfy the property patterns.")
+	f.StringVarP(&crdArgs.output, "output", "o", "", "The location of the output file. Default is next to the CRD.")
+	f.StringVarP(&crdArgs.format, "format", "f", FormatYAML, "The format in which to output. Default is YAML. Options are: yaml, html.")
+	f.BoolVarP(&crdArgs.stdOut, "stdout", "s", false, "If set, it will output the generated content to stdout.")
 }
 
 func runGenerate(_ *cobra.Command, _ []string) error {
@@ -39,20 +57,20 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if args.format == FormatHTML {
+	if crdArgs.format == FormatHTML {
 		if err := pkg.LoadTemplates(); err != nil {
 			return fmt.Errorf("failed to load templates: %w", err)
 		}
 	}
 
 	// determine location of output
-	if args.output == "" {
+	if crdArgs.output == "" {
 		loc, err := os.Executable()
 		if err != nil {
 			return fmt.Errorf("failed to determine executable location: %w", err)
 		}
 
-		args.output = filepath.Dir(loc)
+		crdArgs.output = filepath.Dir(loc)
 	}
 
 	crds, err := crdHandler.CRDs()
@@ -62,27 +80,31 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 
 	var w io.WriteCloser
 
-	if args.format == FormatHTML {
-		if args.stdOut {
+	if crdArgs.format == FormatHTML {
+		if crdArgs.stdOut {
 			w = os.Stdout
 		} else {
-			w, err = os.Create(args.output)
+			w, err = os.Create(crdArgs.output)
 			if err != nil {
 				return fmt.Errorf("failed to create output file: %w", err)
 			}
 
-			defer w.Close()
+			defer func() {
+				if err := w.Close(); err != nil {
+					_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
+				}
+			}()
 		}
 
-		return pkg.RenderContent(w, crds, args.comments, args.minimal)
+		return pkg.RenderContent(w, crds, crdArgs.comments, crdArgs.minimal)
 	}
 
 	var errs []error //nolint:prealloc // nope
 	for _, crd := range crds {
-		if args.stdOut {
+		if crdArgs.stdOut {
 			w = os.Stdout
 		} else {
-			outputLocation := filepath.Join(args.output, crd.Name+"_sample."+args.format)
+			outputLocation := filepath.Join(crdArgs.output, crd.Name+"_sample."+crdArgs.format)
 			// closed later during render
 			outputFile, err := os.Create(outputLocation)
 			if err != nil {
@@ -94,7 +116,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			w = outputFile
 		}
 
-		errs = append(errs, pkg.Generate(crd, w, args.comments, args.minimal, args.skipRandom))
+		errs = append(errs, pkg.Generate(crd, w, crdArgs.comments, crdArgs.minimal, crdArgs.skipRandom))
 	}
 
 	return errors.Join(errs...)
