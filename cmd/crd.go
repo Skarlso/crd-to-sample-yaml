@@ -78,6 +78,11 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 	}
 
 	var w io.WriteCloser
+	defer func() {
+		if err := w.Close(); err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
+		}
+	}()
 
 	if crdArgs.format == FormatHTML {
 		if crdArgs.stdOut {
@@ -87,12 +92,6 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			if err != nil {
 				return fmt.Errorf("failed to create output file: %w", err)
 			}
-
-			defer func() {
-				if err := w.Close(); err != nil {
-					_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
-				}
-			}()
 		}
 
 		return pkg.RenderContent(w, crds, crdArgs.comments, crdArgs.minimal)

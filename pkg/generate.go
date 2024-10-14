@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -19,12 +18,6 @@ var RootRequiredFields = []string{"apiVersion", "kind", "spec", "metadata"}
 
 // Generate takes a CRD content and path, and outputs.
 func Generate(crd *SchemaType, w io.WriteCloser, enableComments, minimal, skipRandom bool) (err error) {
-	defer func() {
-		if cerr := w.Close(); cerr != nil {
-			err = errors.Join(err, cerr)
-		}
-	}()
-
 	parser := NewParser(crd.Group, crd.Kind, enableComments, minimal, skipRandom)
 	for i, version := range crd.Versions {
 		if err := parser.ParseProperties(version.Name, w, version.Schema.Properties); err != nil {

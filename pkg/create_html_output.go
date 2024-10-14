@@ -3,7 +3,6 @@ package pkg
 import (
 	"bytes"
 	"embed"
-	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -65,12 +64,6 @@ func LoadTemplates() error {
 
 // RenderContent creates an HTML website from the CRD content.
 func RenderContent(w io.WriteCloser, crds []*SchemaType, comments, minimal bool) (err error) {
-	defer func() {
-		if cerr := w.Close(); cerr != nil {
-			err = errors.Join(err, cerr)
-		}
-	}()
-
 	allViews := make([]ViewPage, 0, len(crds))
 
 	for _, crd := range crds {
