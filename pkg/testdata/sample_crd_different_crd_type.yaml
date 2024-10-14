@@ -1,0 +1,134 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  # XRDs must be named 'x<plural>.<group>'
+  name: xxtstorageaccounts.crossplane.fnietoga.me
+spec:
+  # This XRD defines an XR in the 'crossplane.fnietoga.me' API group.
+  # The XR or Claim must use this group together with the spec.versions[0].name as it's apiVersion, like this:
+  # 'crossplane.fnietoga.me/v1alpha1'
+  group: crossplane.fnietoga.me
+
+  # XR names should always be prefixed with an 'X'
+  names:
+    kind: xXtStorageAccount
+    plural: xxtstorageaccounts
+  # This type of XR offers a claim, which should have the same name without the 'X' prefix
+  claimNames:
+    kind: XtStorageAccount
+    plural: xtstorageaccounts
+
+  # default Composition when none is specified (must match metadata.name of a provided Composition)
+  # e.g. in composition.yaml
+  defaultCompositionRef:
+    name: xtstorageaccount-composition
+
+  versions:
+    - name: v1alpha1
+      # Each version can be enabled/disabled by Served flag.
+      served: true
+      # Indicates which version of the schema Compositions use. Only one version can be referenceable
+      referenceable: true
+      # OpenAPI schema (like the one used by Kubernetes CRDs). Determines what fields
+      # the XR (and claim) will have. Will be automatically extended by crossplane.
+      # See https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/
+      # for full CRD documentation and guide on how to write OpenAPI schemas
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              # We define all needed parameters here one has to provide as XR or Claim spec.parameters
+              properties:
+                parameters:
+                  type: object
+                  properties:
+                    resourceGroupName:
+                      type: string
+                      description: Name of the resource group where the resources must be created. Not allowed to be modified after creation.
+                    location:
+                      type: string
+                      description: Specifies the supported Azure location where the resource exists. Valid options are westeurope, northeurope, eastus2, centralus, australiaeast, australiacentral and global. Not allowed to be modified after creation.
+                      enum:
+                        - westeurope
+                        - northeurope
+                        - eastus2
+                        - centralus
+                        - australiaeast
+                        - australiacentral
+                        - global
+                    environment:
+                      type: string
+                      description: Environment of the resources to be deployed. Valid options are production, staging, preproduction, quality_assurance, test, development, proof_of_concept, disaster_recovery, sandbox and global.
+                      enum:
+                        - production
+                        - staging
+                        - preproduction
+                        - quality_assurance
+                        - test
+                        - development
+                        - proof_of_concept
+                        - disaster_recovery
+                        - sandbox
+                        - global
+                    projectName:
+                      type: string
+                      description: Identifier of the functionality, project or application related to the resource. Must start with letter, only contain letters, numbers, dots, dashes, or underscores.
+                      pattern: '^[a-zA-Z][a-zA-Z\\.\\-\\_0-9]+$'
+                    sequentialNumber:
+                      type: integer
+                      description: Sequential number used for resources with the same name. Defaults to 1.
+                      # x-kubernetes-validations:
+                      #   - rule: "self > 0 && self < 100"
+                      #     message: "Sequential number must be between 1 and 99."
+                      default: 1
+                      minimum: 1
+                      maximum: 99
+                    replicationType:
+                      type: string
+                      description: Defines the type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS and RAGZRS. Changing this forces a new resource to be created when types LRS, GRS and RAGRS are changed to ZRS, GZRS or RAGZRS and vice versa. Defaults to ZRS.
+                      default: ZRS
+                      enum:
+                        - LRS
+                        - GRS
+                        - RAGRS
+                        - ZRS
+                        - GZRS
+                        - RAGZRS
+                    kind:
+                      type: string
+                      description: Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2. Defaults to StorageV2.
+                      default: StorageV2
+                      enum:
+                        - BlobStorage
+                        - BlockBlobStorage
+                        - FileStorage
+                        - Storage
+                        - StorageV2
+                    accessTier:
+                      type: string
+                      description: Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot and Cool. Defaults to Hot.
+                      default: "Hot"
+                      enum:
+                        - Hot
+                        - Cool
+                    sharedAccessKeyEnabled:
+                      type: boolean
+                      description: Indicates whether the storage account permits requests to be authorized with the account access key via Shared Key. If false, then all requests, including shared access signatures, must be authorized with Azure Active Directory (Azure AD). Defaults to false.
+                      default: false
+                    hnsEnabled:
+                      type: boolean
+                      description: Is Hierarchical Namespace enabled? This can be used with Azure Data Lake Storage Gen 2 (see here for more information). Changing this forces a new resource to be created. Defaults to false.
+                      default: false
+                    largeFileShareEnabled:
+                      type: boolean
+                      description: Is Large File Share Enabled?. Defaults to false
+                      default: false
+                  required:
+                    - resourceGroupName
+                    - location
+                    - environment
+                    - projectName
+              required:
+                - parameters

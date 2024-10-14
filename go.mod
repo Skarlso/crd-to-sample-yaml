@@ -5,6 +5,8 @@ go 1.23
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/fatih/color v1.17.0
+	github.com/fxamacker/cbor/v2 v2.7.0
+	github.com/google/go-cmp v0.6.0
 	github.com/jedib0t/go-pretty/v6 v6.6.0
 	github.com/maxence-charriere/go-app/v10 v10.0.7
 	github.com/spf13/cobra v1.8.1
@@ -20,7 +22,6 @@ require (
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect

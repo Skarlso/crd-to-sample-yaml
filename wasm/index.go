@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
@@ -232,8 +232,15 @@ type editView struct {
 func (e *editView) OnInput(ctx app.Context, _ app.Event) {
 	content := ctx.JSSrc().Get("value").String()
 
-	crd := &v1beta1.CustomResourceDefinition{}
+	crd := &unstructured.Unstructured{}
 	if err := yaml.Unmarshal([]byte(content), crd); err != nil {
+		e.content = []byte("invalid CRD content")
+
+		return
+	}
+
+	schemaType, err := pkg.ExtractSchemaType(crd)
+	if err != nil {
 		e.content = []byte("invalid CRD content")
 
 		return
@@ -241,12 +248,12 @@ func (e *editView) OnInput(ctx app.Context, _ app.Event) {
 
 	e.content = nil
 
-	parser := pkg.NewParser(crd.Spec.Group, crd.Spec.Names.Kind, false, false, false)
-	for _, version := range crd.Spec.Versions {
+	parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, false, false)
+	for _, version := range schemaType.Versions {
 		e.content = append(e.content, []byte("---\n")...)
 		var buffer []byte
 		buf := bytes.NewBuffer(buffer)
-		if err := parser.ParseProperties(version.Name, buf, version.Schema.OpenAPIV3Schema.Properties); err != nil {
+		if err := parser.ParseProperties(version.Name, buf, version.Schema.Properties); err != nil {
 			e.content = []byte(err.Error())
 
 			return

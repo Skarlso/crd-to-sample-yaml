@@ -1,0 +1,30 @@
+name: Sync File from Repo B
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Runs daily at midnight
+  workflow_dispatch:
+
+jobs:
+  sync-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Kubernetes API server
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/apiextensions-apiserver
+          path: apiextensions-apiserver
+      - name: Checkout This Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: this
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+
+      - name: Run sync script
+        run: | 
+          ./this/hack/sync-file.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
