@@ -1,0 +1,15 @@
+apiVersion: crossplane.fnietoga.me/v1alpha1
+kind: xXtStorageAccount
+spec:
+  parameters:
+    accessTier: "Hot"
+    environment: "production"
+    hnsEnabled: false
+    kind: "StorageV2"
+    largeFileShareEnabled: false
+    location: "westeurope"
+    projectName: string
+    replicationType: "ZRS"
+    resourceGroupName: string
+    sequentialNumber: 1
+    sharedAccessKeyEnabled: false

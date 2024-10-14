@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 )
@@ -37,7 +36,7 @@ type crdGenArgs struct {
 var crdArgs = &crdGenArgs{}
 
 type Handler interface {
-	CRDs() ([]*v1beta1.CustomResourceDefinition, error)
+	CRDs() ([]*pkg.SchemaType, error)
 }
 
 func init() {
@@ -79,6 +78,11 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 	}
 
 	var w io.WriteCloser
+	defer func() {
+		if err := w.Close(); err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
+		}
+	}()
 
 	if crdArgs.format == FormatHTML {
 		if crdArgs.stdOut {
@@ -88,12 +92,6 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			if err != nil {
 				return fmt.Errorf("failed to create output file: %w", err)
 			}
-
-			defer func() {
-				if err := w.Close(); err != nil {
-					_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
-				}
-			}()
 		}
 
 		return pkg.RenderContent(w, crds, crdArgs.comments, crdArgs.minimal)
@@ -104,7 +102,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 		if crdArgs.stdOut {
 			w = os.Stdout
 		} else {
-			outputLocation := filepath.Join(crdArgs.output, crd.Name+"_sample."+crdArgs.format)
+			outputLocation := filepath.Join(crdArgs.output, crd.Kind+"_sample."+crdArgs.format)
 			// closed later during render
 			outputFile, err := os.Create(outputLocation)
 			if err != nil {

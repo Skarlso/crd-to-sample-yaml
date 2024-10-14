@@ -50,20 +50,20 @@ func runGenerateSchema(_ *cobra.Command, _ []string) error {
 	}
 
 	for _, crd := range crds {
-		for _, v := range crd.Spec.Versions {
-			if v.Schema.OpenAPIV3Schema.ID == "" {
-				v.Schema.OpenAPIV3Schema.ID = "https://crdtoyaml.com/" + crd.Spec.Names.Kind + "." + crd.Spec.Group + "." + v.Name + ".schema.json"
+		for _, v := range crd.Versions {
+			if v.Schema.ID == "" {
+				v.Schema.ID = "https://crdtoyaml.com/" + crd.Kind + "." + crd.Group + "." + v.Name + ".schema.json"
 			}
-			if v.Schema.OpenAPIV3Schema.Schema == "" {
-				v.Schema.OpenAPIV3Schema.Schema = "https://json-schema.org/draft/2020-12/schema"
+			if v.Schema.Schema == "" {
+				v.Schema.Schema = "https://json-schema.org/draft/2020-12/schema"
 			}
-			content, err := json.Marshal(v.Schema.OpenAPIV3Schema)
+			content, err := json.Marshal(v.Schema)
 			if err != nil {
 				return fmt.Errorf("failed to marshal schema: %w", err)
 			}
 
 			const perm = 0o600
-			if err := os.WriteFile(filepath.Join(schemaArgs.outputFolder, crd.Spec.Names.Kind+"."+crd.Spec.Group+"."+v.Name+".schema.json"), content, perm); err != nil {
+			if err := os.WriteFile(filepath.Join(schemaArgs.outputFolder, crd.Kind+"."+crd.Group+"."+v.Name+".schema.json"), content, perm); err != nil {
 				return fmt.Errorf("failed to write schema: %w", err)
 			}
 		}

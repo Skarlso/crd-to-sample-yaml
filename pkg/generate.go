@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -11,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
 const array = "array"
@@ -19,20 +17,14 @@ const array = "array"
 var RootRequiredFields = []string{"apiVersion", "kind", "spec", "metadata"}
 
 // Generate takes a CRD content and path, and outputs.
-func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableComments, minimal, skipRandom bool) (err error) {
-	defer func() {
-		if cerr := w.Close(); cerr != nil {
-			err = errors.Join(err, cerr)
-		}
-	}()
-
-	parser := NewParser(crd.Spec.Group, crd.Spec.Names.Kind, enableComments, minimal, skipRandom)
-	for i, version := range crd.Spec.Versions {
-		if err := parser.ParseProperties(version.Name, w, version.Schema.OpenAPIV3Schema.Properties); err != nil {
+func Generate(crd *SchemaType, w io.WriteCloser, enableComments, minimal, skipRandom bool) (err error) {
+	parser := NewParser(crd.Group, crd.Kind, enableComments, minimal, skipRandom)
+	for i, version := range crd.Versions {
+		if err := parser.ParseProperties(version.Name, w, version.Schema.Properties); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 
-		if i < len(crd.Spec.Versions)-1 {
+		if i < len(crd.Versions)-1 {
 			if _, err := w.Write([]byte("\n---\n")); err != nil {
 				return fmt.Errorf("failed to write yaml delimiter to writer: %w", err)
 			}
@@ -40,10 +32,8 @@ func Generate(crd *v1beta1.CustomResourceDefinition, w io.WriteCloser, enableCom
 	}
 
 	// Parse validation instead
-	if len(crd.Spec.Versions) == 0 && crd.Spec.Validation != nil {
-		crd.Spec.Validation.OpenAPIV3Schema.Properties["kind"] = v1beta1.JSONSchemaProps{}
-		crd.Spec.Validation.OpenAPIV3Schema.Properties["apiVersion"] = v1beta1.JSONSchemaProps{}
-		if err := parser.ParseProperties(crd.Name, w, crd.Spec.Validation.OpenAPIV3Schema.Properties); err != nil {
+	if len(crd.Versions) == 0 && crd.Validation != nil {
+		if err := parser.ParseProperties(crd.Validation.Name, w, crd.Validation.Schema.Properties); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 	}
@@ -86,7 +76,7 @@ func NewParser(group, kind string, comments, requiredOnly, skipRandom bool) *Par
 // ParseProperties takes a writer and puts out any information / properties it encounters during the runs.
 // It will recursively parse every "properties:" and "additionalProperties:". Using the types, it will also output
 // some sample data based on those types.
-func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]v1beta1.JSONSchemaProps) error {
+func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]JSONSchemaProps) error {
 	sortedKeys := make([]string, 0, len(properties))
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
@@ -199,7 +189,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 }
 
 // deletes properties from the properties that aren't required.
-func (p *Parser) emptyAfterTrimRequired(properties map[string]v1beta1.JSONSchemaProps, required []string) bool {
+func (p *Parser) emptyAfterTrimRequired(properties map[string]JSONSchemaProps, required []string) bool {
 	for k := range properties {
 		if !slices.Contains(required, k) {
 			delete(properties, k)
@@ -210,7 +200,7 @@ func (p *Parser) emptyAfterTrimRequired(properties map[string]v1beta1.JSONSchema
 }
 
 // outputValueType generate an output value based on the given type.
-func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
+func outputValueType(v JSONSchemaProps, skipRandom bool) string {
 	if v.Default != nil {
 		return string(v.Default.Raw)
 	}
@@ -250,18 +240,21 @@ func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
 	case "object":
 		return "{}"
 	case array: // deal with arrays of other types that weren't objects
-		t := v.Items.Schema.Type
-		var s string
-		var items []string
-		if v.MinItems != nil {
-			for range int(*v.MinItems) {
-				items = append(items, t)
+		if v.Items.Schema != nil {
+			t := v.Items.Schema.Type
+			var s string
+			var items []string
+			if v.MinItems != nil {
+				for range int(*v.MinItems) {
+					items = append(items, t)
+				}
 			}
+			s = fmt.Sprintf("[%s] # minItems %d of type %s", strings.Join(items, ","), len(items), t)
+
+			return s
 		}
 
-		s = fmt.Sprintf("[%s] # minItems %d of type %s", strings.Join(items, ","), len(items), t)
-
-		return s
+		return "[]"
 	}
 
 	return v.Type

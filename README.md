@@ -16,6 +16,7 @@ please follow the [How to test CRDs with CTY Readme](./crd-testing-README.md).
 ![crd-unittest-sample-output](./imgs/crd-unittest-outcome.png)
 
 ## Getting started
+
 - Prerequisites: Go installed on your machine. (Check out this link for details: https://go.dev/doc/install)
 - Clone the repository
 - Execute `make build` to build the binary
@@ -121,6 +122,33 @@ cty generate schema -r sample-crd
 ```
 
 to target a folder.
+
+## CRD Types
+
+ANY kind of type can be used, not just `CustomResourceDefinitions` as long as they provide the following structure:
+
+```yaml
+# top level spec field
+spec:
+  names:
+    kind: # this should be the kind of the generated object
+  group: # the group of the generated object
+  # optional version field 
+  versions:
+    - name: v1alpha1
+      # OpenAPI schema (like the one used by Kubernetes CRDs). Determines what fields
+      # the XR (and claim) will have. Will be automatically extended by crossplane.
+      # See https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/
+      # for full CRD documentation and guide on how to write OpenAPI schemas
+      schema:
+        openAPIV3Schema:
+  # optional validation field describing all versions
+  validation:
+    openAPIV3Schema:
+```
+
+If these fields are respected, the apiVersion or the kind of the resource doesn't matter. It's all unstructured in the
+background.
 
 ## WASM frontend
 

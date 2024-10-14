@@ -6,9 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
+	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 )
 
@@ -16,12 +17,12 @@ type FolderHandler struct {
 	location string
 }
 
-func (h *FolderHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
+func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 	if _, err := os.Stat(h.location); os.IsNotExist(err) {
 		return nil, fmt.Errorf("file under '%s' does not exist", h.location)
 	}
 
-	var crds []*v1beta1.CustomResourceDefinition
+	var crds []*pkg.SchemaType
 
 	if err := filepath.Walk(h.location, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -48,14 +49,18 @@ func (h *FolderHandler) CRDs() ([]*v1beta1.CustomResourceDefinition, error) {
 			return fmt.Errorf("failed to sanitize content: %w", err)
 		}
 
-		crd := &v1beta1.CustomResourceDefinition{}
+		crd := &unstructured.Unstructured{}
 		if err := yaml.Unmarshal(content, crd); err != nil {
 			fmt.Fprintln(os.Stderr, "skipping none CRD file: "+path)
 
 			return nil //nolint:nilerr // intentional
 		}
+		schemaType, err := pkg.ExtractSchemaType(crd)
+		if err != nil {
+			return fmt.Errorf("failed to extract schema type: %w", err)
+		}
 
-		crds = append(crds, crd)
+		crds = append(crds, schemaType)
 
 		return nil
 	}); err != nil {
