@@ -94,7 +94,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			}
 		}
 
-		return pkg.RenderContent(w, crds, crdArgs.comments, crdArgs.minimal)
+		return pkg.RenderContent(w, crds, crdArgs.comments, crdArgs.minimal, crdArgs.skipRandom)
 	}
 
 	var errs []error //nolint:prealloc // nope

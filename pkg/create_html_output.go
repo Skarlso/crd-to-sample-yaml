@@ -63,12 +63,12 @@ func LoadTemplates() error {
 }
 
 // RenderContent creates an HTML website from the CRD content.
-func RenderContent(w io.WriteCloser, crds []*SchemaType, comments, minimal bool) (err error) {
+func RenderContent(w io.WriteCloser, crds []*SchemaType, comments, minimal, random bool) (err error) {
 	allViews := make([]ViewPage, 0, len(crds))
 
 	for _, crd := range crds {
 		versions := make([]Version, 0)
-		parser := NewParser(crd.Group, crd.Kind, comments, minimal, false)
+		parser := NewParser(crd.Group, crd.Kind, comments, minimal, random)
 
 		for _, version := range crd.Versions {
 			v, err := generate(version.Name, crd.Group, crd.Kind, version.Schema, minimal, parser)
