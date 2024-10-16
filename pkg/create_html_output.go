@@ -9,6 +9,8 @@ import (
 	"io/fs"
 	"slices"
 	"sort"
+
+	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
 type Index struct {
@@ -112,7 +114,7 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, comments, minimal, rand
 	return nil
 }
 
-func generate(name, group, kind string, properties *JSONSchemaProps, minimal bool, parser *Parser) (Version, error) {
+func generate(name, group, kind string, properties *v1beta1.JSONSchemaProps, minimal bool, parser *Parser) (Version, error) {
 	out, err := parseCRD(properties.Properties, name, minimal, RootRequiredFields)
 	if err != nil {
 		return Version{}, fmt.Errorf("failed to parse properties: %w", err)
@@ -150,7 +152,7 @@ type Property struct {
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
-func parseCRD(properties map[string]JSONSchemaProps, version string, minimal bool, requiredList []string) ([]*Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, minimal bool, requiredList []string) ([]*Property, error) {
 	output := make([]*Property, 0, len(properties))
 	sortedKeys := make([]string, 0, len(properties))
 

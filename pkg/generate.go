@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/brianvoe/gofakeit/v6"
+
+	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
 const array = "array"
@@ -76,7 +78,7 @@ func NewParser(group, kind string, comments, requiredOnly, skipRandom bool) *Par
 // ParseProperties takes a writer and puts out any information / properties it encounters during the runs.
 // It will recursively parse every "properties:" and "additionalProperties:". Using the types, it will also output
 // some sample data based on those types.
-func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]JSONSchemaProps) error {
+func (p *Parser) ParseProperties(version string, file io.Writer, properties map[string]v1beta1.JSONSchemaProps) error {
 	sortedKeys := make([]string, 0, len(properties))
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
@@ -189,7 +191,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 }
 
 // deletes properties from the properties that aren't required.
-func (p *Parser) emptyAfterTrimRequired(properties map[string]JSONSchemaProps, required []string) bool {
+func (p *Parser) emptyAfterTrimRequired(properties map[string]v1beta1.JSONSchemaProps, required []string) bool {
 	for k := range properties {
 		if !slices.Contains(required, k) {
 			delete(properties, k)
@@ -200,7 +202,7 @@ func (p *Parser) emptyAfterTrimRequired(properties map[string]JSONSchemaProps, r
 }
 
 // outputValueType generate an output value based on the given type.
-func outputValueType(v JSONSchemaProps, skipRandom bool) string {
+func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
 	if v.Default != nil {
 		return string(v.Default.Raw)
 	}

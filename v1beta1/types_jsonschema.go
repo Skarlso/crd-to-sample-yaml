@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package pkg
+package v1beta1
 
 // FieldValueErrorReason is a machine-readable value providing more detail about why a field failed the validation.
 // +enum

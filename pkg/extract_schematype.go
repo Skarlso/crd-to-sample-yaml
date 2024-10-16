@@ -6,6 +6,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/json"
+
+	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
 // ExtractSchemaType makes sure the following required fields are
@@ -73,7 +75,7 @@ func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
 		if err != nil {
 			return nil, err
 		}
-		schemaValue := &JSONSchemaProps{}
+		schemaValue := &v1beta1.JSONSchemaProps{}
 		if err := json.Unmarshal(content, schemaValue); err != nil {
 			return nil, err
 		}
@@ -111,7 +113,7 @@ func extractValidation(obj *unstructured.Unstructured, specMap map[string]any) (
 		return nil, fmt.Errorf("openAPIV3Schema not found in validation map: %v", validationMap)
 	}
 
-	props := &JSONSchemaProps{}
+	props := &v1beta1.JSONSchemaProps{}
 	content, err := json.Marshal(schema)
 	if err != nil {
 		return nil, err
@@ -133,13 +135,13 @@ func extractValidation(obj *unstructured.Unstructured, specMap map[string]any) (
 	}, nil
 }
 
-func ensureKindAndAPIVersionIsSet(properties map[string]JSONSchemaProps) {
+func ensureKindAndAPIVersionIsSet(properties map[string]v1beta1.JSONSchemaProps) {
 	if _, ok := properties["kind"]; !ok {
-		properties["kind"] = JSONSchemaProps{}
+		properties["kind"] = v1beta1.JSONSchemaProps{}
 	}
 
 	if _, ok := properties["apiVersion"]; !ok {
-		properties["apiVersion"] = JSONSchemaProps{}
+		properties["apiVersion"] = v1beta1.JSONSchemaProps{}
 	}
 }
 

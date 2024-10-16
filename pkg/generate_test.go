@@ -11,6 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/yaml"
+
+	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
 func TestGenerate(t *testing.T) {
@@ -185,8 +187,8 @@ func TestGenerateWithValidation(t *testing.T) {
 	var output []byte
 	buffer := bytes.NewBuffer(output)
 	nopCloser := &WriteNoOpCloser{w: buffer}
-	schemaType.Validation.Schema.Properties["kind"] = JSONSchemaProps{}
-	schemaType.Validation.Schema.Properties["apiVersion"] = JSONSchemaProps{}
+	schemaType.Validation.Schema.Properties["kind"] = v1beta1.JSONSchemaProps{}
+	schemaType.Validation.Schema.Properties["apiVersion"] = v1beta1.JSONSchemaProps{}
 	require.NoError(t, Generate(schemaType, nopCloser, false, false, true))
 
 	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_validation_golden.yaml"))

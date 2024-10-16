@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
+	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
 const (
@@ -71,8 +72,8 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 
 		defer file.Close()
 
-		schemaType.Validation.Schema.Properties["kind"] = pkg.JSONSchemaProps{}
-		schemaType.Validation.Schema.Properties["apiVersion"] = pkg.JSONSchemaProps{}
+		schemaType.Validation.Schema.Properties["kind"] = v1beta1.JSONSchemaProps{}
+		schemaType.Validation.Schema.Properties["apiVersion"] = v1beta1.JSONSchemaProps{}
 		parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, minimal, false)
 		if err := parser.ParseProperties(schemaType.Validation.Name, file, schemaType.Validation.Schema.Properties); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)

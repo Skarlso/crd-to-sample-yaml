@@ -8,6 +8,7 @@ git config user.email "action@github.com"
 
 # Copy from api server to local
 BRANCH_NAME="update-file-$(date +%Y%m%d%H%M%S)"
+git checkout -b "$BRANCH_NAME"
 FILE_PATH=pkg/types_jsonschema.go
 cp apiextensions-apiserver/pkg/apis/apiextensions/v1beta1/types_jsonschema.go $FILE_PATH
 

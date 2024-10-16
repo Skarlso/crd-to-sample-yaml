@@ -17,6 +17,7 @@ import (
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
+	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
 // crdView is the main component to display a rendered CRD.
@@ -205,7 +206,7 @@ func (h *crdView) Render() app.UI {
 	)
 }
 
-func (h *crdView) generate(parser *pkg.Parser, crd *pkg.SchemaType, properties *pkg.JSONSchemaProps, name string) (Version, error) {
+func (h *crdView) generate(parser *pkg.Parser, crd *pkg.SchemaType, properties *v1beta1.JSONSchemaProps, name string) (Version, error) {
 	out, err := parseCRD(properties.Properties, name, pkg.RootRequiredFields, h.minimal)
 	if err != nil {
 		return Version{}, err
@@ -316,7 +317,7 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
-func parseCRD(properties map[string]pkg.JSONSchemaProps, version string, requiredList []string, minimal bool) ([]*Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, requiredList []string, minimal bool) ([]*Property, error) {
 	sortedKeys := make([]string, 0, len(properties))
 	output := make([]*Property, 0, len(properties))
 
