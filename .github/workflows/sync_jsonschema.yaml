@@ -25,6 +25,6 @@ jobs:
 
       - name: Run sync script
         run: |
-          ./crd-to-sample-yaml/this/hack/sync-file.sh
+          ./this/hack/keep_json_schema_uptodate.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
