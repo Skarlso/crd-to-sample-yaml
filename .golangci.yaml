@@ -78,9 +78,9 @@ linters-settings:
 
 issues:
   exclude-files:
-    - pkg/types_jsonschema.go
-    - pkg/marshal.go
-    - pkg/marshal_test.go
+    - v1beta1/types_jsonschema.go
+    - v1beta1/marshal.go
+    - v1beta1/marshal_test.go
   exclude:
     - composites
   exclude-rules:
