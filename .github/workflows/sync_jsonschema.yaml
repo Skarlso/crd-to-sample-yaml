@@ -1,4 +1,4 @@
-name: Sync File from Repo B
+name: Sync types_jsonschema from apiextensions-apiserver
 
 on:
   schedule:

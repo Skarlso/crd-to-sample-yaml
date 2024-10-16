@@ -21,13 +21,13 @@ echo "Changes detected, creating a pull request..."
 
 # Stage the changes
 git add "$FILE_PATH"
-git commit -m "Updated $FILE_PATH from repository B"
+git commit -m "Updated $FILE_PATH from apiextensions"
 
-# Push the branch to repository A
+# Push the branch to repository apiextensions
 git push origin "$BRANCH_NAME"
 
 # Create a pull request using the GitHub CLI
 gh auth login --with-token <<< "$GITHUB_TOKEN"
-gh pr create --title "Sync $FILE_PATH from repo B" --body "This PR updates $FILE_PATH from repository B" --head "$BRANCH_NAME" --base main
+gh pr create --title "Sync $FILE_PATH from apiextensions" --body "This PR updates $FILE_PATH from apiextensions" --head "$BRANCH_NAME" --base main
 
 echo "Pull request created successfully."
