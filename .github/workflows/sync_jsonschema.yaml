@@ -16,15 +16,12 @@ jobs:
           path: apiextensions-apiserver
       - name: Checkout This Repository
         uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository }}
-          path: this
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh
 
       - name: Run sync script
         run: |
-          ./this/hack/keep_json_schema_uptodate.sh
+          ./hack/keep_json_schema_uptodate.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
