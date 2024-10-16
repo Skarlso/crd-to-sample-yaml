@@ -9,13 +9,13 @@ jobs:
   sync-file:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout This Repository
+        uses: actions/checkout@v4
       - name: Checkout Kubernetes API server
         uses: actions/checkout@v4
         with:
           repository: kubernetes/apiextensions-apiserver
           path: apiextensions-apiserver
-      - name: Checkout This Repository
-        uses: actions/checkout@v4
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh
