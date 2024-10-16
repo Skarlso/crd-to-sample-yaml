@@ -9,8 +9,7 @@ git config user.email "action@github.com"
 # Copy from api server to local
 BRANCH_NAME="update-file-$(date +%Y%m%d%H%M%S)"
 FILE_PATH=pkg/types_jsonschema.go
-ls -l
-cp apiextensions-apiserver/pkg/apis/apiextensions/v1beta1/types_jsonschema.go this/pkg
+cp apiextensions-apiserver/pkg/apis/apiextensions/v1beta1/types_jsonschema.go $FILE_PATH
 
 # Check if there is a difference between the files
 if git diff --exit-code "$FILE_PATH"; then
