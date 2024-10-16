@@ -24,7 +24,7 @@ jobs:
         run: sudo apt-get install gh
 
       - name: Run sync script
-        run: | 
-          ./this/hack/sync-file.sh
+        run: |
+          ./crd-to-sample-yaml/this/hack/sync-file.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
