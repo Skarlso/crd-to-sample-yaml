@@ -1,0 +1,85 @@
+{
+  "id": "https://crdtoyaml.com/KrokCommand.delivery.krok.app.v1alpha1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "KrokCommand is the Schema for the krokcommands API",
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+      "type": "string"
+    },
+    "kind": {
+      "description": "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "spec": {
+      "description": "KrokCommandSpec defines the desired state of KrokCommand",
+      "type": "object",
+      "required": [
+        "image"
+      ],
+      "properties": {
+        "commandHasOutputToWrite": {
+          "description": "CommandHasOutputToWrite if defined, it signals the underlying Job, to put its output into a generated and created secret.",
+          "type": "boolean"
+        },
+        "dependencies": {
+          "description": "Dependencies defines a list of command names that this command depends on.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enabled": {
+          "description": "Enabled defines if this command can be executed or not.",
+          "type": "boolean"
+        },
+        "image": {
+          "description": "Image defines the image name and tag of the command example: krok-hook/slack-notification:v0.0.1",
+          "type": "string"
+        },
+        "platforms": {
+          "description": "Platforms holds all the platforms which this command supports.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "readInputFromSecret": {
+          "description": "ReadInputFromSecret if defined, the command will take a list of key/value pairs in a secret and apply them as arguments to the command.",
+          "type": "object",
+          "required": [
+            "name",
+            "namespace"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            }
+          }
+        },
+        "schedule": {
+          "description": "Schedule of the command. example: 0 * * * * // follows cron job syntax.",
+          "type": "string"
+        }
+      }
+    },
+    "status": {
+      "description": "KrokCommandStatus defines the observed state of KrokCommand",
+      "type": "object"
+    }
+  },
+  "x-kubernetes-group-version-kind": [
+    {
+      "kind": "KrokCommand",
+      "version": "v1alpha1",
+      "group": "delivery.krok.app"
+    }
+  ]
+}
