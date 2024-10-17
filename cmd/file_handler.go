@@ -39,5 +39,9 @@ func (h *FileHandler) CRDs() ([]*pkg.SchemaType, error) {
 		return nil, fmt.Errorf("failed to extract schema type: %w", err)
 	}
 
+	if schemaType == nil {
+		return nil, nil
+	}
+
 	return []*pkg.SchemaType{schemaType}, nil
 }
