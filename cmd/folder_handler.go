@@ -60,7 +60,9 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 			return fmt.Errorf("failed to extract schema type: %w", err)
 		}
 
-		crds = append(crds, schemaType)
+		if schemaType != nil {
+			crds = append(crds, schemaType)
+		}
 
 		return nil
 	}); err != nil {
