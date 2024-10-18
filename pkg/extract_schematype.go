@@ -34,6 +34,14 @@ func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
 
 	versions, ok := specMap["versions"]
 	if !ok {
+		if _, ok := specMap["validation"]; !ok {
+			// we aren't dealing with a valid resource
+			// we might want to skip it if we are going through a
+			// list of YAML files in a folder, and we want to skip
+			// invalid ones.
+			return nil, nil
+		}
+
 		return extractValidation(obj, specMap)
 	}
 
