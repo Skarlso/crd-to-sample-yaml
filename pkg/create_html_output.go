@@ -115,7 +115,7 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, comments, minimal, rand
 }
 
 func generate(name, group, kind string, properties *v1beta1.JSONSchemaProps, minimal bool, parser *Parser) (Version, error) {
-	out, err := parseCRD(properties.Properties, name, minimal, RootRequiredFields)
+	out, err := parseCRD(properties.Properties, name, minimal, group, kind, RootRequiredFields, 0)
 	if err != nil {
 		return Version{}, fmt.Errorf("failed to parse properties: %w", err)
 	}
@@ -152,7 +152,7 @@ type Property struct {
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
 // template can call and construct linked divs.
-func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, minimal bool, requiredList []string) ([]*Property, error) {
+func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, minimal bool, group string, kind string, requiredList []string, depth int) ([]*Property, error) {
 	output := make([]*Property, 0, len(properties))
 	sortedKeys := make([]string, 0, len(properties))
 
@@ -180,10 +180,19 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 				break
 			}
 		}
+		description := v.Description
+		if description == "" && depth == 0 {
+			if k == "apiVersion" {
+				description = fmt.Sprintf("%s/%s", group, version)
+			}
+			if k == "kind" {
+				description = kind
+			}
+		}
 		p := &Property{
 			Name:        k,
 			Type:        v.Type,
-			Description: v.Description,
+			Description: description,
 			Patterns:    v.Pattern,
 			Format:      v.Format,
 			Nullable:    v.Nullable,
@@ -197,24 +206,30 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		switch {
 		case len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil:
 			requiredList = v.Required
-			out, err := parseCRD(properties[k].Properties, version, minimal, requiredList)
+			depth++
+			out, err := parseCRD(properties[k].Properties, version, minimal, "", "", requiredList, depth)
 			if err != nil {
 				return nil, err
 			}
+			depth--
 			p.Properties = out
 		case properties[k].Type == array && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0:
+			depth++
 			requiredList = v.Required
-			out, err := parseCRD(properties[k].Items.Schema.Properties, version, minimal, requiredList)
+			out, err := parseCRD(properties[k].Items.Schema.Properties, version, minimal, "", "", requiredList, depth)
 			if err != nil {
 				return nil, err
 			}
+			depth--
 			p.Properties = out
 		case properties[k].AdditionalProperties != nil:
+			depth++
 			requiredList = v.Required
-			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, minimal, requiredList)
+			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, minimal, "", "", requiredList, depth)
 			if err != nil {
 				return nil, err
 			}
+			depth--
 			p.Properties = out
 		}
 
