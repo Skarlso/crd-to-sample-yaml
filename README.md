@@ -109,7 +109,7 @@ Any other flag will work as before.
 
 ## Schema Generation
 
-cty also provides a way to generate a JSON Schema out of a CRD. Simply use:
+`cty` also provides a way to generate a JSON Schema out of a CRD. Simply use:
 
 ```
 cty generate schema -c sample-crd/delivery.krok.app_krokcommands.yaml
