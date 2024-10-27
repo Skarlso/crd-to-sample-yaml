@@ -2,6 +2,13 @@ package pkg
 
 import "github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 
+// Rendering provides extra rendering information of this schema.
+type Rendering struct {
+	// Group defines which group this schema should belong to. If empty
+	// the schema's version will be used as grouping information.
+	Group string
+}
+
 // SchemaType is a wrapper around any kind of object that provide the following:
 // - kind
 // - group
@@ -13,6 +20,8 @@ type SchemaType struct {
 	Validation *Validation
 	Group      string
 	Kind       string
+
+	Rendering Rendering
 }
 
 // CRDVersion corresponds to a CRD version.

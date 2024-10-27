@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"os"
 	"slices"
 	"sort"
 
@@ -64,47 +65,81 @@ func LoadTemplates() error {
 	return nil
 }
 
+// Group defines a single group with a list of rendered versions.
+type Group struct {
+	Name string
+	Page []ViewPage
+}
+
+// GroupPage will have a list of groups and inside these groups
+// will be a list of page views.
+type GroupPage struct {
+	Groups []Group
+}
+
+type RenderOpts struct {
+	Comments bool
+	Minimal  bool
+	Random   bool
+}
+
 // RenderContent creates an HTML website from the CRD content.
-func RenderContent(w io.WriteCloser, crds []*SchemaType, comments, minimal, random bool) (err error) {
-	allViews := make([]ViewPage, 0, len(crds))
+func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err error) {
+	defer func() {
+		if err := w.Close(); err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
+		}
+	}()
 
-	for _, crd := range crds {
-		versions := make([]Version, 0)
-		parser := NewParser(crd.Group, crd.Kind, comments, minimal, random)
+	groups := buildUpGroup(crds)
 
-		for _, version := range crd.Versions {
-			v, err := generate(version.Name, crd.Group, crd.Kind, version.Schema, minimal, parser)
-			if err != nil {
-				return fmt.Errorf("failed to generate yaml sample: %w", err)
+	allGroups := make([]Group, 0)
+	for name, group := range groups {
+		allViews := make([]ViewPage, 0, len(group))
+
+		for _, crd := range group {
+			versions := make([]Version, 0)
+			parser := NewParser(crd.Group, crd.Kind, opts.Comments, opts.Minimal, opts.Random)
+
+			for _, version := range crd.Versions {
+				v, err := generate(version.Name, crd.Group, crd.Kind, version.Schema, opts.Minimal, parser)
+				if err != nil {
+					return fmt.Errorf("failed to generate yaml sample: %w", err)
+				}
+
+				versions = append(versions, v)
 			}
 
-			versions = append(versions, v)
-		}
+			// parse validation instead
+			if len(versions) == 0 && crd.Validation != nil {
+				version, err := generate(crd.Validation.Name, crd.Group, crd.Kind, crd.Validation.Schema, opts.Minimal, parser)
+				if err != nil {
+					return fmt.Errorf("failed to generate yaml sample: %w", err)
+				}
 
-		// parse validation instead
-		if len(versions) == 0 && crd.Validation != nil {
-			version, err := generate(crd.Validation.Name, crd.Group, crd.Kind, crd.Validation.Schema, minimal, parser)
-			if err != nil {
-				return fmt.Errorf("failed to generate yaml sample: %w", err)
+				versions = append(versions, version)
+			} else if len(versions) == 0 {
+				continue
 			}
 
-			versions = append(versions, version)
-		} else if len(versions) == 0 {
-			continue
+			view := ViewPage{
+				Title:    crd.Kind,
+				Versions: versions,
+			}
+
+			allViews = append(allViews, view)
 		}
 
-		view := ViewPage{
-			Title:    crd.Kind,
-			Versions: versions,
-		}
-
-		allViews = append(allViews, view)
+		allGroups = append(allGroups, Group{
+			Name: name,
+			Page: allViews,
+		})
 	}
 
-	t := templates["view.html"]
+	t := templates["view_with_groups.html"]
 
-	index := Index{
-		Page: allViews,
+	index := GroupPage{
+		Groups: allGroups,
 	}
 
 	if err := t.Execute(w, index); err != nil {
@@ -112,6 +147,19 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, comments, minimal, rand
 	}
 
 	return nil
+}
+
+func buildUpGroup(crds []*SchemaType) map[string][]*SchemaType {
+	result := map[string][]*SchemaType{}
+	for _, crd := range crds {
+		if crd.Rendering.Group == "" {
+			crd.Rendering.Group = crd.Group
+		}
+
+		result[crd.Rendering.Group] = append(result[crd.Rendering.Group], crd)
+	}
+
+	return result
 }
 
 func generate(name, group, kind string, properties *v1beta1.JSONSchemaProps, minimal bool, parser *Parser) (Version, error) {

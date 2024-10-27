@@ -15,6 +15,7 @@ import (
 
 type FolderHandler struct {
 	location string
+	group    string
 }
 
 func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
@@ -34,7 +35,7 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 		}
 
 		if filepath.Ext(path) != ".yaml" {
-			fmt.Fprintln(os.Stderr, "skipping file "+path)
+			_, _ = fmt.Fprintln(os.Stderr, "skipping file "+path)
 
 			return nil
 		}
@@ -51,7 +52,7 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 
 		crd := &unstructured.Unstructured{}
 		if err := yaml.Unmarshal(content, crd); err != nil {
-			fmt.Fprintln(os.Stderr, "skipping none CRD file: "+path)
+			_, _ = fmt.Fprintln(os.Stderr, "skipping none CRD file: "+path)
 
 			return nil //nolint:nilerr // intentional
 		}
@@ -61,6 +62,10 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 		}
 
 		if schemaType != nil {
+			if h.group != "" {
+				schemaType.Rendering = pkg.Rendering{Group: h.group}
+			}
+
 			crds = append(crds, schemaType)
 		}
 

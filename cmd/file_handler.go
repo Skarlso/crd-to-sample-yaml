@@ -13,6 +13,7 @@ import (
 
 type FileHandler struct {
 	location string
+	group    string
 }
 
 func (h *FileHandler) CRDs() ([]*pkg.SchemaType, error) {
@@ -41,6 +42,10 @@ func (h *FileHandler) CRDs() ([]*pkg.SchemaType, error) {
 
 	if schemaType == nil {
 		return nil, nil
+	}
+
+	if h.group != "" {
+		schemaType.Rendering = pkg.Rendering{Group: h.group}
 	}
 
 	return []*pkg.SchemaType{schemaType}, nil
