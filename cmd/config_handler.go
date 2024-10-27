@@ -31,7 +31,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 	// the CRDs.
 	var result []*pkg.SchemaType
 
-	for _, group := range configFile.ApiGroups {
+	for _, group := range configFile.APIGroups {
 		for _, file := range group.Files {
 			handler := FileHandler{location: file, group: group.Name}
 			fileResults, err := handler.CRDs()

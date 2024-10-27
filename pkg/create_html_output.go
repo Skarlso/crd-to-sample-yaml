@@ -14,8 +14,6 @@ import (
 	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
-const defaultGroup = "Ungrouped"
-
 type Index struct {
 	Page []ViewPage
 }
@@ -152,9 +150,8 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err e
 }
 
 func buildUpGroup(crds []*SchemaType) map[string][]*SchemaType {
-	var result = make(map[string][]*SchemaType)
+	result := map[string][]*SchemaType{}
 	for _, crd := range crds {
-		// TODO: If empty, it should be the api version
 		if crd.Rendering.Group == "" {
 			crd.Rendering.Group = crd.Group
 		}

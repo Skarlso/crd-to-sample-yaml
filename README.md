@@ -128,6 +128,10 @@ apiGroups:
 
 ![rendered with groups](imgs/parsed4_groups.png)
 
+If no grouping information is provided, the rendered CRD's group version is used.
+
+![rendered without groups](imgs/parsed4_groups_2.png)
+
 ## Schema Generation
 
 `cty` also provides a way to generate a JSON Schema out of a CRD. Simply use:

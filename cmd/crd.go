@@ -58,7 +58,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 
 	if crdArgs.format == FormatHTML {
 		if crdArgs.output == "" {
-			return fmt.Errorf("output must be set to a filename if format is HTML")
+			return errors.New("output must be set to a filename if format is HTML")
 		}
 
 		if err := pkg.LoadTemplates(); err != nil {
