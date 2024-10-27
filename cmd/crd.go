@@ -57,6 +57,10 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 	}
 
 	if crdArgs.format == FormatHTML {
+		if crdArgs.output == "" {
+			return fmt.Errorf("output must be set to a filename if format is HTML")
+		}
+
 		if err := pkg.LoadTemplates(); err != nil {
 			return fmt.Errorf("failed to load templates: %w", err)
 		}
@@ -78,12 +82,6 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 	}
 
 	var w io.WriteCloser
-	defer func() {
-		if err := w.Close(); err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
-		}
-	}()
-
 	if crdArgs.format == FormatHTML {
 		if crdArgs.stdOut {
 			w = os.Stdout
@@ -94,7 +92,13 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			}
 		}
 
-		return pkg.RenderContent(w, crds, crdArgs.comments, crdArgs.minimal, crdArgs.skipRandom)
+		opts := pkg.RenderOpts{
+			Comments: crdArgs.comments,
+			Minimal:  crdArgs.minimal,
+			Random:   crdArgs.skipRandom,
+		}
+
+		return pkg.RenderContent(w, crds, opts)
 	}
 
 	var errs []error //nolint:prealloc // nope
@@ -128,6 +132,8 @@ func constructHandler(args *rootArgs) (Handler, error) {
 		crdHandler = &FileHandler{location: args.fileLocation}
 	case args.folderLocation != "":
 		crdHandler = &FolderHandler{location: args.folderLocation}
+	case args.configFileLocation != "":
+		crdHandler = &ConfigHandler{configFileLocation: args.configFileLocation}
 	case args.url != "":
 		crdHandler = &URLHandler{
 			url:      args.url,
@@ -138,7 +144,7 @@ func constructHandler(args *rootArgs) (Handler, error) {
 	}
 
 	if crdHandler == nil {
-		return nil, errors.New("one of the flags (file, folder, url) must be set")
+		return nil, errors.New("one of the flags (file, folder, url, configFile) must be set")
 	}
 
 	return crdHandler, nil

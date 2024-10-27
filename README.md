@@ -107,6 +107,27 @@ cty generate crd -r folder
 
 Any other flag will work as before.
 
+### Config File
+
+It's possible to define a config file that designates groups for various rendered CRDs.
+
+To use a config file, set the switch `--config`. A sample config file could look something like this:
+
+```yaml
+apiGroups:
+  - name: "com.aws.services"
+    description: "Resources related to AWS services"
+    files: # files and folders can be defined together or on their own
+      - sample-crd/infrastructure.cluster.x-k8s.io_awsclusters.yaml
+      - sample-crd/delivery.krok.app_krokcommands
+  - name: "com.azure.services"
+    description: "Resources related to Azure services"
+    folders:
+      - azure-crds
+```
+
+![rendered with groups](imgs/parsed4_groups.png)
+
 ## Schema Generation
 
 `cty` also provides a way to generate a JSON Schema out of a CRD. Simply use:

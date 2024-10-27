@@ -1,0 +1,10 @@
+apiGroups:
+  - name: "com.aws.services"
+    description: "Resources related to AWS services"
+    files: # files and folders can be defined together or on their own
+      - sample-crd/infrastructure.cluster.x-k8s.io_awsclusters.yaml
+      - sample-crd/delivery.krok.app_krokcommands.yaml
+  - name: "com.azure.services"
+    description: "Resources related to Azure services"
+    folders:
+      - sample-crd

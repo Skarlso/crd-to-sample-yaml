@@ -5,12 +5,13 @@ import (
 )
 
 type rootArgs struct {
-	fileLocation   string
-	folderLocation string
-	url            string
-	username       string
-	password       string
-	token          string
+	fileLocation       string
+	folderLocation     string
+	configFileLocation string
+	url                string
+	username           string
+	password           string
+	token              string
 }
 
 var (
@@ -33,4 +34,5 @@ func init() {
 	f.StringVar(&args.username, "username", "", "Optional username to authenticate a URL.")
 	f.StringVar(&args.password, "password", "", "Optional password to authenticate a URL.")
 	f.StringVar(&args.token, "token", "", "A bearer token to authenticate a URL.")
+	f.StringVar(&args.configFileLocation, "config", "", "An optional configuration file that can define grouping data for various rendered crds.")
 }

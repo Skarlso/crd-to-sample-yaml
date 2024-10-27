@@ -50,67 +50,73 @@
 <div class="content-wrapper">
     <h2 style="text-align: center">The following CRDs have been rendered</h2>
 
-    {{range .Page}}
+    {{range .Groups}}
         <details class="collapse-panel mw-full mt-10 mr-20 ml-20 px-md-20"> <!-- w-400 = width: 40rem (400px), mw-full = max-width: 100% -->
             <summary class="collapse-header">
-                {{.Title}}
+                {{.Name}}
             </summary>
             <div class="collapse-content">
-                <div class="versions">
-                    {{range .Versions}}
-                    <h1>
-                        Version: {{.Group}}/{{.Version}}<br>
-                        Kind: {{.Kind}}
-                    </h1>
-                    <p class="font-size-18">
-                    <div>
-                        <p>{{.Description}}</p>
-                    </div>
-                    <label>Generated YAML sample:</label>
-                    <div class="collapse-group">
-                        <details class="collapse-panel">
-                            <div id="yaml-{{.Version}}" class="collapse-content">
-                                <pre class="language-yaml"><code class="language-yaml">{{.YAML}}</code></pre>
-                            </div>
-                        </details>
-                    </div>
-                    </p>
-                    <div class="collapse-group">
-                        {{range $i, $v := .Properties}}
-                        <details class="collapse-panel">
-                            <summary class="collapse-header position-relative">
-                                {{$v.Name}} <kbd class="text-muted">{{$v.Type}}</kbd>
-                                {{if $v.Format}}
-                                <kbd class="text-muted">{{.Format}}</kbd>
-                                {{end}}
-                                {{if $v.Patterns}}
-                                <kbd class="text-muted">{{.Patterns}}</kbd>
-                                {{end}}
-                                {{if $v.Default}}
-                                <kbd class="text-primary">{{$v.Default}}</kbd>
-                                {{end}}
-                                {{if $v.Required}}
-                                <span class="badge badge-primary">required</span>
-                                {{end}}
-                            </summary>
-                            <div id="{{$v.Name}}" class="collapse-content">
-                                <div class="property-description">
-                                    <p>{{$v.Description}}</p>
+                {{range .Page}}
+                    <details class="collapse-panel mw-full mt-10 mr-20 ml-20 px-md-20">
+                        <summary class="collapse-header">
+                            {{.Title}}
+                        </summary>
+                        <div class="collapse-content">
+                            <div class="versions">
+                                {{range .Versions}}
+                                <h1>
+                                    Version: {{.Group}}/{{.Version}}<br>
+                                    Kind: {{.Kind}}
+                                </h1>
+                                <p class="font-size-18">
+                                <div>
+                                    <p>{{.Description}}</p>
                                 </div>
-                                {{template "properties" .Properties}}
+                                <label>Generated YAML sample:</label>
+                                <div class="collapse-group">
+                                    <details class="collapse-panel">
+                                        <div id="yaml-{{.Version}}" class="collapse-content">
+                                            <pre class="language-yaml"><code class="language-yaml">{{.YAML}}</code></pre>
+                                        </div>
+                                    </details>
+                                </div>
+                                </p>
+                                <div class="collapse-group">
+                                    {{range $i, $v := .Properties}}
+                                    <details class="collapse-panel">
+                                        <summary class="collapse-header position-relative">
+                                            {{$v.Name}} <kbd class="text-muted">{{$v.Type}}</kbd>
+                                            {{if $v.Format}}
+                                            <kbd class="text-muted">{{.Format}}</kbd>
+                                            {{end}}
+                                            {{if $v.Patterns}}
+                                            <kbd class="text-muted">{{.Patterns}}</kbd>
+                                            {{end}}
+                                            {{if $v.Default}}
+                                            <kbd class="text-primary">{{$v.Default}}</kbd>
+                                            {{end}}
+                                            {{if $v.Required}}
+                                            <span class="badge badge-primary">required</span>
+                                            {{end}}
+                                        </summary>
+                                        <div id="{{$v.Name}}" class="collapse-content">
+                                            <div class="property-description">
+                                                <p>{{$v.Description}}</p>
+                                            </div>
+                                            {{template "properties" .Properties}}
+                                        </div>
+                                        <br>
+                                    </details>
+                                    {{end}}
+                                </div>
+                                {{end}}
                             </div>
-                            <br>
-                        </details>
-                        {{end}}
-                    </div>
-                    {{end}}
-                </div>
+                        </div>
+                    </details>
+                {{end}}
             </div>
         </details>
     {{end}}
-<!--    <div class="container">-->
-<!--        -->
-<!--    </div>-->
 </div>
 </body>
 </html>
