@@ -10,6 +10,7 @@ import (
 	"os"
 	"slices"
 	"sort"
+	"strings"
 
 	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
@@ -196,6 +197,7 @@ type Property struct {
 	Default     string
 	Required    bool
 	Properties  []*Property
+	Enums       string
 }
 
 // parseCRD takes the properties and constructs a linked list out of the embedded properties that the recursive
@@ -237,6 +239,12 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 				description = kind
 			}
 		}
+
+		var enums []string
+		for _, e := range v.Enum {
+			enums = append(enums, string(e.Raw))
+		}
+
 		p := &Property{
 			Name:        k,
 			Type:        v.Type,
@@ -246,6 +254,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 			Nullable:    v.Nullable,
 			Version:     version,
 			Required:    required,
+			Enums:       strings.Join(enums, ", "),
 		}
 		if v.Default != nil {
 			p.Default = string(v.Default.Raw)
@@ -255,7 +264,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		case len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil:
 			requiredList = v.Required
 			depth++
-			out, err := parseCRD(properties[k].Properties, version, minimal, "", "", requiredList, depth)
+			out, err := parseCRD(properties[k].Properties, version, minimal, group, kind, requiredList, depth)
 			if err != nil {
 				return nil, err
 			}
@@ -264,7 +273,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		case properties[k].Type == array && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0:
 			depth++
 			requiredList = v.Required
-			out, err := parseCRD(properties[k].Items.Schema.Properties, version, minimal, "", "", requiredList, depth)
+			out, err := parseCRD(properties[k].Items.Schema.Properties, version, minimal, group, kind, requiredList, depth)
 			if err != nil {
 				return nil, err
 			}
@@ -273,7 +282,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		case properties[k].AdditionalProperties != nil:
 			depth++
 			requiredList = v.Required
-			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, minimal, "", "", requiredList, depth)
+			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, minimal, group, kind, requiredList, depth)
 			if err != nil {
 				return nil, err
 			}

@@ -11,4 +11,5 @@ spec:
     name: string
     namespace: string
   schedule: string
+  suspendStrategy: "ScaleDown" # "ScaleDown", "ScaleDownAndDeleteDisk"
 status: {}

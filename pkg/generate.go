@@ -227,7 +227,12 @@ func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
 	}
 
 	if v.Enum != nil {
-		return string(v.Enum[0].Raw)
+		var value []string
+		for _, ev := range v.Enum {
+			value = append(value, string(ev.Raw))
+		}
+
+		return string(v.Enum[0].Raw) + " # " + strings.Join(value, ", ")
 	}
 
 	st := "string"
