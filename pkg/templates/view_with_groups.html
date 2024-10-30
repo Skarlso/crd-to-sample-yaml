@@ -98,6 +98,9 @@
                                             {{if $v.Required}}
                                             <span class="badge badge-primary">required</span>
                                             {{end}}
+                                            {{if $v.Enums}}
+                                            <kbd class="text-muted">{{$v.Enums}}</kbd>
+                                            {{end}}
                                         </summary>
                                         <div id="{{$v.Name}}" class="collapse-content">
                                             <div class="property-description">
@@ -139,6 +142,9 @@
         {{end}}
         {{if .Required}}
         <span class="badge badge-primary">required</span>
+        {{end}}
+        {{if .Enums}}
+        <kbd class="text-muted">{{.Enums}}</kbd>
         {{end}}
     </summary>
     <div id="{{.Name}}" class="collapse-content">
