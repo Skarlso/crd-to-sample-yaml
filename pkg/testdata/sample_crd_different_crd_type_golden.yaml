@@ -3,11 +3,11 @@ kind: xXtStorageAccount
 spec:
   parameters:
     accessTier: "Hot"
-    environment: "production"
+    environment: "production" # "production", "staging", "preproduction", "quality_assurance", "test", "development", "proof_of_concept", "disaster_recovery", "sandbox", "global"
     hnsEnabled: false
     kind: "StorageV2"
     largeFileShareEnabled: false
-    location: "westeurope"
+    location: "westeurope" # "westeurope", "northeurope", "eastus2", "centralus", "australiaeast", "australiacentral", "global"
     projectName: string
     replicationType: "ZRS"
     resourceGroupName: string

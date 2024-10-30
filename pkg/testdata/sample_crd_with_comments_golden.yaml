@@ -21,5 +21,7 @@ spec:
     namespace: string
   # Schedule of the command. example: 0 * * * * // follows cron job syntax.
   schedule: string
+  # SuspendStrategy can be used to modify the behaviour that is used when setting suspend to true.
+  suspendStrategy: "ScaleDown" # "ScaleDown", "ScaleDownAndDeleteDisk"
 # KrokCommandStatus defines the observed state of KrokCommand
 status: {}

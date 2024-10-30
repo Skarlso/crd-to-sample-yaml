@@ -20,7 +20,7 @@ spec:
     scheme: "internet-facing"
     subnets: [] # minItems 0 of type string
   identityRef:
-    kind: "AWSClusterControllerIdentity"
+    kind: "AWSClusterControllerIdentity" # "AWSClusterControllerIdentity", "AWSClusterRoleIdentity", "AWSClusterStaticIdentity"
     name: string
   imageLookupBaseOS: string
   imageLookupFormat: string
@@ -158,7 +158,7 @@ spec:
     scheme: "internet-facing"
     subnets: [] # minItems 0 of type string
   identityRef:
-    kind: "AWSClusterControllerIdentity"
+    kind: "AWSClusterControllerIdentity" # "AWSClusterControllerIdentity", "AWSClusterRoleIdentity", "AWSClusterStaticIdentity"
     name: string
   imageLookupBaseOS: string
   imageLookupFormat: string
