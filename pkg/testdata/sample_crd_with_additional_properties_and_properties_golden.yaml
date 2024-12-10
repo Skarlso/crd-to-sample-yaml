@@ -1,0 +1,8 @@
+apiVersion: abc.dp.db.de/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: string
+  namespace: string
+spec:
+  secretKey: "token"
+  secretName: string

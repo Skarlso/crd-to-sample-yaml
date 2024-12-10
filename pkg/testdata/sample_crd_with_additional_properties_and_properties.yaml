@@ -1,0 +1,64 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: abc
+spec:
+  group: abc.dp.db.de
+  names:
+    kind: ProviderConfig
+    listKind: ProviderConfigList
+    plural: providerconfigs
+    singular: providerconfig
+  scope: Namespaced
+  versions:
+    - deprecated: false
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          properties:
+            apiVersion:
+              enum:
+                - abc.dp.db.de/v1alpha1
+              pattern: ^[0-9a-zA-Z \@\*\_\-.\,/:]*$
+              type: string
+            kind:
+              enum:
+                - ProviderConfig
+              pattern: ^[0-9a-zA-Z \@\*\_\-.\,/:]*$
+              type: string
+            metadata:
+              properties:
+                name:
+                  pattern: ^[0-9a-zA-Z \@\*\_\-.\,/:]*$
+                  type: string
+                namespace:
+                  pattern: ^[0-9a-zA-Z \@\*\_\-.\,/:]*$
+                  type: string
+              required:
+                - name
+              type: object
+            spec:
+              additionalProperties: true
+              description: abc
+              properties:
+                secretKey:
+                  description: abc
+                  example: token
+                  pattern: ^[0-9a-zA-Z \@\*\_\-.\,/:]*$
+                  type: string
+                secretName:
+                  description: abc
+                  pattern: ^[0-9a-zA-Z \@\*\_\-.\,/:]*$
+                  type: string
+              required:
+                - secretKey
+                - secretName
+              type: object
+          required:
+            - spec
+            - apiVersion
+            - kind
+            - metadata
+          type: object
+      served: true
+      storage: true

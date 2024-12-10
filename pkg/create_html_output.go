@@ -261,7 +261,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		}
 
 		switch {
-		case len(properties[k].Properties) > 0 && properties[k].AdditionalProperties == nil:
+		case len(properties[k].Properties) > 0:
 			requiredList = v.Required
 			depth++
 			out, err := parseCRD(properties[k].Properties, version, minimal, group, kind, requiredList, depth)
