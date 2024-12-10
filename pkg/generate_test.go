@@ -175,6 +175,26 @@ func TestGenerateWithAdditionalProperties(t *testing.T) {
 	assert.Equal(t, string(golden), buffer.String())
 }
 
+func TestGenerateWithAdditionalPropertiesAndProperties(t *testing.T) {
+	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_additional_properties_and_properties.yaml"))
+	require.NoError(t, err)
+
+	crd := &unstructured.Unstructured{}
+	require.NoError(t, yaml.Unmarshal(content, crd))
+	schemaType, err := ExtractSchemaType(crd)
+	require.NoError(t, err)
+
+	var output []byte
+	buffer := bytes.NewBuffer(output)
+	nopCloser := &WriteNoOpCloser{w: buffer}
+	require.NoError(t, Generate(schemaType, nopCloser, false, false, true))
+
+	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_additional_properties_and_properties_golden.yaml"))
+	require.NoError(t, err)
+
+	assert.Equal(t, string(golden), buffer.String())
+}
+
 func TestGenerateWithValidation(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_with_validation.yaml"))
 	require.NoError(t, err)
