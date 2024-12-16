@@ -1,6 +1,9 @@
 module github.com/Skarlso/crd-to-sample-yaml
 
-go 1.23
+go 1.23.0
+
+toolchain go1.23.2
+
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/fatih/color v1.18.0
