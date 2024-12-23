@@ -3,7 +3,6 @@ package pkg
 import (
 	"fmt"
 	"io"
-	"maps"
 	"os"
 	"regexp"
 	"slices"
@@ -229,14 +228,13 @@ func (p *Parser) emptyAfterTrimRequired(properties map[string]v1beta1.JSONSchema
 	// we don't want to modify the original properties because that causes
 	// various problems later down the line when we are trying to run
 	// the same generate on the same values twice.
-	clone := make(map[string]v1beta1.JSONSchemaProps, len(properties))
-	maps.Copy(clone, properties)
+	for k := range properties {
+		if slices.Contains(required, k) {
+			return false
+		}
+	}
 
-	maps.DeleteFunc(clone, func(s string, props v1beta1.JSONSchemaProps) bool {
-		return !slices.Contains(required, s)
-	})
-
-	return len(clone) == 0
+	return true
 }
 
 // outputValueType generate an output value based on the given type.
