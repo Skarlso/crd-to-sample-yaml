@@ -170,7 +170,7 @@ func generate(name, group, kind string, properties *v1beta1.JSONSchemaProps, min
 	}
 	var buffer []byte
 	buf := bytes.NewBuffer(buffer)
-	if err := parser.ParseProperties(name, buf, properties.Properties); err != nil {
+	if err := parser.ParseProperties(name, buf, properties.Properties, RootRequiredFields); err != nil {
 		return Version{}, fmt.Errorf("failed to generate yaml sample: %w", err)
 	}
 

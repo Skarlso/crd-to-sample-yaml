@@ -51,7 +51,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 		}
 
 		parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, minimal, false)
-		if err := parser.ParseProperties(version.Name, file, version.Schema.Properties); err != nil {
+		if err := parser.ParseProperties(version.Name, file, version.Schema.Properties, pkg.RootRequiredFields); err != nil {
 			_ = file.Close()
 
 			return fmt.Errorf("failed to parse properties: %w", err)
@@ -75,7 +75,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 		schemaType.Validation.Schema.Properties["kind"] = v1beta1.JSONSchemaProps{}
 		schemaType.Validation.Schema.Properties["apiVersion"] = v1beta1.JSONSchemaProps{}
 		parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, minimal, false)
-		if err := parser.ParseProperties(schemaType.Validation.Name, file, schemaType.Validation.Schema.Properties); err != nil {
+		if err := parser.ParseProperties(schemaType.Validation.Name, file, schemaType.Validation.Schema.Properties, pkg.RootRequiredFields); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 	}
