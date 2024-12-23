@@ -1,0 +1,6 @@
+apiVersion: delivery.krok.app/v1alpha1
+kind: KrokCommand
+metadata: {}
+spec:
+  readInputFromSecret: {}
+status: {}

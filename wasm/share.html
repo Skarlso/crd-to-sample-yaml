@@ -5,7 +5,7 @@
     <meta name="author" content="Gergely Brautigam">
     <meta name="description" content>
     <meta name="theme-color" content="#2d2c2c">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta property="og:url" content="https:///share">
     <meta property="og:title" content="Preview CRDs">
@@ -18,8 +18,7 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link href="/app.css" type="text/css" rel="stylesheet">
     <link href="/web/css/alert.css" type="text/css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css" type="text/css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css" type="text/css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
     <script defer src="/wasm_exec.js"></script>
@@ -63,7 +62,7 @@
     </div>
     <aside class="goapp-app-info" id="app-wasm-loader">
       <img id="app-wasm-loader-icon" class="goapp-logo goapp-spin" alt="wasm loader icon" src="/web/img/logo.png">
-      <p id="app-wasm-loader-label" class="goapp-label">0%</p>
+      <p class="goapp-label" id="app-wasm-loader-label">0%</p>
     </aside>
   </body>
 </html>

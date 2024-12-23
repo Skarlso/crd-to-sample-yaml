@@ -94,22 +94,15 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 	sort.Strings(sortedKeys)
 
 	w := &writer{}
-	wroteClosingTag := false
 	for _, k := range sortedKeys {
+		// skip the entire key if it's not required
 		if p.onlyRequired && !slices.Contains(requiredFields, k) {
-			if !wroteClosingTag && p.emptyAfterTrimRequired(properties, requiredFields) {
-				w.write(file, " {}\n")
-				wroteClosingTag = true
-			}
-			//if !wroteClosingTag {
-			//	w.write(file, " {}")
-			//	wroteClosingTag = true
-			//}
-
+			// we can't put a closing `{}` in case there are no more
+			// properties because the last entry is a new line in the writer.
+			// This means that putting a `{}` here would put it after the new line.
+			// Whereas we want it before the new line.
 			continue
 		}
-
-		//w.write(file, "\n") // begin with a new line.
 
 		if p.inArray {
 			w.write(file, k+":")
@@ -173,20 +166,14 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 		case len(properties[k].Properties) > 0:
 			// recursively parse all sub-properties
 			p.indent += 2
-			//if p.onlyRequired && p.emptyAfterTrimRequired(properties[k].Properties, properties[k].Required) {
-			//	p.indent -= 2
-			//	w.write(file, " {}\n")
-			//
-			//	continue
-			//}
-			//if p.onlyRequired && !slices.Contains(requiredFields, k) {
-			//	p.indent -= 2
-			//	w.write(file, " {}\n")
-			//
-			//	continue
-			//}
+			if p.onlyRequired && p.emptyAfterTrimRequired(properties[k].Properties, properties[k].Required) {
+				p.indent -= 2
+				w.write(file, " {}\n")
 
-			//w.write(file, "\n")
+				continue
+			}
+
+			w.write(file, "\n")
 			if err := p.ParseProperties(version, file, properties[k].Properties, properties[k].Required); err != nil {
 				return err
 			}
@@ -215,6 +202,8 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 				//}
 
 				//w.write(file, "\n")
+				// This will eventually end up in case len(properties[k].Properties) > 0: hence, we don't need
+				// an empty check in here. That would be redundant.
 				if err := p.ParseProperties(
 					version,
 					file,
