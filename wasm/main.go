@@ -57,6 +57,7 @@ func main() {
 		},
 		Styles: []string{
 			"web/css/alert.css",
+			"web/css/yaml.css",
 			// "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css",
 			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css",
 			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css",

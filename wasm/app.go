@@ -69,9 +69,9 @@ func (v *detailsView) Render() app.UI {
 		),
 		app.Pre().Body(
 			app.Div().ID("yaml-sample-"+v.version.Version).Body(app.If(v.renderErr != nil, func() app.UI {
-				return app.Div().Class("language-yaml").Body(app.Text(v.renderErr.Error()))
+				return app.Div().Class("yaml-text").Body(app.Text(v.renderErr.Error()))
 			}).Else(func() app.UI {
-				return app.Div().Class("language-yaml").Body(app.Text(v.content))
+				return app.Div().Class("yaml-text").Body(app.Text(v.content))
 			})),
 		),
 	)
