@@ -60,12 +60,12 @@ func (v *detailsView) Render() app.UI {
 	// `Pre` isn't allowed to have anything other than CODE inside.
 	return app.Div().Body(
 		app.Div().Class("form-check").Body(
-			app.Label().Class("form-check-label").For(fmt.Sprintf("enable-comments-%s", v.version.Version)).Body(app.Text("Enable comments on YAML output")),
-			app.Input().Class("form-check-input").Type("checkbox").ID(fmt.Sprintf("enable-comments-%s", v.version.Version)).OnClick(v.OnCheckComment),
+			app.Label().Class("form-check-label").For("enable-comments-"+v.version.Version).Body(app.Text("Enable comments on YAML output")),
+			app.Input().Class("form-check-input").Type("checkbox").ID("enable-comments-"+v.version.Version).OnClick(v.OnCheckComment),
 		),
 		app.Div().Class("form-check").Body(
-			app.Label().Class("form-check-label").For(fmt.Sprintf("enable-minimal-%s", v.version.Version)).Body(app.Text("Enable minimal required YAML output")),
-			app.Input().Class("form-check-input").Type("checkbox").ID(fmt.Sprintf("enable-minimal-%s", v.version.Version)).OnClick(v.OnCheckMinimal),
+			app.Label().Class("form-check-label").For("enable-minimal-"+v.version.Version).Body(app.Text("Enable minimal required YAML output")),
+			app.Input().Class("form-check-input").Type("checkbox").ID("enable-minimal-"+v.version.Version).OnClick(v.OnCheckMinimal),
 		),
 		app.Pre().Body(
 			app.Div().ID("yaml-sample-"+v.version.Version).Body(app.If(v.renderErr != nil, func() app.UI {
@@ -77,7 +77,7 @@ func (v *detailsView) Render() app.UI {
 	)
 }
 
-func (v *detailsView) OnCheckComment(ctx app.Context, _ app.Event) {
+func (v *detailsView) OnCheckComment(_ app.Context, _ app.Event) {
 	v.comment = !v.comment
 	content, err := v.version.generateYAMLDetails(v.comment, v.minimal)
 	if err != nil {
@@ -90,7 +90,7 @@ func (v *detailsView) OnCheckComment(ctx app.Context, _ app.Event) {
 	v.content = content
 }
 
-func (v *detailsView) OnCheckMinimal(ctx app.Context, _ app.Event) {
+func (v *detailsView) OnCheckMinimal(_ app.Context, _ app.Event) {
 	v.minimal = !v.minimal
 	content, err := v.version.generateYAMLDetails(v.comment, v.minimal)
 	if err != nil {

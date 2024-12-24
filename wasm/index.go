@@ -283,8 +283,8 @@ func (i *index) Render() app.UI {
 	// Prevent double rendering components.
 	if i.isMounted {
 		return app.Main().Body(
-			//app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
-			//app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
+			// app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
+			// app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
 			app.Div().Class("container").Body(func() app.UI {
 				if i.err != nil {
 					return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, i.buildError())

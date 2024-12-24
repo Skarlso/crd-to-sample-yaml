@@ -139,22 +139,6 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 				p.indent += 2
 				p.inArray = true
 
-				// we need to not output a `\n` if there are no more properties to parse.
-				//if p.onlyRequired && !slices.Contains(requiredFields, k) {
-				//	p.indent -= 2
-				//	w.write(file, " {}\n")
-				//	p.inArray = false // no longer in an array...
-				//
-				//	continue
-				//}
-				//if p.onlyRequired && p.emptyAfterTrimRequired(properties[k].Items.Schema.Properties, properties[k].Items.Schema.Required) {
-				//	p.indent -= 2
-				//	w.write(file, " {}\n")
-				//	p.inArray = false // no longer in an array...
-				//
-				//	continue
-				//}
-
 				if err := p.ParseProperties(version, file, properties[k].Items.Schema.Properties, properties[k].Items.Schema.Required); err != nil {
 					return err
 				}
@@ -185,22 +169,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 				w.write(file, " {}\n")
 			} else {
 				p.indent += 2
-				//if p.onlyRequired && p.emptyAfterTrimRequired(
-				//	properties[k].AdditionalProperties.Schema.Properties,
-				//	properties[k].AdditionalProperties.Schema.Required) {
-				//	p.indent -= 2
-				//	w.write(file, " {}\n")
-				//
-				//	continue
-				//}
-				//if p.onlyRequired && !slices.Contains(requiredFields, k) {
-				//	p.indent -= 2
-				//	w.write(file, " {}\n")
-				//
-				//	continue
-				//}
 
-				//w.write(file, "\n")
 				// This will eventually end up in case len(properties[k].Properties) > 0: hence, we don't need
 				// an empty check in here. That would be redundant.
 				if err := p.ParseProperties(
