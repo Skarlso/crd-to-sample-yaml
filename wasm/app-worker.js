@@ -2,7 +2,7 @@
 // PWA
 // -----------------------------------------------------------------------------
 const cacheName = "app-" + "v0.6.5";
-const resourcesToCache = ["https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css","https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css","https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js","/web/img/logo.png","/web/css/alert.css","/web/app.wasm","/wasm_exec.js","/manifest.webmanifest","/app.js","/app.css","/"];
+const resourcesToCache = ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css","https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css","https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css","https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js","/web/img/logo.png","/web/css/yaml.css","/web/css/alert.css","/web/app.wasm","/wasm_exec.js","/manifest.webmanifest","/app.js","/app.css","/"];
 
 self.addEventListener("install", async (event) => {
   try {

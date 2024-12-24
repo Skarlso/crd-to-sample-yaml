@@ -135,6 +135,26 @@ func TestGenerateMinimalWithExample(t *testing.T) {
 	assert.Equal(t, string(golden), buffer.String())
 }
 
+func TestGenerateMinimalWithEmbeddedObject(t *testing.T) {
+	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_minimal_with_embedded_object.yaml"))
+	require.NoError(t, err)
+
+	crd := &unstructured.Unstructured{}
+	require.NoError(t, yaml.Unmarshal(content, crd))
+	schemaType, err := ExtractSchemaType(crd)
+	require.NoError(t, err)
+
+	var output []byte
+	buffer := bytes.NewBuffer(output)
+	nopCloser := &WriteNoOpCloser{w: buffer}
+	require.NoError(t, Generate(schemaType, nopCloser, false, true, true))
+
+	golden, err := os.ReadFile(filepath.Join("testdata", "sample_crd_minimal_with_embedded_object_golden.yaml"))
+	require.NoError(t, err)
+
+	assert.Equal(t, string(golden), buffer.String())
+}
+
 func TestGenerateMinimalWithNoRequiredFields(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join("testdata", "sample_crd_minimal_no_required_fields.yaml"))
 	require.NoError(t, err)

@@ -32,6 +32,77 @@ type crdView struct {
 	navigateBackOnClick func(ctx app.Context, _ app.Event)
 }
 
+type detailsView struct {
+	app.Compo
+
+	content   string
+	comment   bool
+	minimal   bool
+	renderErr error
+	version   *Version
+}
+
+func (v *detailsView) OnMount(_ app.Context) {
+	content, err := v.version.generateYAMLDetails(v.comment, v.minimal)
+	if err != nil {
+		v.renderErr = err
+		v.content = ""
+
+		return
+	}
+
+	v.content = content
+}
+
+func (v *detailsView) Render() app.UI {
+	// On mount run the generate ONCE.
+	// Then run it on Each Click and update `v.content`
+	// `Pre` isn't allowed to have anything other than CODE inside.
+	return app.Div().Body(
+		app.Div().Class("form-check").Body(
+			app.Label().Class("form-check-label").For("enable-comments-"+v.version.Version).Body(app.Text("Enable comments on YAML output")),
+			app.Input().Class("form-check-input").Type("checkbox").ID("enable-comments-"+v.version.Version).OnClick(v.OnCheckComment),
+		),
+		app.Div().Class("form-check").Body(
+			app.Label().Class("form-check-label").For("enable-minimal-"+v.version.Version).Body(app.Text("Enable minimal required YAML output")),
+			app.Input().Class("form-check-input").Type("checkbox").ID("enable-minimal-"+v.version.Version).OnClick(v.OnCheckMinimal),
+		),
+		app.Pre().Body(
+			app.Div().ID("yaml-sample-"+v.version.Version).Body(app.If(v.renderErr != nil, func() app.UI {
+				return app.Div().Class("yaml-text").Body(app.Text(v.renderErr.Error()))
+			}).Else(func() app.UI {
+				return app.Div().Class("yaml-text").Body(app.Text(v.content))
+			})),
+		),
+	)
+}
+
+func (v *detailsView) OnCheckComment(_ app.Context, _ app.Event) {
+	v.comment = !v.comment
+	content, err := v.version.generateYAMLDetails(v.comment, v.minimal)
+	if err != nil {
+		v.renderErr = err
+		v.content = ""
+
+		return
+	}
+
+	v.content = content
+}
+
+func (v *detailsView) OnCheckMinimal(_ app.Context, _ app.Event) {
+	v.minimal = !v.minimal
+	content, err := v.version.generateYAMLDetails(v.comment, v.minimal)
+	if err != nil {
+		v.renderErr = err
+		v.content = ""
+
+		return
+	}
+
+	v.content = content
+}
+
 // Version wraps a top level version resource which contains the underlying openAPIV3Schema.
 type Version struct {
 	Version     string
@@ -39,7 +110,17 @@ type Version struct {
 	Group       string
 	Properties  []*Property
 	Description string
-	YAML        string
+	Schema      map[string]v1beta1.JSONSchemaProps
+}
+
+func (v *Version) generateYAMLDetails(comment bool, minimal bool) (string, error) {
+	buf := bytes.NewBuffer(nil)
+	parser := pkg.NewParser(v.Group, v.Kind, comment, minimal, true)
+	if err := parser.ParseProperties(v.Version, buf, v.Schema, pkg.RootRequiredFields); err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }
 
 // Property builds up a Tree structure of embedded things.
@@ -121,9 +202,8 @@ func (h *crdView) Render() app.UI {
 	}
 
 	versions := make([]Version, 0)
-	parser := pkg.NewParser(schemaType.Group, schemaType.Kind, h.comment, h.minimal, false)
 	for _, version := range schemaType.Versions {
-		v, err := h.generate(parser, schemaType, version.Schema, version.Name)
+		v, err := h.generate(schemaType, version.Schema, version.Name)
 		if err != nil {
 			return h.buildError(err)
 		}
@@ -133,7 +213,7 @@ func (h *crdView) Render() app.UI {
 
 	// Parse validation instead.
 	if len(schemaType.Versions) == 0 && schemaType.Validation != nil {
-		v, err := h.generate(parser, schemaType, schemaType.Validation.Schema, schemaType.Validation.Name)
+		v, err := h.generate(schemaType, schemaType.Validation.Schema, schemaType.Validation.Name)
 		if err != nil {
 			return h.buildError(err)
 		}
@@ -168,12 +248,8 @@ func (h *crdView) Render() app.UI {
 							app.Button().Class("clippy-"+strconv.Itoa(i)).DataSet("clipboard-target", "#yaml-sample-"+version.Version).Body(
 								app.Script().Text(fmt.Sprintf("new ClipboardJS('.clippy-%d');", i)),
 								app.I().Class("fa fa-clipboard"),
-							),
-						),
-						app.Pre().Body(
-							app.Code().Class("language-yaml").ID("yaml-sample-"+version.Version).Body(
-								app.Text(version.YAML),
 							)),
+						&detailsView{version: &version},
 					),
 				),
 			),
@@ -206,25 +282,19 @@ func (h *crdView) Render() app.UI {
 	)
 }
 
-func (h *crdView) generate(parser *pkg.Parser, crd *pkg.SchemaType, properties *v1beta1.JSONSchemaProps, name string) (Version, error) {
+func (h *crdView) generate(crd *pkg.SchemaType, properties *v1beta1.JSONSchemaProps, name string) (Version, error) {
 	out, err := parseCRD(properties.Properties, name, pkg.RootRequiredFields, h.minimal)
 	if err != nil {
 		return Version{}, err
 	}
 
-	var buffer []byte
-	buf := bytes.NewBuffer(buffer)
-	if err := parser.ParseProperties(name, buf, properties.Properties); err != nil {
-		return Version{}, err
-	}
-
 	return Version{
 		Version:     name,
+		Schema:      properties.Properties,
 		Properties:  out,
 		Kind:        crd.Kind,
 		Group:       crd.Group,
 		Description: properties.Description,
-		YAML:        buf.String(),
 	}, nil
 }
 
