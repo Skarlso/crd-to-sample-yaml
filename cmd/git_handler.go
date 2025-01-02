@@ -98,7 +98,8 @@ func gatherSchemaTypesForRef(r *git.Repository, ref *plumbing.Reference) ([]*pkg
 		schemaType, err := pkg.ExtractSchemaType(crd)
 		if err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, "skipping none CRD file: "+crd.GetName())
-			return nil
+
+			return nil //nolint:nilerr // intentional
 		}
 
 		if schemaType != nil {
