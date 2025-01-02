@@ -134,6 +134,17 @@ func constructHandler(args *rootArgs) (Handler, error) {
 		crdHandler = &FolderHandler{location: args.folderLocation}
 	case args.configFileLocation != "":
 		crdHandler = &ConfigHandler{configFileLocation: args.configFileLocation}
+	case args.gitAccess:
+		crdHandler = &GitHandler{
+			url:         args.url,
+			username:    args.username,
+			password:    args.password,
+			token:       args.token,
+			tag:         args.tag,
+			caBundle:    args.caBundle,
+			privSSHKey:  args.privSSHKey,
+			useSSHAgent: args.useSSHAgent,
+		}
 	case args.url != "":
 		crdHandler = &URLHandler{
 			url:      args.url,
