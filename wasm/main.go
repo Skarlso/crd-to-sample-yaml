@@ -1,12 +1,15 @@
 package main
 
 import (
-	"log"
+	"context"
 	"net/http"
 	"os"
 
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
+
+// Set during build time in Makefile.
+var baseURL string
 
 // The main function is the entry point where the app is configured and started.
 // It is executed in 2 different environments: A client (the web browser) and a
@@ -51,7 +54,7 @@ func main() {
 		Name:    "Preview CRDs",
 		Title:   "Preview CRDs",
 		Author:  "Gergely Brautigam",
-		Version: "v0.6.5",
+		Version: "v0.7.0",
 		HTML: func() app.HTMLHtml {
 			return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark")
 		},
@@ -104,14 +107,17 @@ func main() {
 	}
 	http.Handle("/", handler)
 
+	server := createReverseProxyServer(baseURL)
+	go func() { _ = server.ListenAndServe() }()
+	defer func() { _ = server.Shutdown(context.Background()) }()
+
 	if static {
 		generateGitHubPages(handler)
 		os.Exit(0)
 	}
 
-	//nolint: gosec // it's fine
-	if err := http.ListenAndServe(":8000", nil); err != nil {
-		log.Fatal(err)
+	if err := http.ListenAndServe(":8000", nil); err != nil { //nolint:gosec // it's fine
+		panic(err)
 	}
 }
 
