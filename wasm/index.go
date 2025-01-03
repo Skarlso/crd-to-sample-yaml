@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Skarlso/crd-to-sample-yaml/cmd"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -22,7 +23,7 @@ const maximumBytes = 200 * 1000 // 200KB
 type index struct {
 	app.Compo
 
-	content   []byte
+	crds      []*pkg.SchemaType
 	isMounted bool
 	err       error
 	comments  bool
@@ -126,20 +127,65 @@ type form struct {
 	formHandler         app.EventHandler
 	checkHandlerMinimal app.EventHandler
 	checkHandlerComment app.EventHandler
+	warningHidden       bool
 }
 
 func (f *form) Render() app.UI {
 	return app.Div().Body(
-		app.Div().Class("row mb-3").Body(
+		app.Div().Class("row mb-5").Body(
 			&textarea{},
 			&input{},
+			app.Div().Class("input-group mb-3").Body(
+				app.Span().Class("input-group-text").Body(app.Text("URL")),
+				app.Input().
+					Class("git_url").Class("form-control").Placeholder("Paste git repository URL here...").
+					ID("git_url").
+					Name("git_url").OnInput(f.OnInput),
+				app.Input().Class("url_tag").Class("form-control").Placeholder("Optional tag here...").ID("url_tag"),
+			),
+			app.Div().Class("alert alert-warning").Role("alert").Body(
+				app.Label().Text("WARNING: Big repositories can take a minute to crawl... Please be patient. Exp.: CrossPlane takes ~15 seconds."),
+			).Hidden(!f.warningHidden),
 			&checkBox{checkHandlerComment: f.checkHandlerComment, checkHandlerMinimal: f.checkHandlerMinimal},
 		),
 		app.Div().Class("text-end").Body(app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler)),
 	)
 }
 
-func (i *index) OnClick(_ app.Context, _ app.Event) {
+func (f *form) OnInput(ctx app.Context, e app.Event) {
+	content := ctx.JSSrc().Get("value").String()
+	f.warningHidden = content != ""
+}
+
+func renderCRDContent(content []byte) (*pkg.SchemaType, error) {
+	content, err := sanitize.Sanitize(content)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sanitize content: %w", err)
+	}
+
+	crd := &unstructured.Unstructured{}
+	if err := yaml.Unmarshal(content, crd); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
+	}
+
+	schemaType, err := pkg.ExtractSchemaType(crd)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract schema type: %w", err)
+	}
+
+	if schemaType == nil {
+		return nil, nil
+	}
+
+	return schemaType, nil
+}
+
+func (i *index) OnClick(ctx app.Context, _ app.Event) {
+	ctx.JSSrc().Set("disabled", true)
+	defer func() {
+		ctx.JSSrc().Set("disabled", false)
+	}()
+
 	ta := app.Window().GetElementByID("crd_data").Get("value")
 	if v := ta.String(); v != "" {
 		if len(v) > maximumBytes {
@@ -148,7 +194,44 @@ func (i *index) OnClick(_ app.Context, _ app.Event) {
 			return
 		}
 
-		i.content = []byte(v)
+		crd, err := renderCRDContent([]byte(v))
+		if err != nil {
+			i.err = err
+
+			return
+		}
+
+		i.crds = append(i.crds, crd)
+
+		return
+	}
+
+	username := app.Window().GetElementByID("url_username").Get("value")
+	password := app.Window().GetElementByID("url_password").Get("value")
+	token := app.Window().GetElementByID("url_token").Get("value")
+
+	gitURL := app.Window().GetElementByID("git_url").Get("value")
+	if v := gitURL.String(); v != "" {
+		tag := app.Window().GetElementByID("url_tag").Get("value")
+		u := fmt.Sprintf("http://localhost:8999?url=%s", v)
+		g := cmd.GitHandler{
+			URL:      u,
+			Username: username.String(),
+			Password: password.String(),
+			Token:    token.String(),
+		}
+		if tag.String() != "" {
+			g.Tag = tag.String()
+		}
+
+		crds, err := g.CRDs()
+		if err != nil {
+			i.err = err
+
+			return
+		}
+
+		i.crds = append(i.crds, crds...)
 
 		return
 	}
@@ -157,10 +240,6 @@ func (i *index) OnClick(_ app.Context, _ app.Event) {
 	if inp.String() == "" {
 		return
 	}
-
-	username := app.Window().GetElementByID("url_username").Get("value")
-	password := app.Window().GetElementByID("url_password").Get("value")
-	token := app.Window().GetElementByID("url_token").Get("value")
 
 	f := fetcher.NewFetcher(http.DefaultClient, username.String(), password.String(), token.String())
 	content, err := f.Fetch(inp.String())
@@ -176,14 +255,14 @@ func (i *index) OnClick(_ app.Context, _ app.Event) {
 		return
 	}
 
-	content, err = sanitize.Sanitize(content)
+	crd, err := renderCRDContent(content)
 	if err != nil {
-		i.err = fmt.Errorf("failed to sanitize content: %w", err)
+		i.err = err
 
 		return
 	}
 
-	i.content = content
+	i.crds = append(i.crds, crd)
 }
 
 // checkBox defines if comments should be generated for the sample YAML output.
@@ -220,7 +299,9 @@ func (i *index) OnMount(_ app.Context) {
 }
 
 func (i *index) NavBackOnClick(_ app.Context, _ app.Event) {
-	i.content = nil
+	i.crds = nil
+	i.minimal = false
+	i.comments = false
 }
 
 type editView struct {
@@ -269,10 +350,6 @@ func (e *editView) Render() app.UI {
 			app.Div().Class("container").Body(
 				app.Div().Class("row justify-content-around").Body(
 					app.Textarea().Class("col form-control").Style("height", "350px").Style("max-height", "800px").Placeholder("Start typing...").ID("input-area").OnInput(e.OnInput),
-					// app.Pre().Class("col").Body(
-					//	app.Code().Style("height", "250px").Style("max-height", "800px").Class("language-yaml").ID("output-area").Body(
-					//		app.Text(string(e.content)),
-					//	)),
 					app.Textarea().Class("col form-control").Style("height", "350px").Style("max-height", "800px").ID("output-area").Text(string(e.content)),
 				),
 			),
@@ -283,15 +360,13 @@ func (i *index) Render() app.UI {
 	// Prevent double rendering components.
 	if i.isMounted {
 		return app.Main().Body(
-			// app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
-			// app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
 			app.Div().Class("container").Body(func() app.UI {
 				if i.err != nil {
 					return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, i.buildError())
 				}
 
-				if i.content != nil {
-					return &crdView{content: i.content, comment: i.comments, minimal: i.minimal, navigateBackOnClick: i.NavBackOnClick}
+				if len(i.crds) > 0 {
+					return &crdView{crds: i.crds, comment: i.comments, minimal: i.minimal, navigateBackOnClick: i.NavBackOnClick}
 				}
 
 				return app.Div().Class("container").Body(

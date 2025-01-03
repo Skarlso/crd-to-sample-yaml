@@ -11,12 +11,9 @@ import (
 	"strings"
 
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/fetcher"
-	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
@@ -25,9 +22,11 @@ type crdView struct {
 	app.Compo
 	preRenderErr error
 
-	content []byte
+	//content []byte
+	crds    []*pkg.SchemaType
 	comment bool
 	minimal bool
+	useGit  bool
 
 	navigateBackOnClick func(ctx app.Context, _ app.Event)
 }
@@ -175,14 +174,14 @@ func (h *crdView) OnNav(ctx app.Context) {
 		return
 	}
 
-	content, err = sanitize.Sanitize(content)
+	crd, err := renderCRDContent(content)
 	if err != nil {
 		h.preRenderErr = err
 
 		return
 	}
 
-	h.content = content
+	h.crds = append(h.crds, crd)
 }
 
 // The Render method is where the component appearance is defined.
@@ -191,34 +190,26 @@ func (h *crdView) Render() app.UI {
 		return h.buildError(h.preRenderErr)
 	}
 
-	crd := &unstructured.Unstructured{}
-	if err := yaml.Unmarshal(h.content, crd); err != nil {
-		return h.buildError(err)
-	}
-
-	schemaType, err := pkg.ExtractSchemaType(crd)
-	if err != nil {
-		return h.buildError(err)
-	}
-
 	versions := make([]Version, 0)
-	for _, version := range schemaType.Versions {
-		v, err := h.generate(schemaType, version.Schema, version.Name)
-		if err != nil {
-			return h.buildError(err)
+	for _, schemaType := range h.crds {
+		for _, version := range schemaType.Versions {
+			v, err := h.generate(schemaType, version.Schema, schemaType.Kind+"-"+version.Name)
+			if err != nil {
+				return h.buildError(err)
+			}
+
+			versions = append(versions, v)
 		}
 
-		versions = append(versions, v)
-	}
+		// Parse validation instead.
+		if len(schemaType.Versions) == 0 && schemaType.Validation != nil {
+			v, err := h.generate(schemaType, schemaType.Validation.Schema, schemaType.Kind+"-"+schemaType.Validation.Name)
+			if err != nil {
+				return h.buildError(err)
+			}
 
-	// Parse validation instead.
-	if len(schemaType.Versions) == 0 && schemaType.Validation != nil {
-		v, err := h.generate(schemaType, schemaType.Validation.Schema, schemaType.Validation.Name)
-		if err != nil {
-			return h.buildError(err)
+			versions = append(versions, v)
 		}
-
-		versions = append(versions, v)
 	}
 
 	wrapper := app.Div().Class("content-wrapper")

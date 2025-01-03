@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -108,6 +109,11 @@ func main() {
 		generateGitHubPages(handler)
 		os.Exit(0)
 	}
+
+	proxy := NewCorsProxy()
+	server := proxy.Serve()
+	go server.ListenAndServe()
+	defer server.Shutdown(context.Background())
 
 	//nolint: gosec // it's fine
 	if err := http.ListenAndServe(":8000", nil); err != nil {
