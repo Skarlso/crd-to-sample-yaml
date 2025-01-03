@@ -52,7 +52,7 @@ func main() {
 		Name:    "Preview CRDs",
 		Title:   "Preview CRDs",
 		Author:  "Gergely Brautigam",
-		Version: "v0.6.5",
+		Version: "v0.7.0",
 		HTML: func() app.HTMLHtml {
 			return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark")
 		},
