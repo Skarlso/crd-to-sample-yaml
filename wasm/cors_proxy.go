@@ -3,91 +3,55 @@
 package main
 
 import (
-	"io"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"time"
 )
 
 const (
 	headerTimeout = 5 * time.Second
 	readTimeout   = 20 * time.Second
-	clientTimeout = time.Second * 30
 )
 
-type CorsProxy struct{}
+func createReverseProxyServer(baseURL string) *http.Server {
+	proxy := &httputil.ReverseProxy{
+		Director: func(req *http.Request) {
+			targetURL := req.URL.Query().Get("url")
+			if targetURL == "" {
+				return
+			}
 
-func NewCorsProxy() *CorsProxy {
-	return &CorsProxy{}
-}
+			target, err := url.Parse(targetURL)
+			if err != nil {
+				return
+			}
 
-func (p *CorsProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-
-		return
+			req.URL = target
+			req.Host = target.Host
+		},
 	}
 
-	targetURL := r.URL.Query().Get("url")
-	if targetURL == "" {
-		http.Error(w, "Missing 'url' parameter", http.StatusBadRequest)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", baseURL)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
-		return
-	}
-
-	// create the request to server
-	req, err := http.NewRequestWithContext(r.Context(), r.Method, targetURL, r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(err.Error()))
-
-		return
-	}
-
-	// add ALL headers to the connection
-	for n, h := range r.Header {
-		for _, h := range h {
-			req.Header.Add(n, h)
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
 		}
-	}
 
-	// create a basic client to send the request
-	client := http.Client{
-		Timeout: clientTimeout,
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(err.Error()))
+		proxy.ServeHTTP(w, r)
+	})
 
-		return
-	}
-
-	for h, v := range resp.Header {
-		for _, v := range v {
-			w.Header().Add(h, v)
-		}
-	}
-	// copy the response from the server to the connected client request
-	w.WriteHeader(resp.StatusCode)
-
-	_, err = io.Copy(w, resp.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(err.Error()))
-
-		return
-	}
-}
-
-func (p *CorsProxy) Serve() *http.Server {
-	return &http.Server{
+	server := &http.Server{
 		Addr:              ":8999",
-		Handler:           p,
+		Handler:           handler,
 		ReadHeaderTimeout: headerTimeout,
 		ReadTimeout:       readTimeout,
 	}
+
+	return server
 }
