@@ -152,7 +152,7 @@ func (f *form) Render() app.UI {
 	)
 }
 
-func (f *form) OnInput(ctx app.Context, e app.Event) {
+func (f *form) OnInput(ctx app.Context, _ app.Event) {
 	content := ctx.JSSrc().Get("value").String()
 	f.warningHidden = content != ""
 }
@@ -213,7 +213,7 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 	gitURL := app.Window().GetElementByID("git_url").Get("value")
 	if v := gitURL.String(); v != "" {
 		tag := app.Window().GetElementByID("url_tag").Get("value")
-		u := fmt.Sprintf("http://localhost:8999?url=%s", v)
+		u := "http://localhost:8999?url=" + v
 		g := cmd.GitHandler{
 			URL:      u,
 			Username: username.String(),

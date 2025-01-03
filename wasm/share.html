@@ -1,10 +1,10 @@
 <!doctype html>
-<html data-bs-core="modern" data-bs-theme="dark" lang="en">
+<html lang="en" data-bs-core="modern" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8">
     <meta name="author" content="Gergely Brautigam">
     <meta name="description" content>
-    <meta name="theme-color" content="#2d2c2c">
+    <meta content="#2d2c2c" name="theme-color">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta property="og:url" content="https:///share">
@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" href="/web/img/logo.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link href="/app.css" type="text/css" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="/web/css/alert.css">
+    <link href="/web/css/alert.css" type="text/css" rel="stylesheet">
     <link href="/web/css/yaml.css" type="text/css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" type="text/css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css" type="text/css" rel="stylesheet">
@@ -61,7 +61,7 @@
       <h4 class="alert-heading">Oops!</h4>
       url parameter has to be define in the following format: /share?url=https://example.com/crd.yaml
     </div>
-    <aside id="app-wasm-loader" class="goapp-app-info">
+    <aside class="goapp-app-info" id="app-wasm-loader">
       <img src="/web/img/logo.png" id="app-wasm-loader-icon" class="goapp-logo goapp-spin" alt="wasm loader icon">
       <p id="app-wasm-loader-label" class="goapp-label">0%</p>
     </aside>

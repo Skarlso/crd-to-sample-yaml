@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 
@@ -112,12 +111,11 @@ func main() {
 
 	proxy := NewCorsProxy()
 	server := proxy.Serve()
-	go server.ListenAndServe()
-	defer server.Shutdown(context.Background())
+	go func() { _ = server.ListenAndServe() }()
+	defer func() { _ = server.Shutdown(context.Background()) }()
 
-	//nolint: gosec // it's fine
-	if err := http.ListenAndServe(":8000", nil); err != nil {
-		log.Fatal(err)
+	if err := http.ListenAndServe(":8000", nil); err != nil { //nolint:gosec // it's fine
+		panic(err)
 	}
 }
 

@@ -22,11 +22,9 @@ type crdView struct {
 	app.Compo
 	preRenderErr error
 
-	//content []byte
 	crds    []*pkg.SchemaType
 	comment bool
 	minimal bool
-	useGit  bool
 
 	navigateBackOnClick func(ctx app.Context, _ app.Event)
 }

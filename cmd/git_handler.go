@@ -49,7 +49,7 @@ func (g *GitHandler) CRDs() ([]*pkg.SchemaType, error) {
 		ref, err = r.Head()
 	}
 	if err != nil {
-		return nil, fmt.Errorf("failed to construct reference: %v", err)
+		return nil, fmt.Errorf("failed to construct reference: %w", err)
 	}
 
 	crds, err := gatherSchemaTypesForRef(r, ref)
@@ -71,7 +71,7 @@ func gatherSchemaTypesForRef(r *git.Repository, ref *plumbing.Reference) ([]*pkg
 
 	commit, err := r.CommitObject(*hash)
 	if err != nil {
-		return nil, fmt.Errorf("error getting commit object: %v", err)
+		return nil, fmt.Errorf("error getting commit object: %w", err)
 	}
 
 	commitTree, err := commit.Tree()
