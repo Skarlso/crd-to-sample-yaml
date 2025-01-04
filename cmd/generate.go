@@ -16,7 +16,7 @@ type rootArgs struct {
 	caBundle           string
 	privSSHKey         string
 	useSSHAgent        bool
-	gitAccess          bool
+	gitURL             string
 }
 
 var (
@@ -36,7 +36,7 @@ func init() {
 	f.StringVarP(&args.fileLocation, "crd", "c", "", "The CRD file to generate a yaml from.")
 	f.StringVarP(&args.folderLocation, "folder", "r", "", "A folder from which to parse a series of CRDs.")
 	f.StringVarP(&args.url, "url", "u", "", "If provided, will use this URL to fetch CRD YAML content from.")
-	f.BoolVar(&args.gitAccess, "git", false, "If provided, will use this Git repository to fetch CRD YAML content.")
+	f.StringVarP(&args.gitURL, "git-url", "g", "", "If provided, CRDs will be discovered using a git repository.")
 	f.StringVar(&args.username, "username", "", "Optional username to authenticate a URL.")
 	f.StringVar(&args.password, "password", "", "Optional password to authenticate a URL.")
 	f.StringVar(&args.token, "token", "", "A bearer token to authenticate a URL.")

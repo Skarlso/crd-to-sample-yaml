@@ -58,6 +58,33 @@ A single file will be created containing all versions in the CRD delimited by `-
 
 Optionally, you can provide the flag `-s` which will output the generated content to `stdout`.
 
+You can also point at a git repository to _discover_ CRDs inside the repository. Simply call `crd` with:
+
+```
+➜ cty generate crd -g https://github.com/Skarlso/crd-bootstrap
+Discovered number of CRDs:  1
+```
+
+The following authentication methods are available:
+- username and password
+```
+./cty generate crd -g https://github.com/Skarlso/crd-bootstrap --username skarlso --password password
+```
+- token
+```
+./cty generate crd -g https://github.com/Skarlso/crd-bootstrap --token token
+```
+- SSH with provided private key
+```
+./cty generate crd -g https://github.com/Skarlso/crd-bootstrap --private-ssh-key-file ~/.ssh/main-key
+```
+- SSH by using the local ssh-agent
+```
+./cty generate crd -g https://github.com/Skarlso/crd-bootstrap --ssh-agent
+```
+
+Further certificate bundles can be provided for privately hosted git servers with `--ca-bundle-file`.
+
 ### HTML output
 
 It's possible to generate a pre-rendered HTML based output for self-hosting what the website produces online.
