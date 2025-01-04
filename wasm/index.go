@@ -126,7 +126,6 @@ type form struct {
 	formHandler         app.EventHandler
 	checkHandlerMinimal app.EventHandler
 	checkHandlerComment app.EventHandler
-	warningHidden       bool
 }
 
 func (f *form) Render() app.UI {
@@ -134,26 +133,10 @@ func (f *form) Render() app.UI {
 		app.Div().Class("row mb-5").Body(
 			&textarea{},
 			&input{},
-			app.Div().Class("input-group mb-3").Body(
-				app.Span().Class("input-group-text").Body(app.Text("URL")),
-				app.Input().
-					Class("git_url").Class("form-control").Placeholder("Paste git repository URL here...").
-					ID("git_url").
-					Name("git_url").OnInput(f.OnInput),
-				app.Input().Class("url_tag").Class("form-control").Placeholder("Optional tag here...").ID("url_tag"),
-			),
-			app.Div().Class("alert alert-warning").Role("alert").Body(
-				app.Label().Text("WARNING: Big repositories can take a minute to crawl... Please be patient. Exp.: CrossPlane takes ~15 seconds."),
-			).Hidden(!f.warningHidden),
 			&checkBox{checkHandlerComment: f.checkHandlerComment, checkHandlerMinimal: f.checkHandlerMinimal},
 		),
 		app.Div().Class("text-end").Body(app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler)),
 	)
-}
-
-func (f *form) OnInput(ctx app.Context, _ app.Event) {
-	content := ctx.JSSrc().Get("value").String()
-	f.warningHidden = content != ""
 }
 
 func renderCRDContent(content []byte) (*pkg.SchemaType, error) {
@@ -208,29 +191,6 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 	username := app.Window().GetElementByID("url_username").Get("value")
 	password := app.Window().GetElementByID("url_password").Get("value")
 	token := app.Window().GetElementByID("url_token").Get("value")
-
-	gitURL := app.Window().GetElementByID("git_url").Get("value")
-	if v := gitURL.String(); v != "" {
-		tag := app.Window().GetElementByID("url_tag").Get("value")
-		g := FetchRepoContent{
-			URL:      gitURL.String(),
-			Username: username.String(),
-			Password: password.String(),
-			Token:    token.String(),
-			Tag:      tag.String(),
-		}
-
-		crds, err := g.Fetch()
-		if err != nil {
-			i.err = err
-
-			return
-		}
-
-		i.crds = append(i.crds, crds...)
-
-		return
-	}
 
 	inp := app.Window().GetElementByID("url_to_crd").Get("value")
 	if inp.String() == "" {
