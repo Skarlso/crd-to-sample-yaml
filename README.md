@@ -76,12 +76,14 @@ The following authentication methods are available:
 ```
 - SSH with provided private key
 ```
-./cty generate crd -g https://github.com/Skarlso/crd-bootstrap --private-ssh-key-file ~/.ssh/main-key
+./cty generate crd -g git@github.com:Skarlso/crd-bootstrap --private-ssh-key-file ~/.ssh/main-key
 ```
 - SSH by using the local ssh-agent
 ```
-./cty generate crd -g https://github.com/Skarlso/crd-bootstrap --ssh-agent
+./cty generate crd -g git@github.com:Skarlso/crd-bootstrap --ssh-agent
 ```
+
+Notice the URL change in case SSH authentication is provided.
 
 Further certificate bundles can be provided for privately hosted git servers with `--ca-bundle-file`.
 
