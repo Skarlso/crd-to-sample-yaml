@@ -22,19 +22,14 @@ import (
 // - validation // if versions is missing
 //   - validation.OpenAPIV3Schema
 func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
-	spec, ok := obj.Object["spec"]
-	if !ok {
-		return nil, errors.New("no spec found in object")
+	spec, err := extractValue[map[string]any](obj.Object, "spec")
+	if err != nil {
+		return nil, err
 	}
 
-	specMap, ok := spec.(map[string]any)
+	versions, ok := spec["versions"]
 	if !ok {
-		return nil, fmt.Errorf("failed to convert spec to map[string]any was: %T", specMap)
-	}
-
-	versions, ok := specMap["versions"]
-	if !ok {
-		if _, ok := specMap["validation"]; !ok {
+		if _, ok := spec["validation"]; !ok {
 			// we aren't dealing with a valid resource
 			// we might want to skip it if we are going through a
 			// list of YAML files in a folder, and we want to skip
@@ -42,10 +37,10 @@ func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
 			return nil, nil
 		}
 
-		return extractValidation(obj, specMap)
+		return extractValidation(obj, spec)
 	}
 
-	kind, group, err := extractGroupKind(specMap)
+	kind, group, err := extractGroupKind(spec)
 	if err != nil {
 		return nil, err
 	}
@@ -102,23 +97,14 @@ func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
 }
 
 func extractValidation(obj *unstructured.Unstructured, specMap map[string]any) (*SchemaType, error) {
-	validation, ok := specMap["validation"]
-	if !ok {
-		return nil, errors.New("no validate found in object")
-	}
-
-	kindValue, groupValue, err := extractGroupKind(specMap)
+	validation, err := extractValue[map[string]any](specMap, "validation")
 	if err != nil {
 		return nil, err
 	}
 
-	validationMap, ok := validation.(map[string]any)
+	schema, ok := validation["openAPIV3Schema"]
 	if !ok {
-		return nil, fmt.Errorf("invalid validation map detected: %T", validation)
-	}
-	schema, ok := validationMap["openAPIV3Schema"]
-	if !ok {
-		return nil, fmt.Errorf("openAPIV3Schema not found in validation map: %v", validationMap)
+		return nil, fmt.Errorf("openAPIV3Schema not found in validation map: %v", validation)
 	}
 
 	props := &v1beta1.JSONSchemaProps{}
@@ -131,6 +117,11 @@ func extractValidation(obj *unstructured.Unstructured, specMap map[string]any) (
 	}
 
 	ensureKindAndAPIVersionIsSet(props.Properties)
+
+	kindValue, groupValue, err := extractGroupKind(specMap)
+	if err != nil {
+		return nil, err
+	}
 
 	return &SchemaType{
 		Schema: nil,

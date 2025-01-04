@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 
@@ -51,7 +50,7 @@ func main() {
 		Name:    "Preview CRDs",
 		Title:   "Preview CRDs",
 		Author:  "Gergely Brautigam",
-		Version: "v0.6.5",
+		Version: "v0.7.0",
 		HTML: func() app.HTMLHtml {
 			return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark")
 		},
@@ -109,9 +108,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	//nolint: gosec // it's fine
-	if err := http.ListenAndServe(":8000", nil); err != nil {
-		log.Fatal(err)
+	if err := http.ListenAndServe(":8000", nil); err != nil { //nolint:gosec // it's fine
+		panic(err)
 	}
 }
 

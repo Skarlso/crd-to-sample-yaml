@@ -22,7 +22,7 @@ const maximumBytes = 200 * 1000 // 200KB
 type index struct {
 	app.Compo
 
-	content   []byte
+	crds      []*pkg.SchemaType
 	isMounted bool
 	err       error
 	comments  bool
@@ -130,7 +130,7 @@ type form struct {
 
 func (f *form) Render() app.UI {
 	return app.Div().Body(
-		app.Div().Class("row mb-3").Body(
+		app.Div().Class("row mb-5").Body(
 			&textarea{},
 			&input{},
 			&checkBox{checkHandlerComment: f.checkHandlerComment, checkHandlerMinimal: f.checkHandlerMinimal},
@@ -139,7 +139,35 @@ func (f *form) Render() app.UI {
 	)
 }
 
-func (i *index) OnClick(_ app.Context, _ app.Event) {
+func renderCRDContent(content []byte) (*pkg.SchemaType, error) {
+	content, err := sanitize.Sanitize(content)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sanitize content: %w", err)
+	}
+
+	crd := &unstructured.Unstructured{}
+	if err := yaml.Unmarshal(content, crd); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
+	}
+
+	schemaType, err := pkg.ExtractSchemaType(crd)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract schema type: %w", err)
+	}
+
+	if schemaType == nil {
+		return nil, nil
+	}
+
+	return schemaType, nil
+}
+
+func (i *index) OnClick(ctx app.Context, _ app.Event) {
+	ctx.JSSrc().Set("disabled", true)
+	defer func() {
+		ctx.JSSrc().Set("disabled", false)
+	}()
+
 	ta := app.Window().GetElementByID("crd_data").Get("value")
 	if v := ta.String(); v != "" {
 		if len(v) > maximumBytes {
@@ -148,19 +176,26 @@ func (i *index) OnClick(_ app.Context, _ app.Event) {
 			return
 		}
 
-		i.content = []byte(v)
+		crd, err := renderCRDContent([]byte(v))
+		if err != nil {
+			i.err = err
 
-		return
-	}
+			return
+		}
 
-	inp := app.Window().GetElementByID("url_to_crd").Get("value")
-	if inp.String() == "" {
+		i.crds = append(i.crds, crd)
+
 		return
 	}
 
 	username := app.Window().GetElementByID("url_username").Get("value")
 	password := app.Window().GetElementByID("url_password").Get("value")
 	token := app.Window().GetElementByID("url_token").Get("value")
+
+	inp := app.Window().GetElementByID("url_to_crd").Get("value")
+	if inp.String() == "" {
+		return
+	}
 
 	f := fetcher.NewFetcher(http.DefaultClient, username.String(), password.String(), token.String())
 	content, err := f.Fetch(inp.String())
@@ -176,14 +211,14 @@ func (i *index) OnClick(_ app.Context, _ app.Event) {
 		return
 	}
 
-	content, err = sanitize.Sanitize(content)
+	crd, err := renderCRDContent(content)
 	if err != nil {
-		i.err = fmt.Errorf("failed to sanitize content: %w", err)
+		i.err = err
 
 		return
 	}
 
-	i.content = content
+	i.crds = append(i.crds, crd)
 }
 
 // checkBox defines if comments should be generated for the sample YAML output.
@@ -220,7 +255,9 @@ func (i *index) OnMount(_ app.Context) {
 }
 
 func (i *index) NavBackOnClick(_ app.Context, _ app.Event) {
-	i.content = nil
+	i.crds = nil
+	i.minimal = false
+	i.comments = false
 }
 
 type editView struct {
@@ -269,10 +306,6 @@ func (e *editView) Render() app.UI {
 			app.Div().Class("container").Body(
 				app.Div().Class("row justify-content-around").Body(
 					app.Textarea().Class("col form-control").Style("height", "350px").Style("max-height", "800px").Placeholder("Start typing...").ID("input-area").OnInput(e.OnInput),
-					// app.Pre().Class("col").Body(
-					//	app.Code().Style("height", "250px").Style("max-height", "800px").Class("language-yaml").ID("output-area").Body(
-					//		app.Text(string(e.content)),
-					//	)),
 					app.Textarea().Class("col form-control").Style("height", "350px").Style("max-height", "800px").ID("output-area").Text(string(e.content)),
 				),
 			),
@@ -283,15 +316,13 @@ func (i *index) Render() app.UI {
 	// Prevent double rendering components.
 	if i.isMounted {
 		return app.Main().Body(
-			// app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
-			// app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
 			app.Div().Class("container").Body(func() app.UI {
 				if i.err != nil {
 					return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, i.buildError())
 				}
 
-				if i.content != nil {
-					return &crdView{content: i.content, comment: i.comments, minimal: i.minimal, navigateBackOnClick: i.NavBackOnClick}
+				if len(i.crds) > 0 {
+					return &crdView{crds: i.crds, comment: i.comments, minimal: i.minimal, navigateBackOnClick: i.NavBackOnClick}
 				}
 
 				return app.Div().Class("container").Body(
