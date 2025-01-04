@@ -1,15 +1,11 @@
 package main
 
 import (
-	"context"
 	"net/http"
 	"os"
 
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
-
-// Set during build time in Makefile.
-var baseURL string
 
 // The main function is the entry point where the app is configured and started.
 // It is executed in 2 different environments: A client (the web browser) and a
@@ -106,10 +102,6 @@ func main() {
 		},
 	}
 	http.Handle("/", handler)
-
-	server := createReverseProxyServer(baseURL)
-	go func() { _ = server.ListenAndServe() }()
-	defer func() { _ = server.Shutdown(context.Background()) }()
 
 	if static {
 		generateGitHubPages(handler)

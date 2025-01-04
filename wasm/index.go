@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Skarlso/crd-to-sample-yaml/cmd"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -213,18 +212,15 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 	gitURL := app.Window().GetElementByID("git_url").Get("value")
 	if v := gitURL.String(); v != "" {
 		tag := app.Window().GetElementByID("url_tag").Get("value")
-		u := "http://localhost:8999?url=" + v
-		g := cmd.GitHandler{
-			URL:      u,
+		g := FetchRepoContent{
+			URL:      gitURL.String(),
 			Username: username.String(),
 			Password: password.String(),
 			Token:    token.String(),
-		}
-		if tag.String() != "" {
-			g.Tag = tag.String()
+			Tag:      tag.String(),
 		}
 
-		crds, err := g.CRDs()
+		crds, err := g.Fetch()
 		if err != nil {
 			i.err = err
 

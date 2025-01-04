@@ -31,6 +31,10 @@ func (f *Fetcher) Fetch(url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate request for url '%s': %w", url, err)
 	}
+	req.Header.Set("Access-Control-Allow-Origin", "*")
+	req.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	req.Header.Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding")
+	req.Header.Set("Access-Control-Allow-Credentials", "true")
 
 	if f.username != "" && f.password != "" {
 		req.SetBasicAuth(f.username, f.password)
