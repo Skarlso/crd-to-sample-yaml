@@ -20,6 +20,7 @@ type URLHandler struct {
 	username string
 	password string
 	token    string
+	group    string
 }
 
 func (h *URLHandler) CRDs() ([]*pkg.SchemaType, error) {
@@ -48,6 +49,10 @@ func (h *URLHandler) CRDs() ([]*pkg.SchemaType, error) {
 
 	if schemaType == nil {
 		return nil, nil
+	}
+
+	if h.group != "" {
+		schemaType.Rendering = pkg.Rendering{Group: h.group}
 	}
 
 	return []*pkg.SchemaType{schemaType}, nil

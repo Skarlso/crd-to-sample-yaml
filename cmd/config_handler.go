@@ -58,6 +58,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 				username: url.Username,
 				password: url.Password,
 				token:    url.Token,
+				group:    group.Name,
 			}
 			crds, err := handler.CRDs()
 			if err != nil {
@@ -76,6 +77,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 				Tag:         url.Tag,
 				privSSHKey:  url.PrivateKey,
 				useSSHAgent: url.UseSSHAgent,
+				group:       group.Name,
 			}
 			crds, err := handler.CRDs()
 			if err != nil {
