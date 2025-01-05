@@ -161,6 +161,10 @@ If no grouping information is provided, the rendered CRD's group version is used
 
 ![rendered without groups](imgs/parsed4_groups_2.png)
 
+All ways of fetching CRDs are supported through the configuration file. When dealing with URLs I recommend templating
+this file and fetching sensitive data from elsewhere. For Git, I recommend using the local ssh-agent or a link to
+an SSH file.
+
 ## Schema Generation
 
 `cty` also provides a way to generate a JSON Schema out of a CRD. Simply use:

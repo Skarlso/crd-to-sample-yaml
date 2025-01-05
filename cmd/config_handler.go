@@ -22,7 +22,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
-	configFile := &pkg.RenderConfig{}
+	configFile := &RenderConfig{}
 	if err = yaml.Unmarshal(content, configFile); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config file: %w", err)
 	}
@@ -50,6 +50,41 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 			}
 
 			result = append(result, folderResults...)
+		}
+
+		for _, url := range group.URLs {
+			handler := URLHandler{
+				url:      url.URL,
+				username: url.Username,
+				password: url.Password,
+				token:    url.Token,
+				group:    group.Name,
+			}
+			crds, err := handler.CRDs()
+			if err != nil {
+				return nil, fmt.Errorf("failed to process CRDs for url %s: %w", handler.url, err)
+			}
+
+			result = append(result, crds...)
+		}
+
+		for _, url := range group.GitURLs {
+			handler := GitHandler{
+				URL:         url.URL,
+				Username:    url.Username,
+				Password:    url.Password,
+				Token:       url.Token,
+				Tag:         url.Tag,
+				privSSHKey:  url.PrivateKey,
+				useSSHAgent: url.UseSSHAgent,
+				group:       group.Name,
+			}
+			crds, err := handler.CRDs()
+			if err != nil {
+				return nil, fmt.Errorf("failed to process CRDs for git url %s: %w", handler.URL, err)
+			}
+
+			result = append(result, crds...)
 		}
 	}
 

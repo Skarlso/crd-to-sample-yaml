@@ -29,6 +29,7 @@ type GitHandler struct {
 	caBundle    string
 	privSSHKey  string
 	useSSHAgent bool
+	group       string // this is used by the configfile.
 }
 
 func (g *GitHandler) CRDs() ([]*pkg.SchemaType, error) {
@@ -52,7 +53,7 @@ func (g *GitHandler) CRDs() ([]*pkg.SchemaType, error) {
 		return nil, fmt.Errorf("failed to construct reference: %w", err)
 	}
 
-	crds, err := gatherSchemaTypesForRef(r, ref)
+	crds, err := g.gatherSchemaTypesForRef(r, ref)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +63,7 @@ func (g *GitHandler) CRDs() ([]*pkg.SchemaType, error) {
 	return crds, nil
 }
 
-func gatherSchemaTypesForRef(r *git.Repository, ref *plumbing.Reference) ([]*pkg.SchemaType, error) {
+func (g *GitHandler) gatherSchemaTypesForRef(r *git.Repository, ref *plumbing.Reference) ([]*pkg.SchemaType, error) {
 	// Need to resolve the ref first to the right hash otherwise it's not found.
 	hash, err := r.ResolveRevision(plumbing.Revision(ref.Hash().String()))
 	if err != nil {
@@ -83,7 +84,7 @@ func gatherSchemaTypesForRef(r *git.Repository, ref *plumbing.Reference) ([]*pkg
 	// Tried to make this concurrent, but there was very little gain. It just takes this long to
 	// clone a large repository. It's not the processing OR the rendering that takes long.
 	if err := commitTree.Files().ForEach(func(f *object.File) error {
-		crd, err := processEntry(f)
+		crd, err := g.processEntry(f)
 		if err != nil {
 			return err
 		}
@@ -100,7 +101,7 @@ func gatherSchemaTypesForRef(r *git.Repository, ref *plumbing.Reference) ([]*pkg
 	return crds, nil
 }
 
-func processEntry(f *object.File) (*pkg.SchemaType, error) {
+func (g *GitHandler) processEntry(f *object.File) (*pkg.SchemaType, error) {
 	for _, path := range strings.Split(f.Name, string(filepath.Separator)) {
 		if path == "test" {
 			return nil, nil
@@ -127,8 +128,12 @@ func processEntry(f *object.File) (*pkg.SchemaType, error) {
 	}
 
 	schemaType, err := pkg.ExtractSchemaType(crd)
-	if err != nil {
+	if err != nil || schemaType == nil {
 		return nil, nil //nolint:nilerr // intentional
+	}
+
+	if g.group != "" {
+		schemaType.Rendering = pkg.Rendering{Group: g.group}
 	}
 
 	return schemaType, nil
