@@ -50,7 +50,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 			return fmt.Errorf("failed to open file %s: %w", filepath.Join(targetSnapshotLocation, name), err)
 		}
 
-		parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, minimal, false)
+		parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, minimal, true)
 		if err := parser.ParseProperties(version.Name, file, version.Schema.Properties, pkg.RootRequiredFields); err != nil {
 			_ = file.Close()
 

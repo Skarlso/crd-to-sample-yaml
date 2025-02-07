@@ -17,9 +17,11 @@ import (
 const MatcherName = "matchSnapshot"
 
 type Config struct {
-	Path    string `yaml:"path"`
-	Minimal bool   `yaml:"minimal"`
+	Path         string   `yaml:"path"`
+	IgnoreErrors []string `yaml:"ignoreErrors,omitempty"`
+	Minimal      bool     `yaml:"minimal"`
 }
+
 type Matcher struct {
 	Updater Updater
 }
@@ -92,7 +94,7 @@ func (m *Matcher) Match(ctx context.Context, crdLocation string, payload []byte)
 			return fmt.Errorf("failed to read snapshot template: %w", err)
 		}
 
-		if err := matches.Validate(content, snapshotContent); err != nil {
+		if err := matches.Validate(content, snapshotContent, c.IgnoreErrors); err != nil {
 			validationErrors = errors.Join(validationErrors, err)
 		}
 	}

@@ -23,6 +23,8 @@ tests:
       - matchSnapshot:
           # this will generate one snapshot / CRD version and match all of them to the right version of the CRD
           path: sample-tests/__snapshots__
+          ignoreErrors:
+            - "ignore this match"
       - matchSnapshot:
           path: sample-tests/__snapshots__
           # generates a yaml file

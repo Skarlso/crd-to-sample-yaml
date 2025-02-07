@@ -16,11 +16,11 @@ spec:
     additionalSecurityGroups: [] # minItems 0 of type string
     crossZoneLoadBalancing: true
     healthCheckProtocol: string
-    name: IxmzTD4eEFJ # ^[A-Za-z0-9]([A-Za-z0-9]{0,31}|[-A-Za-z0-9]{0,30}[A-Za-z0-9])$
+    name: string
     scheme: "internet-facing"
     subnets: [] # minItems 0 of type string
   identityRef:
-    kind: "AWSClusterControllerIdentity"
+    kind: "AWSClusterControllerIdentity" # "AWSClusterControllerIdentity", "AWSClusterRoleIdentity", "AWSClusterStaticIdentity"
     name: string
   imageLookupBaseOS: string
   imageLookupFormat: string
@@ -57,7 +57,7 @@ spec:
   region: string
   s3Bucket:
     controlPlaneIAMInstanceProfile: string
-    name: x7-n6fza # ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$
+    name: string
     nodesIAMInstanceProfiles: [] # minItems 0 of type string
   sshKeyName: string
 status:

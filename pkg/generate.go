@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
@@ -238,6 +239,10 @@ func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
 	case st:
 		if v.Format == "date-time" {
 			return "2024-10-11T12:48:44Z"
+		}
+
+		if v.Format == "byte" {
+			return base64.StdEncoding.EncodeToString([]byte("string"))
 		}
 
 		return st

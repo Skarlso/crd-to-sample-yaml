@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/matches"
@@ -14,8 +13,12 @@ import (
 
 type Matcher struct{}
 
+type Config struct {
+	IgnoreErrors []string `yaml:"ignoreErrors,omitempty"`
+}
+
 func (m *Matcher) Match(_ context.Context, crdLocation string, payload []byte) error {
-	c := &apiextensionsv1.JSON{}
+	c := &Config{}
 	if err := yaml.Unmarshal(payload, &c); err != nil {
 		return err
 	}
@@ -25,7 +28,7 @@ func (m *Matcher) Match(_ context.Context, crdLocation string, payload []byte) e
 		return fmt.Errorf("error reading file %s: %w", crdLocation, err)
 	}
 
-	return matches.Validate(crdContent, payload)
+	return matches.Validate(crdContent, payload, c.IgnoreErrors)
 }
 
 func init() {

@@ -48,9 +48,9 @@ status:
   - lastTransitionTime: 2024-10-11T12:48:44Z
     message: string
     observedGeneration: 0
-    reason: w # ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
-    status: "True"
-    type: 2.ik2p.6.i/Q # ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+    reason: string
+    status: "True" # "True", "False", "Unknown"
+    type: string
   lastAppliedCRDNames: {}
   lastAppliedRevision: string
   lastAttemptedRevision: string

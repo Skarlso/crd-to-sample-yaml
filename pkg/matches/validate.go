@@ -15,7 +15,7 @@ import (
 const maxBufferSize = 2048
 
 // Validate takes a source CRD and a sample file and validates its contents against the CRD definition.
-func Validate(sourceCRD []byte, sampleFile []byte) error {
+func Validate(sourceCRD []byte, sampleFile []byte, ignoreErrors []string) error {
 	reader := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(sampleFile), maxBufferSize)
 	obj := &unstructured.Unstructured{}
 	err := reader.Decode(obj)
@@ -29,7 +29,7 @@ func Validate(sourceCRD []byte, sampleFile []byte) error {
 	}
 
 	if crd.Spec.Validation != nil && len(crd.Spec.Versions) == 0 {
-		return ValidateCRDValidation(crd, sampleFile)
+		return ValidateCRDValidation(crd, sampleFile, ignoreErrors)
 	}
 
 	availableVersions := make([]string, 0, len(crd.Spec.Versions))
@@ -41,7 +41,7 @@ func Validate(sourceCRD []byte, sampleFile []byte) error {
 		// Make sure we are only testing versions that equal to the CRD's version.
 		// This is important in case there are multiple versions in the CRD.
 		if obj.GroupVersionKind().Version == v.Name {
-			if err := validate(v.Schema.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, v.Name); err != nil {
+			if err := validate(v.Schema.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, v.Name, ignoreErrors); err != nil {
 				return fmt.Errorf("failed to validate kind %s and version %s: %w", crd.Spec.Names.Kind, v.Name, err)
 			}
 
@@ -56,7 +56,7 @@ func Validate(sourceCRD []byte, sampleFile []byte) error {
 	)
 }
 
-func ValidateCRDValidation(crd *apiextensions.CustomResourceDefinition, sampleFile []byte) error {
+func ValidateCRDValidation(crd *apiextensions.CustomResourceDefinition, sampleFile []byte, ignoreErrors []string) error {
 	reader := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(sampleFile), maxBufferSize)
 	obj := &unstructured.Unstructured{}
 	err := reader.Decode(obj)
@@ -64,10 +64,10 @@ func ValidateCRDValidation(crd *apiextensions.CustomResourceDefinition, sampleFi
 		return fmt.Errorf("failed to decode sample file: %w", err)
 	}
 
-	return validate(crd.Spec.Validation.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, crd.Name)
+	return validate(crd.Spec.Validation.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, crd.Name, ignoreErrors)
 }
 
-func validate(props *apiextensions.JSONSchemaProps, obj *unstructured.Unstructured, kind, name string) error {
+func validate(props *apiextensions.JSONSchemaProps, obj *unstructured.Unstructured, kind, name string, ignoreErrors []string) error {
 	eval, _, err := validation.NewSchemaValidator(props)
 	if err != nil {
 		return fmt.Errorf("invalid schema: %w", err)
@@ -75,7 +75,14 @@ func validate(props *apiextensions.JSONSchemaProps, obj *unstructured.Unstructur
 
 	var resultErrors error
 	result := eval.Validate(obj)
+loop:
 	for _, e := range result.Errors {
+		for _, ignore := range ignoreErrors {
+			if strings.Contains(e.Error(), ignore) {
+				continue loop
+			}
+		}
+
 		resultErrors = errors.Join(resultErrors, e)
 	}
 
