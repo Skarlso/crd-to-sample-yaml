@@ -15,6 +15,10 @@ please follow the [How to test CRDs with CTY Readme](./crd-testing-README.md).
 
 ![crd-unittest-sample-output](./imgs/crd-unittest-outcome.png)
 
+Example project using CTY for CRD validation: [External Secrets Operator](https://github.com/external-secrets/external-secrets/blob/main/.github/workflows/crds.yml).
+
+And the tests locations are [here](https://github.com/external-secrets/external-secrets/tree/3a1c8b8ab51f1bc151ee33c2f555376d1a543f35/tests).
+
 ## Getting started
 
 - Prerequisites: Go installed on your machine. (Check out this link for details: https://go.dev/doc/install)
