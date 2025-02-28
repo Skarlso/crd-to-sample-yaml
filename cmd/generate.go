@@ -17,6 +17,7 @@ type rootArgs struct {
 	privSSHKey         string
 	useSSHAgent        bool
 	gitURL             string
+	stdin              bool
 }
 
 var (
@@ -33,6 +34,7 @@ func init() {
 	rootCmd.AddCommand(generateCmd)
 	// using persistent flags so all flags will be available for all sub commands.
 	f := generateCmd.PersistentFlags()
+	f.BoolVarP(&args.stdin, "stdin", "i", false, "Take CRD content from stdin.")
 	f.StringVarP(&args.fileLocation, "crd", "c", "", "The CRD file to generate a yaml from.")
 	f.StringVarP(&args.folderLocation, "folder", "r", "", "A folder from which to parse a series of CRDs.")
 	f.StringVarP(&args.url, "url", "u", "", "If provided, will use this URL to fetch CRD YAML content from.")
