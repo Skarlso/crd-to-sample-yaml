@@ -15,8 +15,12 @@ type rootArgs struct {
 	tag                string
 	caBundle           string
 	privSSHKey         string
-	useSSHAgent        bool
 	gitURL             string
+	kubeCluster        string
+	group              string
+	version            string
+	resource           string
+	useSSHAgent        bool
 	stdin              bool
 }
 
@@ -36,6 +40,7 @@ func init() {
 	f := generateCmd.PersistentFlags()
 	f.BoolVarP(&args.stdin, "stdin", "i", false, "Take CRD content from stdin.")
 	f.StringVarP(&args.fileLocation, "crd", "c", "", "The CRD file to generate a yaml from.")
+	f.StringVarP(&args.kubeCluster, "kube", "k", "", "Try to access the local cluster and fetch CRD content from there.")
 	f.StringVarP(&args.folderLocation, "folder", "r", "", "A folder from which to parse a series of CRDs.")
 	f.StringVarP(&args.url, "url", "u", "", "If provided, will use this URL to fetch CRD YAML content from.")
 	f.StringVarP(&args.gitURL, "git-url", "g", "", "If provided, CRDs will be discovered using a git repository.")
@@ -47,4 +52,7 @@ func init() {
 	f.StringVar(&args.caBundle, "ca-bundle-file", "", "Additional certificate bundle to load. Should the name of the file.")
 	f.StringVar(&args.privSSHKey, "private-ssh-key-file", "", "Private key to use for cloning. Should the name of the file.")
 	f.BoolVar(&args.useSSHAgent, "ssh-agent", false, "If set, the configured SSH agent will be used to clone the repository..")
+	f.StringVar(&args.group, "group", "apiextensions.k8s.io", "If set, it will look for this group when using Kubernetes Config.")
+	f.StringVar(&args.version, "version", "v1", "If set, it will look for this version when using Kubernetes Config.")
+	f.StringVar(&args.resource, "resource", "customresourcedefinitions", "If set, it will look for this version when using Kubernetes Config.")
 }

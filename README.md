@@ -140,6 +140,21 @@ cty generate crd -r folder
 
 Any other flag will work as before.
 
+### Kubernetes Config
+
+Use `cty` to search for a resource in an existing Kubernetes Cluster.
+
+```
+cty generate crd -k krokcommands.delivery.krok.app
+```
+
+This will look for this CRD in the cluster and generate a sample file for it. If you wish to use a different resource
+that supports `openAPIV3Schema` you can configure the group/version/resource `cty` is looking for.
+
+```
+cty generate crd -k xxtstorageaccounts.crossplane.fnietoga.me --resource CompositeResourceDefinition --group apiextensions.crossplane.io --version v1
+```
+
 ### Config File
 
 It's possible to define a config file that designates groups for various rendered CRDs.
