@@ -128,6 +128,8 @@ func constructHandler(args *rootArgs) (Handler, error) {
 	var crdHandler Handler
 
 	switch {
+	case args.stdin:
+		crdHandler = &StdInHandler{}
 	case args.fileLocation != "":
 		crdHandler = &FileHandler{location: args.fileLocation}
 	case args.folderLocation != "":
