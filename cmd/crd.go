@@ -128,6 +128,13 @@ func constructHandler(args *rootArgs) (Handler, error) {
 	var crdHandler Handler
 
 	switch {
+	case args.kubeCluster != "":
+		crdHandler = &KubeHandler{
+			crd:             args.kubeCluster,
+			resourceGroup:   args.group,
+			resourceVersion: args.version,
+			resource:        args.resource,
+		}
 	case args.stdin:
 		crdHandler = &StdInHandler{}
 	case args.fileLocation != "":
