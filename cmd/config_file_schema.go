@@ -1,5 +1,6 @@
 package cmd
 
+// URLs contains url configuration.
 type URLs struct {
 	URL      string `json:"url"`
 	Username string `json:"username,omitempty"`
@@ -7,6 +8,7 @@ type URLs struct {
 	Token    string `json:"token,omitempty"`
 }
 
+// GITUrls contains git url configuration.
 type GITUrls struct {
 	URL         string `json:"url"`
 	Username    string `json:"username,omitempty"`

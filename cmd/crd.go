@@ -13,7 +13,9 @@ import (
 )
 
 const (
+	// FormatHTML is a setting that is accepted as a format output type. The type is HTML.
 	FormatHTML = "html"
+	// FormatYAML is a setting that is accepted as a format output type. The type is YAML.
 	FormatYAML = "yaml"
 )
 
@@ -35,6 +37,7 @@ type crdGenArgs struct {
 
 var crdArgs = &crdGenArgs{}
 
+// Handler defines an interface for all CRD providers to return Schemas.
 type Handler interface {
 	CRDs() ([]*pkg.SchemaType, error)
 }
@@ -108,7 +111,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 		} else {
 			outputLocation := filepath.Join(crdArgs.output, crd.Kind+"_sample."+crdArgs.format)
 			// closed later during render
-			outputFile, err := os.Create(outputLocation)
+			outputFile, err := os.Create(filepath.Clean(outputLocation))
 			if err != nil {
 				errs = append(errs, fmt.Errorf("failed to create file at: '%s': %w", outputLocation, err))
 

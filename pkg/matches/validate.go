@@ -56,6 +56,7 @@ func Validate(sourceCRD []byte, sampleFile []byte, ignoreErrors []string) error 
 	)
 }
 
+// ValidateCRDValidation takes a definition, converts it from a CRD to an unstructured and runs validation.
 func ValidateCRDValidation(crd *apiextensions.CustomResourceDefinition, sampleFile []byte, ignoreErrors []string) error {
 	reader := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(sampleFile), maxBufferSize)
 	obj := &unstructured.Unstructured{}

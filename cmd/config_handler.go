@@ -3,21 +3,24 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 )
 
+// ConfigHandler contains config.
 type ConfigHandler struct {
 	configFileLocation string
 }
 
+// CRDs returns schema types gathered from a config.
 func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 	if _, err := os.Stat(h.configFileLocation); os.IsNotExist(err) {
 		return nil, fmt.Errorf("file under '%s' does not exist", h.configFileLocation)
 	}
-	content, err := os.ReadFile(h.configFileLocation)
+	content, err := os.ReadFile(filepath.Clean(h.configFileLocation))
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}

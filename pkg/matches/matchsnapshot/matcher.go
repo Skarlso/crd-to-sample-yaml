@@ -14,14 +14,17 @@ import (
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/tests"
 )
 
+// MatcherName is the name of this matcher YAML.
 const MatcherName = "matchSnapshot"
 
+// Config contains configuration details for the Matcher. Path, ignoring errors and minimal setting.
 type Config struct {
 	Path         string   `yaml:"path"`
 	IgnoreErrors []string `yaml:"ignoreErrors,omitempty"`
 	Minimal      bool     `yaml:"minimal"`
 }
 
+// Matcher is a snapshot based matcher.
 type Matcher struct {
 	Updater Updater
 }
@@ -32,6 +35,7 @@ func init() {
 	}, MatcherName)
 }
 
+// Match actually does the matching.
 func (m *Matcher) Match(ctx context.Context, crdLocation string, payload []byte) error {
 	c := Config{}
 	if err := yaml.Unmarshal(payload, &c); err != nil {
@@ -79,7 +83,7 @@ func (m *Matcher) Match(ctx context.Context, crdLocation string, payload []byte)
 		return err
 	}
 
-	content, err := os.ReadFile(crdLocation)
+	content, err := os.ReadFile(filepath.Clean(crdLocation))
 	if err != nil {
 		return fmt.Errorf("failed to read source template: %w", err)
 	}
@@ -89,7 +93,7 @@ func (m *Matcher) Match(ctx context.Context, crdLocation string, payload []byte)
 	for _, s := range snapshots {
 		// one snapshot will contain a single version and the validation
 		// will know which version to check against
-		snapshotContent, err := os.ReadFile(s)
+		snapshotContent, err := os.ReadFile(filepath.Clean(s))
 		if err != nil {
 			return fmt.Errorf("failed to read snapshot template: %w", err)
 		}
