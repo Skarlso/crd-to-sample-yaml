@@ -1,3 +1,5 @@
+// Package main contains the application main code for the WASM codebase.
+
 package main
 
 import (

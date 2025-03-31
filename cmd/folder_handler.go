@@ -13,11 +13,13 @@ import (
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 )
 
+// FolderHandler scans folders and returns schemas found in that folder.
 type FolderHandler struct {
 	location string
 	group    string
 }
 
+// CRDs goes through schemas in folders.
 func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 	if _, err := os.Stat(h.location); os.IsNotExist(err) {
 		return nil, fmt.Errorf("file under '%s' does not exist", h.location)
@@ -40,7 +42,7 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 			return nil
 		}
 
-		content, err := os.ReadFile(path)
+		content, err := os.ReadFile(filepath.Clean(path))
 		if err != nil {
 			return fmt.Errorf("failed to read file: %w", err)
 		}

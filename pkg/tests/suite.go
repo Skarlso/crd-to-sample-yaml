@@ -43,11 +43,13 @@ type SuiteRunner struct {
 	Update   bool
 }
 
+// Test contains all the `Its` and `Asserts` that can be configured.
 type Test struct {
 	It      string                  `json:"it"`
 	Asserts []*apiextensionsv1.JSON `json:"asserts"`
 }
 
+// Suite contains all tests and a template that is the subject of the test.
 type Suite struct {
 	Suite    string `json:"suite"`
 	Tests    []Test `json:"tests"`
@@ -160,7 +162,7 @@ func (s *SuiteRunner) constructTestMatrix() (map[string][]Test, error) {
 	// for each template, gather the `tests`s
 	testMatrix := map[string][]Test{}
 	for _, testFile := range testFiles {
-		content, err := os.ReadFile(testFile)
+		content, err := os.ReadFile(filepath.Clean(testFile))
 		if err != nil {
 			return nil, fmt.Errorf("os.ReadFile() returned %w", err)
 		}

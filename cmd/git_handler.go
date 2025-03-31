@@ -19,6 +19,7 @@ import (
 	"github.com/Skarlso/crd-to-sample-yaml/pkg/sanitize"
 )
 
+// GitHandler contains data to parse git configuration and values.
 type GitHandler struct {
 	URL      string
 	Username string
@@ -32,6 +33,7 @@ type GitHandler struct {
 	group       string // this is used by the configfile.
 }
 
+// CRDs returns a list of crds parsed out from crds contained in a git repository.
 func (g *GitHandler) CRDs() ([]*pkg.SchemaType, error) {
 	opts, err := g.constructGitOptions()
 	if err != nil {

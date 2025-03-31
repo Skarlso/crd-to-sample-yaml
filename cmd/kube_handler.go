@@ -15,6 +15,7 @@ import (
 	"github.com/Skarlso/crd-to-sample-yaml/pkg"
 )
 
+// KubeHandler contains data for a kubernetes resource.
 type KubeHandler struct {
 	crd             string
 	group           string
@@ -23,6 +24,7 @@ type KubeHandler struct {
 	resource        string
 }
 
+// CRDs returns schemas found in a cluster that have been installed.
 func (h *KubeHandler) CRDs() ([]*pkg.SchemaType, error) {
 	kubeconfig := os.Getenv("KUBECONFIG")
 	if kubeconfig == "" {

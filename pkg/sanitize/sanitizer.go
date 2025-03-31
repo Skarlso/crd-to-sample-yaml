@@ -1,9 +1,13 @@
+// Package sanitize contains code regarding cleaning up a template that might contain
+// Helm templating values.
+
 package sanitize
 
 import (
 	"bytes"
 )
 
+// Sanitize takes a content and removes any potential Helm related values in the template.
 func Sanitize(content []byte) ([]byte, error) {
 	// bail early if there are no template characters in the CRD
 	if !bytes.Contains(content, []byte("{{")) {

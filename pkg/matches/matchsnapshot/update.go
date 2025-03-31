@@ -25,7 +25,7 @@ type Update struct{}
 
 // Update any given files in the snapshots.
 func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation string, minimal bool) error {
-	sourceTemplate, err := os.ReadFile(sourceTemplateLocation)
+	sourceTemplate, err := os.ReadFile(filepath.Clean(sourceTemplateLocation))
 	if err != nil {
 		return err
 	}
@@ -45,9 +45,9 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 		if minimal {
 			name = baseName + "-" + version.Name + ".min.yaml"
 		}
-		file, err := os.OpenFile(filepath.Join(targetSnapshotLocation, name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+		file, err := os.OpenFile(filepath.Clean(filepath.Join(targetSnapshotLocation, name)), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
 		if err != nil {
-			return fmt.Errorf("failed to open file %s: %w", filepath.Join(targetSnapshotLocation, name), err)
+			return fmt.Errorf("failed to open file %s: %w", filepath.Clean(filepath.Join(targetSnapshotLocation, name)), err)
 		}
 
 		parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, minimal, true)
@@ -65,12 +65,14 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 		if minimal {
 			name = baseName + "-" + schemaType.Validation.Name + ".min.yaml"
 		}
-		file, err := os.OpenFile(filepath.Join(targetSnapshotLocation, name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+		file, err := os.OpenFile(filepath.Clean(filepath.Join(targetSnapshotLocation, name)), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
 		if err != nil {
-			return fmt.Errorf("failed to open file %s: %w", filepath.Join(targetSnapshotLocation, name), err)
+			return fmt.Errorf("failed to open file %s: %w", filepath.Clean(filepath.Join(targetSnapshotLocation, name)), err)
 		}
 
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 
 		schemaType.Validation.Schema.Properties["kind"] = v1beta1.JSONSchemaProps{}
 		schemaType.Validation.Schema.Properties["apiVersion"] = v1beta1.JSONSchemaProps{}

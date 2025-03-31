@@ -36,7 +36,7 @@ func init() {
 
 func runTest(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
-		fmt.Fprintf(os.Stderr, "test needs an argument where the tests are located at")
+		_, _ = fmt.Fprintf(os.Stderr, "test needs an argument where the tests are located at")
 
 		os.Exit(1)
 	}
@@ -81,7 +81,7 @@ func displayWarnings(warnings []tests.Outcome) error {
 	t.AppendSeparator()
 	t.Render()
 
-	fmt.Fprintf(os.Stdout, "\nTests total: %d, failed: %d, passed: %d\n", len(warnings), errs, len(warnings)-errs)
+	_, _ = fmt.Fprintf(os.Stdout, "\nTests total: %d, failed: %d, passed: %d\n", len(warnings), errs, len(warnings)-errs)
 
 	if errs > 0 {
 		return fmt.Errorf("%d test(s) failed", errs)
