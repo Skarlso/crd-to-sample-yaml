@@ -1,7 +1,7 @@
-import * as vscode from 'vscode';
-import * as cp from 'child_process';
+import {workspace} from "vscode";
+import {exec, execFile} from "node:child_process";
 import * as path from 'path';
-import * as fs from 'fs';
+import {promises} from "node:fs";
 
 export interface GenerationOptions {
     minimal: boolean;
@@ -12,18 +12,18 @@ export interface GenerationOptions {
 
 export class CtyService {
     private getCtyPath(): string {
-        const config = vscode.workspace.getConfiguration('crdToSampleYaml');
+        const config = workspace.getConfiguration('crdToSampleYaml');
         return config.get<string>('ctyPath', 'cty');
     }
 
     private getOutputLocation(): string {
-        const config = vscode.workspace.getConfiguration('crdToSampleYaml');
+        const config = workspace.getConfiguration('crdToSampleYaml');
         const outputLocation = config.get<string>('outputLocation', 'workspace');
         const customPath = config.get<string>('customOutputPath', '');
 
         let workspacePath = '';
-        if (vscode.workspace.workspaceFolders?.length) {
-            workspacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        if (workspace.workspaceFolders?.length) {
+            workspacePath = workspace.workspaceFolders[0].uri.fsPath;
             workspacePath = path.normalize(workspacePath);
         }
 
@@ -42,7 +42,7 @@ export class CtyService {
     async checkCtyAvailable(): Promise<boolean> {
         return new Promise((resolve) => {
             const ctyPath = this.getCtyPath();
-            cp.exec(`"${ctyPath}" version`, (error) => {
+            exec(`"${ctyPath}" version`, (error) => {
                 resolve(!error);
             });
         });
@@ -72,9 +72,8 @@ export class CtyService {
 
         return new Promise((resolve, reject) => {
             const command = `"${ctyPath}" ${args.join(' ')}`;
-            
 
-            cp.exec(command, { cwd: absoluteOutputDir }, (error, stdout, stderr) => {
+            execFile(ctyPath, args, { cwd: absoluteOutputDir }, (error, stdout, stderr) => {
                 if (error) {
                     reject(new Error(`CTY execution failed: ${error.message}\nStderr: ${stderr}`));
                     return;
@@ -101,7 +100,7 @@ export class CtyService {
         return new Promise((resolve, reject) => {
             const command = `"${ctyPath}" ${args.join(' ')}`;
             
-            cp.exec(command, (error, stdout, stderr) => {
+            exec(command, (error, stdout, stderr) => {
                 if (error) {
                     reject(new Error(`CTY execution failed: ${error.message}\nStderr: ${stderr}`));
                     return;
@@ -125,7 +124,7 @@ export class CtyService {
         const absoluteOutputDir = path.resolve(targetOutputDir);
         
         try {
-            const crdContent = await fs.promises.readFile(crdPath, 'utf8');
+            const crdContent = await promises.readFile(crdPath, 'utf8');
             const yaml = require('js-yaml');
             const parsed = yaml.load(crdContent) as any;
             const kind = parsed.spec?.names?.kind || path.basename(crdPath, path.extname(crdPath));
