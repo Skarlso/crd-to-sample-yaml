@@ -129,46 +129,44 @@ export class CRDProvider implements vscode.CodeLensProvider, vscode.HoverProvide
                 cancellable: false
             }, async (progress) => {
                 progress.report({ increment: 30, message: "Processing CRD..." });
-                progress.report({ increment: 70, message: "Creating output file..." });
                 
+                // Add output path for custom location
+                const config = vscode.workspace.getConfiguration('crdToSampleYaml');
+                const outputLocation = config.get<string>('outputLocation', 'workspace');
+                const customPath = config.get<string>('customOutputPath', '');
+                
+                if (outputLocation === 'custom' && customPath) {
+                    defaultOptions.output = customPath;
+                }
+                
+                // Actually generate the sample
+                console.log(`Generating sample for: ${targetUri.fsPath}`, defaultOptions);
+                await this.ctyService.generateSample(targetUri.fsPath, defaultOptions);
+                
+                progress.report({ increment: 70, message: "Opening generated file..." });
+                
+                // Get the expected output path and open the file
                 const samplePath = await this.ctyService.getGeneratedSamplePath(targetUri.fsPath, defaultOptions);
-                const fs = require('fs');
-                console.log(`Looking for sample file at: ${samplePath}`);
+                console.log(`Expected sample path: ${samplePath}`);
                 
+                // Check if file exists before trying to open it
+                const fs = require('fs');
                 if (!fs.existsSync(samplePath)) {
-                    // Try to find the generated file by pattern in the expected directory
-                    const outputDir = require('path').dirname(samplePath);
-                    console.log(`Sample file not found, searching in directory: ${outputDir}`);
-                    
+                    // List what files are actually in the directory
+                    const outputDir = path.dirname(samplePath);
                     try {
                         const files = fs.readdirSync(outputDir);
-                        console.log(`Files in output directory: ${files.join(', ')}`);
-                        const sampleFiles = files.filter((f: string) => f.includes('_sample.') || f.includes('sample.'));
-                        
-                        if (sampleFiles.length > 0) {
-                            const actualSamplePath = require('path').join(outputDir, sampleFiles[0]);
-                            console.log(`Found sample file: ${actualSamplePath}`);
-                            const sampleUri = vscode.Uri.file(actualSamplePath);
-                            const sampleDocument = await vscode.workspace.openTextDocument(sampleUri);
-                            await vscode.window.showTextDocument(sampleDocument, vscode.ViewColumn.Beside);
-                            
-                            vscode.window.showInformationMessage(`Sample generated: ${sampleFiles[0]}`);
-                            return;
-                        } else {
-                            console.log(`No sample files found in directory: ${outputDir}`);
-                            throw new Error(`Generated sample file not found. Expected: ${samplePath}\nFiles in directory: ${files.join(', ')}`);
-                        }
+                        console.log(`Files in output directory ${outputDir}:`, files);
+                        throw new Error(`Generated sample file not found at: ${samplePath}\nFiles in directory: ${files.join(', ')}`);
                     } catch (dirError) {
-                        throw new Error(`Cannot access output directory: ${outputDir}. Error: ${dirError}`);
+                        throw new Error(`Generated sample file not found at: ${samplePath}\nCannot read directory: ${outputDir}`);
                     }
                 }
                 
-                // Open the generated file
                 const sampleUri = vscode.Uri.file(samplePath);
                 const sampleDocument = await vscode.workspace.openTextDocument(sampleUri);
                 await vscode.window.showTextDocument(sampleDocument, vscode.ViewColumn.Beside);
                 
-                const config = vscode.workspace.getConfiguration('crdToSampleYaml');
                 const showNotifications = config.get<boolean>('showNotifications', true);
                 
                 if (showNotifications) {

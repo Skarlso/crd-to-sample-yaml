@@ -50,35 +50,37 @@ export class CtyService {
 
     async generateSample(filePath: string, options: GenerationOptions): Promise<string> {
         const ctyPath = this.getCtyPath();
-        const outputDir = this.getOutputLocation();
-        
+
         const args = ['generate', 'crd', '-c', path.resolve(filePath)];
-        
+
         if (options.minimal) {
             args.push('--minimal');
         }
-        
+
         if (options.comments) {
             args.push('--comments');
         }
-        
+
         if (options.format && options.format !== 'yaml') {
             args.push('--format', options.format);
         }
 
-        const targetOutputDir = options.output || outputDir || path.dirname(filePath);
-        const absoluteOutputDir = path.resolve(targetOutputDir);
+        // Always specify output directory to avoid files being created next to CTY binary
+        const outputDir = options.output || path.dirname(filePath);
+        const absoluteOutputDir = path.resolve(outputDir);
         args.push('--output', absoluteOutputDir);
 
         return new Promise((resolve, reject) => {
-            const command = `"${ctyPath}" ${args.join(' ')}`;
-
-            execFile(ctyPath, args, { cwd: absoluteOutputDir }, (error, stdout, stderr) => {
+            console.log(`Executing: ${ctyPath} ${args.join(' ')}`);
+            execFile(ctyPath, args, (error, stdout, stderr) => {
                 if (error) {
+                    console.error(`CTY execution failed:`, error);
+                    console.error(`Stderr:`, stderr);
                     reject(new Error(`CTY execution failed: ${error.message}\nStderr: ${stderr}`));
                     return;
                 }
                 
+                console.log(`CTY stdout:`, stdout);
                 resolve(stdout);
             });
         });
@@ -86,20 +88,20 @@ export class CtyService {
 
     async generateSampleToString(filePath: string, options: GenerationOptions): Promise<string> {
         const ctyPath = this.getCtyPath();
-        
+
         const args = ['generate', 'crd', '-c', filePath, '--stdout'];
-        
+
         if (options.minimal) {
             args.push('--minimal');
         }
-        
+
         if (options.comments) {
             args.push('--comments');
         }
 
         return new Promise((resolve, reject) => {
             const command = `"${ctyPath}" ${args.join(' ')}`;
-            
+
             exec(command, (error, stdout, stderr) => {
                 if (error) {
                     reject(new Error(`CTY execution failed: ${error.message}\nStderr: ${stderr}`));
@@ -119,14 +121,15 @@ export class CtyService {
     }
 
     async getGeneratedSamplePath(crdPath: string, options: GenerationOptions): Promise<string> {
-        const outputDir = this.getOutputLocation();
-        const targetOutputDir = options.output || outputDir || path.dirname(crdPath);
+        // We always specify --output, so files are created in the specified directory
+        const targetOutputDir = options.output || path.dirname(crdPath);
         const absoluteOutputDir = path.resolve(targetOutputDir);
         
         try {
             const crdContent = await promises.readFile(crdPath, 'utf8');
             const yaml = require('js-yaml');
             const parsed = yaml.load(crdContent) as any;
+            // CTY uses the Kind field for filename: Kind+"_sample."+format
             const kind = parsed.spec?.names?.kind || path.basename(crdPath, path.extname(crdPath));
             const extension = options.format === 'html' ? 'html' : 'yaml';
             
