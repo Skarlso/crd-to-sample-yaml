@@ -10,6 +10,9 @@ on:
     paths:
       - 'vscode-extension/**'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -25,6 +28,11 @@ jobs:
         cache: 'npm'
         cache-dependency-path: vscode-extension/package-lock.json
         
+    - name: Install dependencies
+      run: |
+        cd vscode-extension
+        npm ci
+        
     - name: Run linter
       run: |
         cd vscode-extension
@@ -34,6 +42,11 @@ jobs:
       run: |
         cd vscode-extension
         npm run compile
+        
+    - name: Setup display server
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
         
     - name: Run tests
       run: |
