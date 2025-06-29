@@ -1,0 +1,153 @@
+{
+  "name": "crd-to-sample-yaml",
+  "displayName": "CRD to Sample YAML",
+  "description": "Generate sample YAML files from Kubernetes Custom Resource Definitions",
+  "version": "0.1.0",
+  "publisher": "skarlso",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Skarlso/crd-to-sample-yaml"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "Snippets",
+    "Formatters"
+  ],
+  "keywords": [
+    "kubernetes",
+    "crd",
+    "yaml",
+    "sample",
+    "generator"
+  ],
+  "activationEvents": [
+    "onLanguage:yaml"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "crdToSampleYaml.generateSample",
+        "title": "Generate Sample YAML",
+        "category": "CRD"
+      },
+      {
+        "command": "crdToSampleYaml.generateMinimalSample",
+        "title": "Generate Minimal Sample YAML",
+        "category": "CRD"
+      },
+      {
+        "command": "crdToSampleYaml.generateSampleWithComments",
+        "title": "Generate Sample YAML with Comments",
+        "category": "CRD"
+      },
+      {
+        "command": "crdToSampleYaml.validateSample",
+        "title": "Validate Sample Against CRD",
+        "category": "CRD"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "crdToSampleYaml.generateSample",
+          "when": "resourceExtname == .yaml && editorHasSelection",
+          "group": "crd@1"
+        },
+        {
+          "command": "crdToSampleYaml.generateMinimalSample",
+          "when": "resourceExtname == .yaml && editorHasSelection",
+          "group": "crd@2"
+        },
+        {
+          "command": "crdToSampleYaml.generateSampleWithComments",
+          "when": "resourceExtname == .yaml && editorHasSelection",
+          "group": "crd@3"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "crdToSampleYaml.generateSample",
+          "when": "resourceExtname == .yaml",
+          "group": "crd@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "CRD to Sample YAML",
+      "properties": {
+        "crdToSampleYaml.ctyPath": {
+          "type": "string",
+          "default": "cty",
+          "description": "Path to the cty binary. If not set, it will try to find it in PATH."
+        },
+        "crdToSampleYaml.outputLocation": {
+          "type": "string",
+          "default": "workspace",
+          "enum": [
+            "workspace",
+            "temp",
+            "custom"
+          ],
+          "description": "Where to save generated sample files"
+        },
+        "crdToSampleYaml.customOutputPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom path for output files (used when outputLocation is 'custom')"
+        },
+        "crdToSampleYaml.autoDetectCRDs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically detect CRD files and show code lenses"
+        },
+        "crdToSampleYaml.showNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show notifications when samples are generated"
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "yaml",
+        "extensions": [
+          ".yaml",
+          ".yml"
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "npm run compile && node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "18.x",
+    "@types/sinon": "^17.0.4",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.3.4",
+    "@vscode/vsce": "^2.19.0",
+    "eslint": "^8.47.0",
+    "glob": "^11.0.3",
+    "mocha": "^11.7.1",
+    "sinon": "^21.0.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}
