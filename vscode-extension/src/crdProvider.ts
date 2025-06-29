@@ -149,7 +149,7 @@ export class CRDProvider implements vscode.CodeLensProvider, vscode.HoverProvide
                 const samplePath = await this.ctyService.getGeneratedSamplePath(targetUri.fsPath, defaultOptions);
                 console.log(`Expected sample path: ${samplePath}`);
                 
-                // Check if file exists before trying to open it
+                // Check if a file exists before trying to open it
                 const fs = require('fs');
                 if (!fs.existsSync(samplePath)) {
                     // List what files are actually in the directory

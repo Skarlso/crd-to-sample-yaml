@@ -65,7 +65,7 @@ export class CtyService {
             args.push('--format', options.format);
         }
 
-        // Always specify output directory to avoid files being created next to CTY binary
+        // Always specify the output directory to avoid files being created next to CTY binary
         const outputDir = options.output || path.dirname(filePath);
         const absoluteOutputDir = path.resolve(outputDir);
         args.push('--output', absoluteOutputDir);

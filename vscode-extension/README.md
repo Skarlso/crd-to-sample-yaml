@@ -116,3 +116,25 @@ Check that `autoDetectCRDs` is enabled and you're viewing a valid CRD file.
 Run `cty version` to verify installation, then try `cty generate crd -c yourfile.yaml` manually.
 
 Files are created in the same directory as the CRD by default, or in your configured output location.
+
+
+# Testing
+
+To run tests:
+
+```bash
+npm run test
+```
+
+To compile and run:
+
+```bash
+# Compile TypeScript
+npm run compile
+
+# Run linter
+npm run lint
+
+# Run tests only (after compilation)
+node ./out/test/runTest.js
+```

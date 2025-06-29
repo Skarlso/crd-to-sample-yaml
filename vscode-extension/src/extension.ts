@@ -67,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
         fileWatcher
     );
 
-    // Show welcome message on first activation
+    // Show a welcome message on first activation
     const hasShownWelcome = context.globalState.get('hasShownWelcome', false);
     if (!hasShownWelcome) {
         vscode.window.showInformationMessage(

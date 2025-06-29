@@ -17,11 +17,19 @@ please follow the [How to test CRDs with CTY Readme](./crd-testing-README.md).
 
 Example project using CTY for CRD validation: [External Secrets Operator](https://github.com/external-secrets/external-secrets/blob/main/.github/workflows/crds.yml).
 
-And the tests locations are [here](https://github.com/external-secrets/external-secrets/tree/3a1c8b8ab51f1bc151ee33c2f555376d1a543f35/tests).
+And the test locations are [here](https://github.com/external-secrets/external-secrets/tree/3a1c8b8ab51f1bc151ee33c2f555376d1a543f35/tests).
 
 ## Schema validation between versions
 
-For information on this feature please see [Schema Validation README](SCHEMA_VALIDATION.md).
+For information on this feature, please see [Schema Validation README](SCHEMA_VALIDATION.md).
+
+## vscode extension
+
+Under [vscode-extension](./vscode-extension) you can find an extension for CTY for vscode browser.
+
+However, actions and intellisense is available to generate samples for a CRD in the current window.
+
+![vscode-extension-showcase-1.png](./imgs/vscode-extension-showcase-1.png)
 
 ## Getting started
 

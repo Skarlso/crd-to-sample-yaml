@@ -73,20 +73,16 @@ export class CRDDetector {
         }
 
         // Check for CRD-like structure
-        if (parsed.spec && 
-            parsed.spec.names && 
-            parsed.spec.group && 
-            (parsed.spec.versions || parsed.spec.version)) {
-            return true;
-        }
-
-        return false;
+        return !!(parsed.spec &&
+            parsed.spec.names &&
+            parsed.spec.group &&
+            (parsed.spec.versions || parsed.spec.version));
     }
 
     async detectCRDsInWorkspace(): Promise<vscode.Uri[]> {
         const crdFiles: vscode.Uri[] = [];
         
-        // Find all YAML files in workspace
+        // Find all YAML files in a workspace
         const yamlFiles = await vscode.workspace.findFiles('**/*.{yaml,yml}', '**/node_modules/**');
         
         for (const file of yamlFiles) {
@@ -99,7 +95,6 @@ export class CRDDetector {
                 }
             } catch (error) {
                 // Skip files that can't be read or parsed
-                continue;
             }
         }
         
