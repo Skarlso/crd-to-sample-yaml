@@ -30,6 +30,7 @@
     <depends>org.jetbrains.plugins.yaml</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.skarlso.crdtosampleyaml.settings.CtySettings"/>
         <projectConfigurable 
             parentId="tools" 
             instance="com.skarlso.crdtosampleyaml.settings.CtyConfigurable"

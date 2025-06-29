@@ -76,24 +76,25 @@ public class CtyService {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(ctyPath);
         commandLine.addParameter("generate");
+        commandLine.addParameter("crd");
         
+        // Add CRD file parameter
+        commandLine.addParameter("-c");
+        commandLine.addParameter(crdFile.getPath());
+        
+        // Add type-specific flags
         switch (type) {
             case MINIMAL:
-                commandLine.addParameter("crd");
-                commandLine.addParameter("-m");
+                commandLine.addParameter("-l");
                 break;
             case WITH_COMMENTS:
-                commandLine.addParameter("crd");
-                commandLine.addParameter("-c");
+                commandLine.addParameter("-m");
                 break;
             case COMPLETE:
             default:
-                commandLine.addParameter("crd");
+                // No additional flags for complete
                 break;
         }
-        
-        commandLine.addParameter("-f");
-        commandLine.addParameter(crdFile.getPath());
         
         // Set output directory to same as CRD file
         String outputDir = crdFile.getParent().getPath();
@@ -140,19 +141,10 @@ public class CtyService {
     }
     
     private String getOutputPath(VirtualFile crdFile, GenerationType type) {
-        String baseName = crdFile.getNameWithoutExtension();
-        String suffix = "";
-        
-        switch (type) {
-            case MINIMAL:
-                suffix = "_minimal";
-                break;
-            case WITH_COMMENTS:
-                suffix = "_with_comments";
-                break;
-        }
-        
-        return crdFile.getParent().getPath() + "/" + baseName + suffix + "_sample.yaml";
+        // CTY generates files based on the Kind name from CRD, not filename
+        // We'll show the directory and let the user discover the actual filename
+        String outputDir = crdFile.getParent().getPath();
+        return outputDir + "/*_sample.yaml (check output directory for generated file)";
     }
     
     private void showSuccess(String message) {

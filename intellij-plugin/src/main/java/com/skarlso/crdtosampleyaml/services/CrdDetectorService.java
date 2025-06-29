@@ -57,10 +57,18 @@ public class CrdDetectorService {
             String kind = (String) yamlMap.get("kind");
             String apiVersion = (String) yamlMap.get("apiVersion");
             
-            return "CustomResourceDefinition".equals(kind) && 
-                   apiVersion != null && 
-                   apiVersion.startsWith("apiextensions.k8s.io/");
+            boolean isCrd = "CustomResourceDefinition".equals(kind) && 
+                           apiVersion != null && 
+                           apiVersion.startsWith("apiextensions.k8s.io/");
+            
+            // Debug logging to help troubleshoot
+            if (!isCrd) {
+                System.out.println("CRD Detection Debug - Kind: " + kind + ", ApiVersion: " + apiVersion);
+            }
+            
+            return isCrd;
         } catch (Exception e) {
+            System.out.println("CRD Detection Error: " + e.getMessage());
             return false;
         }
     }
