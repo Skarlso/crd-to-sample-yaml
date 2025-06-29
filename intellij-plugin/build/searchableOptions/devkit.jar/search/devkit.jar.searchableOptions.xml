@@ -1,0 +1,117 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="" path="ActionManager" hit="" />
+    <option name="action" path="ActionManager" hit="Action" />
+    <option name="analyze" path="ActionManager" hit="Analyze Extension Point Usage" />
+    <option name="extension" path="ActionManager" hit="Analyze Extension Point Usage" />
+    <option name="point" path="ActionManager" hit="Analyze Extension Point Usage" />
+    <option name="usage" path="ActionManager" hit="Analyze Extension Point Usage" />
+    <option name="analyze" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="do" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="extension" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="follow" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="not" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="point" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="safe" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="types" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="usage" path="ActionManager" hit="Analyze Extension Point Usage (Do not Follow Safe Types)" />
+    <option name="analyze" path="ActionManager" hit="Analyze Unloadable Plugins" />
+    <option name="plugins" path="ActionManager" hit="Analyze Unloadable Plugins" />
+    <option name="unloadable" path="ActionManager" hit="Analyze Unloadable Plugins" />
+    <option name="an" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="and" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="builds" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="by" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="current" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="currently" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="from" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="idea" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="installation" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="intellij" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="it" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="of" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="opened" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="replace" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="sources" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="the" path="ActionManager" hit="Builds an installation of IntelliJ IDEA from the currently opened sources and replace the current installation by it." />
+    <option name="action" path="ActionManager" hit="Create new action" />
+    <option name="create" path="ActionManager" hit="Create new action" />
+    <option name="new" path="ActionManager" hit="Create new action" />
+    <option name="a" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="and" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="bundle" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="class" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="corresponding" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="creates" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="file" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="message" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="new" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="properties" path="ActionManager" hit="Creates a new message bundle class and corresponding properties file" />
+    <option name="data" path="ActionManager" hit="Dump Highlighting-Markup-Free Data" />
+    <option name="dump" path="ActionManager" hit="Dump Highlighting-Markup-Free Data" />
+    <option name="highlighting-markup-free" path="ActionManager" hit="Dump Highlighting-Markup-Free Data" />
+    <option name="color" path="ActionManager" hit="Edit Editor Color Scheme" />
+    <option name="edit" path="ActionManager" hit="Edit Editor Color Scheme" />
+    <option name="editor" path="ActionManager" hit="Edit Editor Color Scheme" />
+    <option name="scheme" path="ActionManager" hit="Edit Editor Color Scheme" />
+    <option name="externalization" path="ActionManager" hit="Generate Externalization" />
+    <option name="generate" path="ActionManager" hit="Generate Externalization" />
+    <option name="generate" path="ActionManager" hit="Generate Workspace Model Implementation" />
+    <option name="implementation" path="ActionManager" hit="Generate Workspace Model Implementation" />
+    <option name="model" path="ActionManager" hit="Generate Workspace Model Implementation" />
+    <option name="workspace" path="ActionManager" hit="Generate Workspace Model Implementation" />
+    <option name="bundle" path="ActionManager" hit="Message Bundle" />
+    <option name="message" path="ActionManager" hit="Message Bundle" />
+    <option name="data" path="ActionManager" hit="Navigate to Test Data" />
+    <option name="navigate" path="ActionManager" hit="Navigate to Test Data" />
+    <option name="test" path="ActionManager" hit="Navigate to Test Data" />
+    <option name="to" path="ActionManager" hit="Navigate to Test Data" />
+    <option name="documentation" path="ActionManager" hit="Open UI Themes Reference Documentation" />
+    <option name="open" path="ActionManager" hit="Open UI Themes Reference Documentation" />
+    <option name="reference" path="ActionManager" hit="Open UI Themes Reference Documentation" />
+    <option name="themes" path="ActionManager" hit="Open UI Themes Reference Documentation" />
+    <option name="ui" path="ActionManager" hit="Open UI Themes Reference Documentation" />
+    <option name="all" path="ActionManager" hit="Prepare All Plugins To Deploy" />
+    <option name="deploy" path="ActionManager" hit="Prepare All Plugins To Deploy" />
+    <option name="plugins" path="ActionManager" hit="Prepare All Plugins To Deploy" />
+    <option name="prepare" path="ActionManager" hit="Prepare All Plugins To Deploy" />
+    <option name="to" path="ActionManager" hit="Prepare All Plugins To Deploy" />
+    <option name="deploy" path="ActionManager" hit="Prepare To Deploy" />
+    <option name="prepare" path="ActionManager" hit="Prepare To Deploy" />
+    <option name="to" path="ActionManager" hit="Prepare To Deploy" />
+    <option name="preview" path="ActionManager" hit="Preview Theme" />
+    <option name="theme" path="ActionManager" hit="Preview Theme" />
+    <option name="by" path="ActionManager" hit="Show Help Page by ID" />
+    <option name="help" path="ActionManager" hit="Show Help Page by ID" />
+    <option name="id" path="ActionManager" hit="Show Help Page by ID" />
+    <option name="page" path="ActionManager" hit="Show Help Page by ID" />
+    <option name="show" path="ActionManager" hit="Show Help Page by ID" />
+    <option name="class" path="ActionManager" hit="Show Serialized XML for Class" />
+    <option name="for" path="ActionManager" hit="Show Serialized XML for Class" />
+    <option name="serialized" path="ActionManager" hit="Show Serialized XML for Class" />
+    <option name="show" path="ActionManager" hit="Show Serialized XML for Class" />
+    <option name="xml" path="ActionManager" hit="Show Serialized XML for Class" />
+    <option name="anonymize" path="ActionManager" hit="Shuffle/Scramble/Anonymize/Permute Names" />
+    <option name="names" path="ActionManager" hit="Shuffle/Scramble/Anonymize/Permute Names" />
+    <option name="permute" path="ActionManager" hit="Shuffle/Scramble/Anonymize/Permute Names" />
+    <option name="scramble" path="ActionManager" hit="Shuffle/Scramble/Anonymize/Permute Names" />
+    <option name="shuffle" path="ActionManager" hit="Shuffle/Scramble/Anonymize/Permute Names" />
+    <option name="preview" path="ActionManager" hit="Stop Theme Preview" />
+    <option name="stop" path="ActionManager" hit="Stop Theme Preview" />
+    <option name="theme" path="ActionManager" hit="Stop Theme Preview" />
+    <option name="theme" path="ActionManager" hit="Theme" />
+    <option name="expected" path="ActionManager" hit="Toggle Expected Highlighting Markup" />
+    <option name="highlighting" path="ActionManager" hit="Toggle Expected Highlighting Markup" />
+    <option name="markup" path="ActionManager" hit="Toggle Expected Highlighting Markup" />
+    <option name="toggle" path="ActionManager" hit="Toggle Expected Highlighting Markup" />
+    <option name="from" path="ActionManager" hit="Update IDE from Sources Settings…" />
+    <option name="ide" path="ActionManager" hit="Update IDE from Sources Settings…" />
+    <option name="settings" path="ActionManager" hit="Update IDE from Sources Settings…" />
+    <option name="sources" path="ActionManager" hit="Update IDE from Sources Settings…" />
+    <option name="update" path="ActionManager" hit="Update IDE from Sources Settings…" />
+    <option name="from" path="ActionManager" hit="Update IDE from Sources…" />
+    <option name="ide" path="ActionManager" hit="Update IDE from Sources…" />
+    <option name="sources" path="ActionManager" hit="Update IDE from Sources…" />
+    <option name="update" path="ActionManager" hit="Update IDE from Sources…" />
+  </configurable>
+</options>

@@ -1,0 +1,71 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="generate" path="ActionManager" hit="Generate Minimal Sample YAML" />
+    <option name="minimal" path="ActionManager" hit="Generate Minimal Sample YAML" />
+    <option name="sample" path="ActionManager" hit="Generate Minimal Sample YAML" />
+    <option name="yaml" path="ActionManager" hit="Generate Minimal Sample YAML" />
+    <option name="generate" path="ActionManager" hit="Generate Sample YAML" />
+    <option name="sample" path="ActionManager" hit="Generate Sample YAML" />
+    <option name="yaml" path="ActionManager" hit="Generate Sample YAML" />
+    <option name="comments" path="ActionManager" hit="Generate Sample YAML with Comments" />
+    <option name="generate" path="ActionManager" hit="Generate Sample YAML with Comments" />
+    <option name="sample" path="ActionManager" hit="Generate Sample YAML with Comments" />
+    <option name="with" path="ActionManager" hit="Generate Sample YAML with Comments" />
+    <option name="yaml" path="ActionManager" hit="Generate Sample YAML with Comments" />
+    <option name="a" path="ActionManager" hit="Generate a complete sample YAML from CRD" />
+    <option name="complete" path="ActionManager" hit="Generate a complete sample YAML from CRD" />
+    <option name="crd" path="ActionManager" hit="Generate a complete sample YAML from CRD" />
+    <option name="from" path="ActionManager" hit="Generate a complete sample YAML from CRD" />
+    <option name="generate" path="ActionManager" hit="Generate a complete sample YAML from CRD" />
+    <option name="sample" path="ActionManager" hit="Generate a complete sample YAML from CRD" />
+    <option name="yaml" path="ActionManager" hit="Generate a complete sample YAML from CRD" />
+    <option name="a" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="fields" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="generate" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="minimal" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="only" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="required" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="sample" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="with" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="yaml" path="ActionManager" hit="Generate a minimal sample YAML with required fields only" />
+    <option name="a" path="ActionManager" hit="Generate a sample YAML with field descriptions" />
+    <option name="descriptions" path="ActionManager" hit="Generate a sample YAML with field descriptions" />
+    <option name="field" path="ActionManager" hit="Generate a sample YAML with field descriptions" />
+    <option name="generate" path="ActionManager" hit="Generate a sample YAML with field descriptions" />
+    <option name="sample" path="ActionManager" hit="Generate a sample YAML with field descriptions" />
+    <option name="with" path="ActionManager" hit="Generate a sample YAML with field descriptions" />
+    <option name="yaml" path="ActionManager" hit="Generate a sample YAML with field descriptions" />
+    <option name="against" path="ActionManager" hit="Validate Sample Against CRD" />
+    <option name="crd" path="ActionManager" hit="Validate Sample Against CRD" />
+    <option name="sample" path="ActionManager" hit="Validate Sample Against CRD" />
+    <option name="validate" path="ActionManager" hit="Validate Sample Against CRD" />
+    <option name="a" path="ActionManager" hit="Validate a sample YAML against its CRD schema" />
+    <option name="against" path="ActionManager" hit="Validate a sample YAML against its CRD schema" />
+    <option name="crd" path="ActionManager" hit="Validate a sample YAML against its CRD schema" />
+    <option name="its" path="ActionManager" hit="Validate a sample YAML against its CRD schema" />
+    <option name="sample" path="ActionManager" hit="Validate a sample YAML against its CRD schema" />
+    <option name="schema" path="ActionManager" hit="Validate a sample YAML against its CRD schema" />
+    <option name="validate" path="ActionManager" hit="Validate a sample YAML against its CRD schema" />
+    <option name="yaml" path="ActionManager" hit="Validate a sample YAML against its CRD schema" />
+  </configurable>
+  <configurable id="com.skarlso.crdtosampleyaml.settings.CtyConfigurable" configurable_name="CRD to Sample YAML">
+    <option name="crd" hit="CRD to Sample YAML" />
+    <option name="sample" hit="CRD to Sample YAML" />
+    <option name="to" hit="CRD to Sample YAML" />
+    <option name="yaml" hit="CRD to Sample YAML" />
+    <option name="binary" hit="CTY Binary Path:" />
+    <option name="cty" hit="CTY Binary Path:" />
+    <option name="path" hit="CTY Binary Path:" />
+    <option name="custom" hit="Custom Output Directory:" />
+    <option name="directory" hit="Custom Output Directory:" />
+    <option name="output" hit="Custom Output Directory:" />
+    <option name="location" hit="Output Location:" />
+    <option name="output" hit="Output Location:" />
+    <option name="notifications" hit="Show notifications" />
+    <option name="show" hit="Show notifications" />
+    <option name="custom" hit="custom_directory" />
+    <option name="directory" hit="custom_directory" />
+    <option name="directory" hit="same_directory" />
+    <option name="same" hit="same_directory" />
+  </configurable>
+</options>

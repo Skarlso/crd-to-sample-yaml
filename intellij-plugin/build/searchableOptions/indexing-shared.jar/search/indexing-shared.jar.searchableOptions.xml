@@ -1,0 +1,53 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="" path="ActionManager" hit="" />
+    <option name="download" path="ActionManager" hit="Download Shared Indexes" />
+    <option name="indexes" path="ActionManager" hit="Download Shared Indexes" />
+    <option name="shared" path="ActionManager" hit="Download Shared Indexes" />
+    <option name="consent" path="ActionManager" hit="Notify Shared Index Consent" />
+    <option name="index" path="ActionManager" hit="Notify Shared Index Consent" />
+    <option name="notify" path="ActionManager" hit="Notify Shared Index Consent" />
+    <option name="shared" path="ActionManager" hit="Notify Shared Index Consent" />
+    <option name="downloaded" path="ActionManager" hit="Notify Shared Index Downloaded" />
+    <option name="index" path="ActionManager" hit="Notify Shared Index Downloaded" />
+    <option name="notify" path="ActionManager" hit="Notify Shared Index Downloaded" />
+    <option name="shared" path="ActionManager" hit="Notify Shared Index Downloaded" />
+    <option name="current" path="ActionManager" hit="Restarts pre-built shared indexes download for current project" />
+    <option name="download" path="ActionManager" hit="Restarts pre-built shared indexes download for current project" />
+    <option name="for" path="ActionManager" hit="Restarts pre-built shared indexes download for current project" />
+    <option name="indexes" path="ActionManager" hit="Restarts pre-built shared indexes download for current project" />
+    <option name="pre-built" path="ActionManager" hit="Restarts pre-built shared indexes download for current project" />
+    <option name="project" path="ActionManager" hit="Restarts pre-built shared indexes download for current project" />
+    <option name="restarts" path="ActionManager" hit="Restarts pre-built shared indexes download for current project" />
+    <option name="shared" path="ActionManager" hit="Restarts pre-built shared indexes download for current project" />
+    <option name="attached" path="ActionManager" hit="Show Attached Shared Indexes" />
+    <option name="indexes" path="ActionManager" hit="Show Attached Shared Indexes" />
+    <option name="shared" path="ActionManager" hit="Show Attached Shared Indexes" />
+    <option name="show" path="ActionManager" hit="Show Attached Shared Indexes" />
+  </configurable>
+  <configurable id="shared-indexes" configurable_name="Shared Indexes">
+    <option name="ask" hit="Ask before download" />
+    <option name="before" hit="Ask before download" />
+    <option name="download" hit="Ask before download" />
+    <option name="don" hit="Don't download, use local indexes" />
+    <option name="download" hit="Don't download, use local indexes" />
+    <option name="indexes" hit="Don't download, use local indexes" />
+    <option name="local" hit="Don't download, use local indexes" />
+    <option name="t" hit="Don't download, use local indexes" />
+    <option name="use" hit="Don't download, use local indexes" />
+    <option name="automatically" hit="Download automatically" />
+    <option name="download" hit="Download automatically" />
+    <option name="jdks" hit="JDKs:" />
+    <option name="libraries" hit="Maven Libraries:" />
+    <option name="maven" hit="Maven Libraries:" />
+    <option name="indexes" hit="Public Shared Indexes" />
+    <option name="public" hit="Public Shared Indexes" />
+    <option name="shared" hit="Public Shared Indexes" />
+    <option name="indexes" hit="Shared Indexes" />
+    <option name="shared" hit="Shared Indexes" />
+    <option name="for" hit="Wait for shared indexes" />
+    <option name="indexes" hit="Wait for shared indexes" />
+    <option name="shared" hit="Wait for shared indexes" />
+    <option name="wait" hit="Wait for shared indexes" />
+  </configurable>
+</options>

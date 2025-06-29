@@ -1,0 +1,12 @@
+<options>
+  <configurable id="fileTemplates" configurable_name="File and Code Templates">
+    <option name="groovy" hit="Maven Groovy" />
+    <option name="maven" hit="Maven Groovy" />
+    <option name="maven" hit="Maven Profiles" />
+    <option name="profiles" hit="Maven Profiles" />
+    <option name="maven" hit="Maven Project" />
+    <option name="project" hit="Maven Project" />
+    <option name="maven" hit="Maven Settings" />
+    <option name="settings" hit="Maven Settings" />
+  </configurable>
+</options>

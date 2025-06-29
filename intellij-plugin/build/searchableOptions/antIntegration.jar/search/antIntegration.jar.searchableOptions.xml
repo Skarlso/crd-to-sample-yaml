@@ -1,0 +1,32 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="" path="ActionManager" hit="" />
+    <option name="add" path="ActionManager" hit="Add as Ant Build File" />
+    <option name="ant" path="ActionManager" hit="Add as Ant Build File" />
+    <option name="as" path="ActionManager" hit="Add as Ant Build File" />
+    <option name="build" path="ActionManager" hit="Add as Ant Build File" />
+    <option name="file" path="ActionManager" hit="Add as Ant Build File" />
+    <option name="add" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="ant" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="build" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="current" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="file" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="files" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="list" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="of" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="project" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="s" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="the" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="to" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="xml" path="ActionManager" hit="Add current XML file to the list of project's Ant build files" />
+    <option name="ant" path="ActionManager" hit="Ant" />
+    <option name="ant" path="ActionManager" hit="Run Ant Target" />
+    <option name="run" path="ActionManager" hit="Run Ant Target" />
+    <option name="target" path="ActionManager" hit="Run Ant Target" />
+    <option name="ant" path="ActionManager" hit="Runs currently selected Ant target" />
+    <option name="currently" path="ActionManager" hit="Runs currently selected Ant target" />
+    <option name="runs" path="ActionManager" hit="Runs currently selected Ant target" />
+    <option name="selected" path="ActionManager" hit="Runs currently selected Ant target" />
+    <option name="target" path="ActionManager" hit="Runs currently selected Ant target" />
+  </configurable>
+</options>
