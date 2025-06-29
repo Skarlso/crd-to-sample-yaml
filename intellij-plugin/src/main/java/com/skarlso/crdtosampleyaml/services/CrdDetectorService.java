@@ -45,30 +45,37 @@ public class CrdDetectorService {
         }
         
         try {
-            Object document = yaml.load(new StringReader(content));
-            if (!(document instanceof Map)) {
-                return false;
+            // Handle multi-document YAML files
+            Iterable<Object> documents = yaml.loadAll(new StringReader(content));
+            
+            for (Object document : documents) {
+                if (!(document instanceof Map)) {
+                    continue;
+                }
+                
+                @SuppressWarnings("unchecked")
+                Map<String, Object> yamlMap = (Map<String, Object>) document;
+                
+                // Check for CRD identifying fields
+                String kind = (String) yamlMap.get("kind");
+                String apiVersion = (String) yamlMap.get("apiVersion");
+                
+                boolean isCrd = "CustomResourceDefinition".equals(kind) && 
+                               apiVersion != null && 
+                               apiVersion.startsWith("apiextensions.k8s.io/");
+                
+                if (isCrd) {
+                    System.out.println("CRD Detection Success - Kind: " + kind + ", ApiVersion: " + apiVersion);
+                    return true;
+                }
             }
-            
-            @SuppressWarnings("unchecked")
-            Map<String, Object> yamlMap = (Map<String, Object>) document;
-            
-            // Check for CRD identifying fields
-            String kind = (String) yamlMap.get("kind");
-            String apiVersion = (String) yamlMap.get("apiVersion");
-            
-            boolean isCrd = "CustomResourceDefinition".equals(kind) && 
-                           apiVersion != null && 
-                           apiVersion.startsWith("apiextensions.k8s.io/");
             
             // Debug logging to help troubleshoot
-            if (!isCrd) {
-                System.out.println("CRD Detection Debug - Kind: " + kind + ", ApiVersion: " + apiVersion);
-            }
-            
-            return isCrd;
+            System.out.println("CRD Detection Failed - No valid CRD found in file");
+            return false;
         } catch (Exception e) {
             System.out.println("CRD Detection Error: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
