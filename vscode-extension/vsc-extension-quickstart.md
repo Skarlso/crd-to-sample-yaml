@@ -48,31 +48,3 @@
    ```
 
 This creates a `.vsix` file that can be installed manually or published to the marketplace.
-
-## Publishing
-
-1. **Create a publisher account** at https://marketplace.visualstudio.com/
-2. **Get a Personal Access Token** from Azure DevOps
-3. **Login with VSCE**
-   ```bash
-   vsce login <publisher-name>
-   ```
-4. **Publish**
-   ```bash
-   vsce publish
-   ```
-
-## File Structure
-
-```
-vscode-extension/
-├── src/
-│   ├── extension.ts       # Main extension entry point
-│   ├── ctyService.ts      # CTY CLI integration
-│   ├── crdDetector.ts     # CRD file detection logic
-│   └── crdProvider.ts     # Code lens and hover providers
-├── package.json           # Extension manifest
-├── tsconfig.json         # TypeScript configuration
-├── .eslintrc.json        # ESLint configuration
-└── README.md             # Extension documentation
-```
