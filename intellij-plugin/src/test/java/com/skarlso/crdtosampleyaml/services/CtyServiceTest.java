@@ -38,9 +38,9 @@ public class CtyServiceTest extends BasePlatformTestCase {
               name: myresources.example.com
             """);
         
-        ProcessOutput successOutput = new ProcessOutput();
-        successOutput.setExitCode(0);
-        successOutput.setStdout("Sample generated successfully");
+        ProcessOutput successOutput = mock(ProcessOutput.class);
+        when(successOutput.getExitCode()).thenReturn(0);
+        when(successOutput.getStdout()).thenReturn("Sample generated successfully");
         
         try (MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
              MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
@@ -71,8 +71,8 @@ public class CtyServiceTest extends BasePlatformTestCase {
             when(CtySettings.getInstance()).thenReturn(mockSettings);
             when(mockSettings.getCtyPath()).thenReturn("");
             
-            ProcessOutput whichOutput = new ProcessOutput();
-            whichOutput.setExitCode(1);
+            ProcessOutput whichOutput = mock(ProcessOutput.class);
+            when(whichOutput.getExitCode()).thenReturn(1);
             execUtilMock.when(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)))
                        .thenReturn(whichOutput);
             
@@ -91,9 +91,9 @@ public class CtyServiceTest extends BasePlatformTestCase {
               name: myresources.example.com
             """);
         
-        ProcessOutput failureOutput = new ProcessOutput();
-        failureOutput.setExitCode(1);
-        failureOutput.setStderr("Error: Invalid CRD format");
+        ProcessOutput failureOutput = mock(ProcessOutput.class);
+        when(failureOutput.getExitCode()).thenReturn(1);
+        when(failureOutput.getStderr()).thenReturn("Error: Invalid CRD format");
         
         try (MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
              MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
@@ -118,8 +118,8 @@ public class CtyServiceTest extends BasePlatformTestCase {
               name: myresources.example.com
             """);
         
-        ProcessOutput successOutput = new ProcessOutput();
-        successOutput.setExitCode(0);
+        ProcessOutput successOutput = mock(ProcessOutput.class);
+        when(successOutput.getExitCode()).thenReturn(0);
         
         try (MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
              MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
@@ -145,8 +145,8 @@ public class CtyServiceTest extends BasePlatformTestCase {
               name: myresources.example.com
             """);
         
-        ProcessOutput successOutput = new ProcessOutput();
-        successOutput.setExitCode(0);
+        ProcessOutput successOutput = mock(ProcessOutput.class);
+        when(successOutput.getExitCode()).thenReturn(0);
         
         try (MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
              MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
@@ -179,8 +179,8 @@ public class CtyServiceTest extends BasePlatformTestCase {
               name: test-resource
             """);
         
-        ProcessOutput successOutput = new ProcessOutput();
-        successOutput.setExitCode(0);
+        ProcessOutput successOutput = mock(ProcessOutput.class);
+        when(successOutput.getExitCode()).thenReturn(0);
         
         try (MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
              MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
@@ -217,9 +217,9 @@ public class CtyServiceTest extends BasePlatformTestCase {
               invalidField: value
             """);
         
-        ProcessOutput failureOutput = new ProcessOutput();
-        failureOutput.setExitCode(1);
-        failureOutput.setStderr("Validation failed: unknown field 'invalidField'");
+        ProcessOutput failureOutput = mock(ProcessOutput.class);
+        when(failureOutput.getExitCode()).thenReturn(1);
+        when(failureOutput.getStderr()).thenReturn("Validation failed: unknown field 'invalidField'");
         
         try (MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
              MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
