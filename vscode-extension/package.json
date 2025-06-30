@@ -3,7 +3,7 @@
   "displayName": "CRD to Sample YAML",
   "description": "Generate sample YAML files from Kubernetes Custom Resource Definitions",
   "version": "0.1.0",
-  "publisher": "skarlso",
+  "publisher": "GergelyBrautigam",
   "repository": {
     "type": "git",
     "url": "https://github.com/Skarlso/crd-to-sample-yaml"
