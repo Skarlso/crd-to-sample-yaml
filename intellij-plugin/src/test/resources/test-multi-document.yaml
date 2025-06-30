@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-namespace
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: databases.example.com
+spec:
+  group: example.com
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              engine:
+                type: string
+                enum: ["mysql", "postgresql", "mongodb"]
+              version:
+                type: string
+              storage:
+                type: string
+            required:
+            - engine
+            - version
+          status:
+            type: object
+            properties:
+              ready:
+                type: boolean
+              endpoint:
+                type: string
+  scope: Namespaced
+  names:
+    plural: databases
+    singular: database
+    kind: Database
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-config
+data:
+  config.yaml: |
+    key: value

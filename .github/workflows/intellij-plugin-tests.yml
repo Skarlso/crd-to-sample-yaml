@@ -1,0 +1,115 @@
+name: IntelliJ Plugin Tests
+
+on:
+  pull_request:
+    paths:
+      - 'intellij-plugin/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'intellij-plugin/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        
+      - name: Setup Java
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808 # v4.1.0
+        with:
+          gradle-home-cache-cleanup: true
+          
+      - name: Cache Gradle dependencies
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('intellij-plugin/**/*.gradle*', 'intellij-plugin/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
+      - name: Run tests
+        working-directory: intellij-plugin
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper
+          fi
+          ./gradlew test
+        
+      - name: Upload test results
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: always()
+        with:
+          name: test-results
+          path: intellij-plugin/build/reports/tests/
+          
+      - name: Upload test reports
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: failure()
+        with:
+          name: test-reports
+          path: intellij-plugin/build/test-results/
+          
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        
+      - name: Setup Java
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808 # v4.1.0
+        with:
+          gradle-home-cache-cleanup: true
+          
+      - name: Cache Gradle dependencies
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('intellij-plugin/**/*.gradle*', 'intellij-plugin/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
+      - name: Build plugin
+        working-directory: intellij-plugin
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper
+          fi
+          ./gradlew buildPlugin
+        
+      - name: Verify plugin
+        working-directory: intellij-plugin
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper
+          fi
+          ./gradlew verifyPlugin
+        
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: intellij-plugin
+          path: intellij-plugin/build/distributions/
