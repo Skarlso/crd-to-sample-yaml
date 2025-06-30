@@ -1,0 +1,59 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: myresources.example.com
+spec:
+  group: example.com
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              replicas:
+                type: integer
+                minimum: 1
+                maximum: 10
+              image:
+                type: string
+              config:
+                type: object
+                properties:
+                  debug:
+                    type: boolean
+                  logLevel:
+                    type: string
+                    enum: ["info", "warn", "error"]
+                required:
+                - debug
+            required:
+            - replicas
+            - image
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              conditions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    status:
+                      type: string
+                    message:
+                      type: string
+  scope: Namespaced
+  names:
+    plural: myresources
+    singular: myresource
+    kind: MyResource
+    shortNames:
+    - mr

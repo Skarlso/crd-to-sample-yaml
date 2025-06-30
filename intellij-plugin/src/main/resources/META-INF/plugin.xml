@@ -1,0 +1,71 @@
+<idea-plugin>
+    <id>com.skarlso.crd-to-sample-yaml</id>
+    <name>CRD to Sample YAML</name>
+    <vendor email="skarlso@gmail.com" url="https://github.com/Skarlso/crd-to-sample-yaml">Skarlso</vendor>
+
+    <description><![CDATA[
+        Generate sample YAML files from Kubernetes Custom Resource Definitions.
+        
+        Features:
+        - Detect CRD files in your project
+        - Generate complete sample YAML files
+        - Generate minimal sample YAML files (required fields only)
+        - Generate sample YAML files with comments
+        - Validate sample YAML against CRD schema
+        
+        Right-click on any CRD file to access generation options.
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <h3>1.0.0</h3>
+        <ul>
+            <li>Initial release</li>
+            <li>CRD detection and sample generation</li>
+            <li>Support for minimal and commented samples</li>
+            <li>YAML validation against CRD schema</li>
+        </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.skarlso.crdtosampleyaml.settings.CtySettings"/>
+        <projectConfigurable 
+            parentId="tools" 
+            instance="com.skarlso.crdtosampleyaml.settings.CtyConfigurable"
+            id="com.skarlso.crdtosampleyaml.settings.CtyConfigurable"
+            displayName="CRD to Sample YAML"/>
+    </extensions>
+
+    <actions>
+        <group id="CrdToSampleYaml.Actions" text="CRD to Sample YAML" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            
+            <action id="CrdToSampleYaml.GenerateSample" 
+                    class="com.skarlso.crdtosampleyaml.actions.GenerateSampleAction" 
+                    text="Generate Sample YAML"
+                    description="Generate a complete sample YAML from CRD">
+            </action>
+            
+            <action id="CrdToSampleYaml.GenerateMinimalSample" 
+                    class="com.skarlso.crdtosampleyaml.actions.GenerateMinimalSampleAction" 
+                    text="Generate Minimal Sample YAML"
+                    description="Generate a minimal sample YAML with required fields only">
+            </action>
+            
+            <action id="CrdToSampleYaml.GenerateSampleWithComments" 
+                    class="com.skarlso.crdtosampleyaml.actions.GenerateSampleWithCommentsAction" 
+                    text="Generate Sample YAML with Comments"
+                    description="Generate a sample YAML with field descriptions">
+            </action>
+            
+            <action id="CrdToSampleYaml.ValidateSample" 
+                    class="com.skarlso.crdtosampleyaml.actions.ValidateSampleAction" 
+                    text="Validate Sample Against CRD"
+                    description="Validate a sample YAML against its CRD schema">
+            </action>
+        </group>
+    </actions>
+</idea-plugin>
