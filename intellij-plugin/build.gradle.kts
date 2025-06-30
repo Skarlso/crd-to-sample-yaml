@@ -49,4 +49,8 @@ tasks {
 
 dependencies {
     implementation("org.yaml:snakeyaml:2.2")
+    
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.7.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 }
