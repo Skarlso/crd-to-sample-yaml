@@ -8,7 +8,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import com.skarlso.crdtosampleyaml.settings.CtySettings;
 import org.junit.Test;
+import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
+
+import java.io.File;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -39,7 +42,11 @@ public class CtyServiceTest extends BasePlatformTestCase {
         when(successOutput.getStdout()).thenReturn("Sample generated successfully");
         
         try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class);
-             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class)) {
+             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
+             MockedConstruction<File> fileMock = mockConstruction(File.class, (mock, context) -> {
+                 when(mock.exists()).thenReturn(true);
+                 when(mock.canExecute()).thenReturn(true);
+             })) {
             
             settingsMock.when(CtySettings::getInstance).thenReturn(mockSettings);
             when(mockSettings.getCtyPath()).thenReturn("/usr/local/bin/cty");
@@ -93,7 +100,11 @@ public class CtyServiceTest extends BasePlatformTestCase {
         when(failureOutput.getStderr()).thenReturn("Error: Invalid CRD format");
         
         try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class);
-             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class)) {
+             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
+             MockedConstruction<File> fileMock = mockConstruction(File.class, (mock, context) -> {
+                 when(mock.exists()).thenReturn(true);
+                 when(mock.canExecute()).thenReturn(true);
+             })) {
             
             settingsMock.when(CtySettings::getInstance).thenReturn(mockSettings);
             when(mockSettings.getCtyPath()).thenReturn("/usr/local/bin/cty");
@@ -126,7 +137,11 @@ public class CtyServiceTest extends BasePlatformTestCase {
         when(successOutput.getExitCode()).thenReturn(0);
         
         try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class);
-             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class)) {
+             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
+             MockedConstruction<File> fileMock = mockConstruction(File.class, (mock, context) -> {
+                 when(mock.exists()).thenReturn(true);
+                 when(mock.canExecute()).thenReturn(true);
+             })) {
             
             settingsMock.when(CtySettings::getInstance).thenReturn(mockSettings);
             when(mockSettings.getCtyPath()).thenReturn("/usr/local/bin/cty");
