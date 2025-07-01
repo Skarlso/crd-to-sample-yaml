@@ -12,7 +12,7 @@ repositories {
 }
 
 intellij {
-    version.set("2023.2.6")
+    version.set("2025.1.3")
     type.set("IC") // IntelliJ IDEA Community Edition
     
     plugins.set(listOf(
@@ -34,7 +34,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("232")
+        sinceBuild.set("251")
         untilBuild.set("251.*")
     }
 
@@ -48,6 +48,10 @@ tasks {
         token.set(System.getenv("PUBLISH_TOKEN"))
     }
     
+    // Disable problematic buildSearchableOptions task for newer versions
+    buildSearchableOptions {
+        enabled = false
+    }
 }
 
 dependencies {
