@@ -1,24 +1,48 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "2.0.21"
-    id("org.jetbrains.intellij") version "1.17.3"
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.intelliJPlatform)
 }
 
 group = "com.skarlso"
-version = "1.0.0"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
-intellij {
-    version.set("2025.1.3")
-    type.set("IC") // IntelliJ IDEA Community Edition
+dependencies {
+    implementation(libs.snakeyaml)
     
-    plugins.set(listOf(
-        "com.intellij.java",
-        "org.jetbrains.plugins.yaml"
-    ))
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.inline)
+    
+    intellijPlatform {
+        intellijIdeaCommunity("2025.1.3")
+        bundledPlugins("com.intellij.java", "org.jetbrains.plugins.yaml")
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
+    }
+}
+
+intellijPlatform {
+    pluginConfiguration {
+        version = providers.gradleProperty("pluginVersion").orElse("1.0.2")
+        description = """
+            Generate sample YAML files from Kubernetes Custom Resource Definitions.
+            
+            Right-click on CRD YAML files to access the CRD to Sample YAML menu. 
+            Generate complete, minimal, or commented samples. Validate existing samples against CRD schemas.
+        """.trimIndent()
+        
+        ideaVersion {
+            sinceBuild = "251"
+            untilBuild = "251.*"
+        }
+    }
 }
 
 tasks {
@@ -32,32 +56,4 @@ tasks {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
-
-    patchPluginXml {
-        sinceBuild.set("251")
-        untilBuild.set("251.*")
-    }
-
-    signPlugin {
-        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
-        privateKey.set(System.getenv("PRIVATE_KEY"))
-        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
-    }
-
-    publishPlugin {
-        token.set(System.getenv("PUBLISH_TOKEN"))
-    }
-    
-    // Disable problematic buildSearchableOptions task for newer versions
-    buildSearchableOptions {
-        enabled = false
-    }
-}
-
-dependencies {
-    implementation("org.yaml:snakeyaml:2.2")
-    
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.mockito:mockito-core:5.7.0")
-    testImplementation("org.mockito:mockito-inline:5.2.0")
 }

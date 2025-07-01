@@ -1,0 +1,20 @@
+[versions]
+# IntelliJ Platform
+intelliJPlatform = "2.6.0"
+kotlin = "2.0.21"
+
+# Dependencies
+junit = "4.13.2"
+mockito = "5.7.0"
+mockito-inline = "5.2.0"
+snakeyaml = "2.2"
+
+[libraries]
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito-inline" }
+snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }

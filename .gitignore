@@ -4,3 +4,8 @@ dist/
 bin
 cty
 wasm/wasm
+
+# IntelliJ Plugin
+intellij-plugin/.intellijPlatform/
+intellij-plugin/build/
+intellij-plugin/.gradle/
