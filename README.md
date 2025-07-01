@@ -31,6 +31,8 @@ However, actions and intellisense is available to generate samples for a CRD in 
 
 ![vscode-extension-showcase-1.png](./imgs/vscode-extension-showcase-1.png)
 
+The extension can be installed from it's official page: [CRD To Sample YAML Extension](https://marketplace.visualstudio.com/items?itemName=GergelyBrautigam.crd-to-sample-yaml).
+
 ## Getting started
 
 - Prerequisites: Go installed on your machine. (Check out this link for details: https://go.dev/doc/install)
