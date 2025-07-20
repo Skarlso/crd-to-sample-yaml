@@ -27,6 +27,7 @@ type index struct {
 	err       error
 	comments  bool
 	minimal   bool
+	lastURL   string
 }
 
 func (i *index) buildError() app.UI {
@@ -55,12 +56,22 @@ type header struct {
 
 	titleOnClick func(ctx app.Context, _ app.Event)
 	hidden       bool
+	shareURL     string
+	shareOnClick func(ctx app.Context, _ app.Event)
 }
 
 type backButton struct {
 	app.Compo
 
 	hidden  bool
+	onClick func(ctx app.Context, _ app.Event)
+}
+
+type shareButton struct {
+	app.Compo
+
+	hidden  bool
+	url     string
 	onClick func(ctx app.Context, _ app.Event)
 }
 
@@ -72,10 +83,19 @@ func (b *backButton) Render() app.UI {
 		)).Hidden(b.hidden).OnClick(b.onClick)
 }
 
+func (s *shareButton) Render() app.UI {
+	return app.Ul().Body(
+		app.Li().Body(
+			app.A().Href("#").Body(
+				app.I().Class("fa fa-share fa-2x")),
+		)).Hidden(s.hidden).OnClick(s.onClick)
+}
+
 func (h *header) Render() app.UI {
 	return app.Header().Body(app.Nav().Body(
 		&title{},
 		&backButton{onClick: h.titleOnClick, hidden: h.hidden},
+		&shareButton{onClick: h.shareOnClick, hidden: h.hidden || h.shareURL == "", url: h.shareURL},
 		app.Ul().Body(
 			app.Li().Body(
 				app.A().Href("https://github.com/Skarlso/crd-to-sample-yaml").Target("_blank").Body(
@@ -211,6 +231,9 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 		return
 	}
 
+	// Store the URL for shareable link
+	i.lastURL = inp.String()
+
 	crd, err := renderCRDContent(content)
 	if err != nil {
 		i.err = err
@@ -258,6 +281,7 @@ func (i *index) NavBackOnClick(_ app.Context, _ app.Event) {
 	i.crds = nil
 	i.minimal = false
 	i.comments = false
+	i.lastURL = ""
 }
 
 type editView struct {
@@ -322,7 +346,7 @@ func (i *index) Render() app.UI {
 				}
 
 				if len(i.crds) > 0 {
-					return &crdView{crds: i.crds, comment: i.comments, minimal: i.minimal, navigateBackOnClick: i.NavBackOnClick}
+					return &crdView{crds: i.crds, comment: i.comments, minimal: i.minimal, originalURL: i.lastURL, navigateBackOnClick: i.NavBackOnClick}
 				}
 
 				return app.Div().Class("container").Body(
