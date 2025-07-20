@@ -27,6 +27,7 @@ type crdView struct {
 	crds    []*pkg.SchemaType
 	comment bool
 	minimal bool
+	originalURL string
 
 	navigateBackOnClick func(ctx app.Context, _ app.Event)
 }
@@ -181,6 +182,8 @@ func (h *crdView) OnNav(ctx app.Context) {
 		return
 	}
 
+	// Store the original URL for shareable link
+	h.originalURL = u
 	h.crds = append(h.crds, crd)
 }
 
@@ -268,7 +271,7 @@ func (h *crdView) Render() app.UI {
 	return wrapper.Body(
 		app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"),
 		app.Script().Src("https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"),
-		&header{titleOnClick: h.navigateBackOnClick, hidden: false},
+		&header{titleOnClick: h.navigateBackOnClick, hidden: false, shareURL: h.originalURL, shareOnClick: h.onShareClick},
 		container,
 	)
 }
@@ -287,6 +290,22 @@ func (h *crdView) generate(crd *pkg.SchemaType, properties *v1beta1.JSONSchemaPr
 		Group:       crd.Group,
 		Description: properties.Description,
 	}, nil
+}
+
+func (h *crdView) onShareClick(ctx app.Context, _ app.Event) {
+	if h.originalURL == "" {
+		return
+	}
+	
+	pageURL := ctx.Page().URL()
+	protocol := "https"
+	if pageURL.Scheme != "" {
+		protocol = pageURL.Scheme
+	}
+	shareURL := fmt.Sprintf("%s://%s/share?url=%s", protocol, pageURL.Host, url.QueryEscape(h.originalURL))
+	
+	// Use JavaScript clipboard API
+	app.Window().Get("navigator").Get("clipboard").Call("writeText", shareURL)
 }
 
 func render(d app.UI, p []*Property, accordionID string) app.UI {
