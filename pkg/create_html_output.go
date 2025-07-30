@@ -188,6 +188,7 @@ func generate(name, group, kind string, properties *v1beta1.JSONSchemaProps, min
 type Property struct {
 	Name        string
 	Description string
+	Examples    string
 	Type        string
 	Nullable    bool
 	Patterns    string
@@ -258,6 +259,9 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		}
 		if v.Default != nil {
 			p.Default = string(v.Default.Raw)
+		}
+		if v.Example != nil {
+			p.Examples = string(v.Example.Raw)
 		}
 
 		switch {
