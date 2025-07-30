@@ -31,10 +31,31 @@ type index struct {
 }
 
 func (i *index) buildError() app.UI {
-	return app.Div().Class("alert alert-danger").Role("alert").Body(
-		app.Span().Class("closebtn").OnClick(i.dismissError).Body(app.Text("×")),
-		app.H4().Class("alert-heading").Text("Oops!"),
-		app.Text(i.err.Error()),
+	return app.Div().Class("alert alert-danger fade-in").Role("alert").Body(
+		app.Div().Class("d-flex align-items-start").Body(
+			app.Div().Class("me-3").Body(
+				app.I().Class("fas fa-exclamation-triangle fa-2x text-danger"),
+			),
+			app.Div().Class("flex-grow-1").Body(
+				app.H4().Class("alert-heading d-flex align-items-center mb-3").Body(
+					app.Text("Something went wrong!"),
+				),
+				app.P().Class("mb-3").Text(i.err.Error()),
+				app.Hr(),
+				app.P().Class("mb-0 small").Body(
+					app.Strong().Text("Suggestions:"),
+					app.Br(),
+					app.Text("• Check that your CRD is valid YAML"),
+					app.Br(),
+					app.Text("• Ensure the URL is accessible"),
+					app.Br(),
+					app.Text("• Verify authentication credentials if required"),
+				),
+			),
+			app.Button().Class("closebtn").Type("button").OnClick(i.dismissError).Body(
+				app.I().Class("fas fa-times"),
+			),
+		),
 	)
 }
 
@@ -92,16 +113,58 @@ func (s *shareButton) Render() app.UI {
 }
 
 func (h *header) Render() app.UI {
-	return app.Header().Body(app.Nav().Body(
-		&title{},
-		&backButton{onClick: h.titleOnClick, hidden: h.hidden},
-		&shareButton{onClick: h.shareOnClick, hidden: h.hidden || h.shareURL == "", url: h.shareURL},
-		app.Ul().Body(
-			app.Li().Body(
-				app.A().Href("https://github.com/Skarlso/crd-to-sample-yaml").Target("_blank").Body(
-					app.I().Class("fa fa-github fa-2x")),
-			)),
-	))
+	return app.Nav().Class("navbar navbar-expand-lg").Body(
+		app.Div().Class("container-fluid").Body(
+			// Brand
+			app.Button().Class("navbar-brand d-flex align-items-center btn btn-link border-0 text-decoration-none").OnClick(h.titleOnClick).Body(
+				app.I().Class("fas fa-code me-2").Style("font-size", "1.5rem"),
+				app.Span().Text("CRD to YAML"),
+			),
+			
+			// Mobile toggle button
+			app.Button().Class("navbar-toggler").Type("button").
+				DataSet("bs-toggle", "collapse").
+				DataSet("bs-target", "#navbarNav").
+				Aria("controls", "navbarNav").
+				Aria("expanded", "false").
+				Aria("label", "Toggle navigation").Body(
+				app.Span().Class("navbar-toggler-icon"),
+			),
+			
+			// Collapsible navbar content
+			app.Div().Class("collapse navbar-collapse").ID("navbarNav").Body(
+				app.Ul().Class("navbar-nav ms-auto").Body(
+					// Back button
+					app.Li().Class("nav-item").Hidden(h.hidden).Body(
+						app.Button().Class("nav-link icon-btn me-2 btn btn-link border-0").
+							OnClick(h.titleOnClick).
+							Title("Back to Home").Body(
+							app.I().Class("fas fa-arrow-left"),
+						),
+					),
+					
+					// Share button
+					app.Li().Class("nav-item").Hidden(h.hidden || h.shareURL == "").Body(
+						app.Button().Class("nav-link icon-btn me-2 btn btn-link border-0").
+							OnClick(h.shareOnClick).
+							Title("Share this CRD").Body(
+							app.I().Class("fas fa-share-alt"),
+						),
+					),
+					
+					// GitHub link
+					app.Li().Class("nav-item").Body(
+						app.A().Class("nav-link icon-btn").
+							Href("https://github.com/Skarlso/crd-to-sample-yaml").
+							Target("_blank").
+							Title("View on GitHub").Body(
+							app.I().Class("fab fa-github"),
+						),
+					),
+				),
+			),
+		),
+	)
 }
 
 // textarea is the textarea component that is used to supply the CRD content.
@@ -110,14 +173,29 @@ type textarea struct {
 }
 
 func (t *textarea) Render() app.UI {
-	return app.Div().Class("input-group mb-3").Body(
-		app.Span().Class("input-group-text").Body(app.Text("CRD")),
-		app.Textarea().
-			Class("form-control").
-			ID("crd_data").
-			Name("crd_data").
-			Placeholder("Place CRD here...").
-			AutoFocus(true),
+	return app.Div().Class("card mb-4").Body(
+		app.Div().Class("card-header").Body(
+			app.H5().Class("card-title mb-0 d-flex align-items-center").Body(
+				app.I().Class("fas fa-file-code me-2 text-primary"),
+				app.Text("CRD Definition"),
+			),
+		),
+		app.Div().Class("card-body").Body(
+			app.Div().Class("form-floating").Body(
+				app.Textarea().
+					Class("form-control").
+					ID("crd_data").
+					Name("crd_data").
+					Placeholder("Paste your Kubernetes CRD definition here...").
+					Style("min-height", "200px").
+					AutoFocus(true),
+				app.Label().For("crd_data").Text("Paste your Kubernetes CRD definition here..."),
+			),
+			app.Div().Class("form-text mt-2").Body(
+				app.I().Class("fas fa-info-circle me-1 text-info"),
+				app.Text("Supports YAML format. Maximum size: 200KB"),
+			),
+		),
 	)
 }
 
@@ -127,15 +205,75 @@ type input struct {
 }
 
 func (i *input) Render() app.UI {
-	return app.Div().Class("input-group mb-3").Body(
-		app.Span().Class("input-group-text").Body(app.Text("URL")),
-		app.Input().
-			Class("url_to_crd").Class("form-control").Placeholder("Paste URL to CRD here...").
-			ID("url_to_crd").
-			Name("url_to_crd"),
-		app.Input().Class("url_username").Class("form-control").Placeholder("Optional username here...").ID("url_username"),
-		app.Input().Class("url_password").Class("form-control").Placeholder("Optional password here...").ID("url_password").Type("password"),
-		app.Input().Class("url_token").Class("form-control").Placeholder("Optional token here...").ID("url_token").Type("password"),
+	return app.Div().Class("card mb-4").Body(
+		app.Div().Class("card-header").Body(
+			app.H5().Class("card-title mb-0 d-flex align-items-center").Body(
+				app.I().Class("fas fa-link me-2 text-success"),
+				app.Text("Fetch from URL"),
+			),
+		),
+		app.Div().Class("card-body").Body(
+			app.Div().Class("row g-3").Body(
+				// URL input
+				app.Div().Class("col-12").Body(
+					app.Div().Class("form-floating").Body(
+						app.Input().
+							Class("form-control url_to_crd").
+							Type("url").
+							ID("url_to_crd").
+							Name("url_to_crd").
+							Placeholder("https://example.com/crd.yaml"),
+						app.Label().For("url_to_crd").Text("CRD URL"),
+					),
+				),
+				
+				// Authentication section
+				app.Div().Class("col-12").Body(
+					app.Div().Class("border rounded p-3 bg-light").Body(
+						app.H6().Class("text-muted mb-3 d-flex align-items-center").Body(
+							app.I().Class("fas fa-shield-alt me-2"),
+							app.Text("Authentication (Optional)"),
+						),
+						app.Div().Class("row g-2").Body(
+							app.Div().Class("col-md-4").Body(
+								app.Div().Class("form-floating").Body(
+									app.Input().
+										Class("form-control url_username").
+										Type("text").
+										ID("url_username").
+										Placeholder("Username"),
+									app.Label().For("url_username").Text("Username"),
+								),
+							),
+							app.Div().Class("col-md-4").Body(
+								app.Div().Class("form-floating").Body(
+									app.Input().
+										Class("form-control url_password").
+										Type("password").
+										ID("url_password").
+										Placeholder("Password"),
+									app.Label().For("url_password").Text("Password"),
+								),
+							),
+							app.Div().Class("col-md-4").Body(
+								app.Div().Class("form-floating").Body(
+									app.Input().
+										Class("form-control url_token").
+										Type("password").
+										ID("url_token").
+										Placeholder("Token"),
+									app.Label().For("url_token").Text("Access Token"),
+								),
+							),
+						),
+					),
+				),
+			),
+			app.Div().Class("form-text mt-2").Body(
+				app.I().Class("fas fa-info-circle me-1 text-info"),
+				app.Text("Supports public URLs and authenticated repositories (GitHub, GitLab, etc.)"),
+			),
+		),
 	)
 }
 
@@ -149,13 +287,28 @@ type form struct {
 }
 
 func (f *form) Render() app.UI {
-	return app.Div().Body(
-		app.Div().Class("row mb-5").Body(
-			&textarea{},
-			&input{},
-			&checkBox{checkHandlerComment: f.checkHandlerComment, checkHandlerMinimal: f.checkHandlerMinimal},
+	return app.Div().Class("container-fluid").Body(
+		app.Div().Class("row justify-content-center").Body(
+			app.Div().Class("col-lg-10 col-xl-8").Body(
+				&textarea{},
+				app.Div().Class("text-center mb-3").Body(
+					app.Span().Class("badge bg-secondary px-3 py-2").Body(
+						app.I().Class("fas fa-exchange-alt me-2"),
+						app.Text("OR"),
+					),
+				),
+				&input{},
+				&checkBox{checkHandlerComment: f.checkHandlerComment, checkHandlerMinimal: f.checkHandlerMinimal},
+				app.Div().Class("d-grid gap-2 mt-4").Body(
+					app.Button().Class("btn btn-primary btn-lg").Type("submit").
+						ID("submit-btn").
+						OnClick(f.formHandler).Body(
+						app.I().Class("fas fa-magic me-2"),
+						app.Text("Generate YAML Sample"),
+					),
+				),
+			),
 		),
-		app.Div().Class("text-end").Body(app.Button().Class("btn btn-primary").Type("submit").Style("margin-top", "15px").Text("Submit").OnClick(f.formHandler)),
 	)
 }
 
@@ -183,9 +336,17 @@ func renderCRDContent(content []byte) (*pkg.SchemaType, error) {
 }
 
 func (i *index) OnClick(ctx app.Context, _ app.Event) {
-	ctx.JSSrc().Set("disabled", true)
+	// Add loading state to button
+	submitBtn := app.Window().GetElementByID("submit-btn")
+	submitBtn.Set("disabled", true)
+	submitBtn.Get("classList").Call("add", "btn-loading")
+	originalText := submitBtn.Get("innerHTML").String()
+	submitBtn.Set("innerHTML", `<span class="loading-spinner me-2"></span>Processing...`)
+	
 	defer func() {
-		ctx.JSSrc().Set("disabled", false)
+		submitBtn.Set("disabled", false)
+		submitBtn.Get("classList").Call("remove", "btn-loading")
+		submitBtn.Set("innerHTML", originalText)
 	}()
 
 	ta := app.Window().GetElementByID("crd_data").Get("value")
@@ -253,14 +414,36 @@ type checkBox struct {
 }
 
 func (c *checkBox) Render() app.UI {
-	return app.Div().Body(
-		app.Div().Class("form-check").Body(
-			app.Label().Class("form-check-label").For("enable-comments").Body(app.Text("Enable comments on YAML output")),
-			app.Input().Class("form-check-input").Type("checkbox").ID("enable-comments").OnClick(c.checkHandlerComment),
+	return app.Div().Class("card mb-4").Body(
+		app.Div().Class("card-header").Body(
+			app.H5().Class("card-title mb-0 d-flex align-items-center").Body(
+				app.I().Class("fas fa-cogs me-2 text-warning"),
+				app.Text("Output Options"),
+			),
 		),
-		app.Div().Class("form-check").Body(
-			app.Label().Class("form-check-label").For("enable-minimal").Body(app.Text("Enable minimal required YAML output")),
-			app.Input().Class("form-check-input").Type("checkbox").ID("enable-minimal").OnClick(c.checkHandlerMinimal),
+		app.Div().Class("card-body").Body(
+			app.Div().Class("row g-3").Body(
+				app.Div().Class("col-md-6").Body(
+					app.Div().Class("form-check form-switch").Body(
+						app.Input().Class("form-check-input").Type("checkbox").ID("enable-comments").OnClick(c.checkHandlerComment),
+						app.Label().Class("form-check-label").For("enable-comments").Body(
+							app.Strong().Text("Include Comments"),
+							app.Br(),
+							app.Small().Class("text-muted").Text("Add helpful comments to the generated YAML"),
+						),
+					),
+				),
+				app.Div().Class("col-md-6").Body(
+					app.Div().Class("form-check form-switch").Body(
+						app.Input().Class("form-check-input").Type("checkbox").ID("enable-minimal").OnClick(c.checkHandlerMinimal),
+						app.Label().Class("form-check-label").For("enable-minimal").Body(
+							app.Strong().Text("Minimal Output"),
+							app.Br(),
+							app.Small().Class("text-muted").Text("Show only required fields"),
+						),
+					),
+				),
+			),
 		),
 	)
 }
@@ -324,36 +507,100 @@ func (e *editView) OnInput(ctx app.Context, _ app.Event) {
 }
 
 func (e *editView) Render() app.UI {
-	return app.Div().Body(
-		app.H6().Text("Dynamically render CRD content"),
-		app.Div().Class("input-group input-group-lg").Body(
-			app.Div().Class("container").Body(
-				app.Div().Class("row justify-content-around").Body(
-					app.Textarea().Class("col form-control").Style("height", "350px").Style("max-height", "800px").Placeholder("Start typing...").ID("input-area").OnInput(e.OnInput),
-					app.Textarea().Class("col form-control").Style("height", "350px").Style("max-height", "800px").ID("output-area").Text(string(e.content)),
+	return app.Div().Class("card mb-4").Body(
+		app.Div().Class("card-header").Body(
+			app.H5().Class("card-title mb-0 d-flex align-items-center").Body(
+				app.I().Class("fas fa-edit me-2 text-info"),
+				app.Text("Live CRD Editor"),
+			),
+			app.Small().Class("text-muted").Text("Type your CRD definition and see the YAML output in real-time"),
+		),
+		app.Div().Class("card-body p-0").Body(
+			app.Div().Class("row g-0").Body(
+				app.Div().Class("col-md-6 border-end").Body(
+					app.Div().Class("p-3").Body(
+						app.Label().Class("form-label fw-bold mb-2").Body(
+							app.I().Class("fas fa-code me-1"),
+							app.Text("CRD Input"),
+						),
+						app.Textarea().
+							Class("form-control border-0").
+							Style("height", "400px").
+							Style("resize", "none").
+							Placeholder("Start typing your CRD definition...").
+							ID("input-area").
+							OnInput(e.OnInput),
+					),
+				),
+				app.Div().Class("col-md-6").Body(
+					app.Div().Class("p-3").Body(
+						app.Label().Class("form-label fw-bold mb-2").Body(
+							app.I().Class("fas fa-file-alt me-1"),
+							app.Text("YAML Output"),
+						),
+						app.Pre().Class("yaml-text border-0").Style("height", "400px").Style("margin", "0").Body(
+							app.Code().Text(string(e.content)),
+						),
+					),
 				),
 			),
-		))
+		),
+	)
 }
 
 func (i *index) Render() app.UI {
 	// Prevent double rendering components.
 	if i.isMounted {
 		return app.Main().Body(
-			app.Div().Class("container").Body(func() app.UI {
+			app.Div().Class("main-container").Body(func() app.UI {
 				if i.err != nil {
-					return app.Div().Class("container").Body(&header{titleOnClick: i.NavBackOnClick, hidden: true}, i.buildError())
+					return app.Div().Body(
+						&header{titleOnClick: i.NavBackOnClick, hidden: true},
+						app.Div().Class("container mt-4").Body(i.buildError()),
+					)
 				}
 
 				if len(i.crds) > 0 {
 					return &crdView{crds: i.crds, comment: i.comments, minimal: i.minimal, originalURL: i.lastURL, navigateBackOnClick: i.NavBackOnClick}
 				}
 
-				return app.Div().Class("container").Body(
+				return app.Div().Body(
 					&header{titleOnClick: i.NavBackOnClick, hidden: true},
-					&editView{},
-					app.Div().Body(app.H6().Text("Render web view of CRD content")),
-					&form{formHandler: i.OnClick, checkHandlerComment: i.OnCheckComment, checkHandlerMinimal: i.OnCheckMinimal})
+					app.Div().Class("container mt-4").Body(
+						app.Div().Class("row justify-content-center mb-5").Body(
+							app.Div().Class("col-lg-8 text-center").Body(
+								app.H1().Class("display-4 fw-bold mb-3").Body(
+									app.I().Class("fas fa-cube me-3 text-primary"),
+									app.Text("CRD to YAML Generator"),
+								),
+								app.P().Class("lead text-muted mb-4").Text("Transform Kubernetes Custom Resource Definitions into sample YAML configurations with ease"),
+								app.Div().Class("d-flex justify-content-center gap-3 mb-4").Body(
+									app.Span().Class("badge bg-primary-subtle text-primary px-3 py-2").Body(
+										app.I().Class("fas fa-rocket me-1"),
+										app.Text("Fast & Easy"),
+									),
+									app.Span().Class("badge bg-success-subtle text-success px-3 py-2").Body(
+										app.I().Class("fas fa-shield-alt me-1"),
+										app.Text("Secure"),
+									),
+									app.Span().Class("badge bg-info-subtle text-info px-3 py-2").Body(
+										app.I().Class("fas fa-mobile-alt me-1"),
+										app.Text("Responsive"),
+									),
+								),
+							),
+						),
+						&editView{},
+						app.Div().Class("text-center mb-4").Body(
+							app.H3().Class("h4 text-muted mb-3").Body(
+								app.I().Class("fas fa-upload me-2"),
+								app.Text("Upload or Fetch CRD"),
+							),
+							app.P().Class("text-muted").Text("Choose how you want to provide your CRD definition"),
+						),
+						&form{formHandler: i.OnClick, checkHandlerComment: i.OnCheckComment, checkHandlerMinimal: i.OnCheckMinimal},
+					),
+				)
 			}()))
 	}
 

@@ -47,55 +47,152 @@ func main() {
 	// required resources to make it work into a web browser. Here it is
 	// configured to handle requests with a path that starts with "/".
 	handler := &app.Handler{
-		Name:    "Preview CRDs",
-		Title:   "Preview CRDs",
+		Name:    "CRD to YAML Generator",
+		Title:   "CRD to YAML Generator",
 		Author:  "Gergely Brautigam",
-		Version: "v0.7.0",
+		Version: "v0.8.0",
 		HTML: func() app.HTMLHtml {
-			return app.Html().DataSet("bs-core", "modern").DataSet("bs-theme", "dark")
+			return app.Html().DataSet("bs-theme", "auto")
 		},
 		Styles: []string{
-			"web/css/alert.css",
-			"web/css/yaml.css",
-			// "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css",
-			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css",
-			"https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css",
-			"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
+			"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css",
+			"web/css/modern-style.css",
 		},
 		RawHeaders: []string{
 			`
 			<meta charset="utf-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+			<meta name="description" content="Generate sample YAML files from Kubernetes CRD definitions with an intuitive web interface">
+			<meta name="keywords" content="Kubernetes, CRD, YAML, generator, CustomResourceDefinition">
 			<style>
-				header{
-					margin: 0px;
-					padding: 20px 20px 0px  ;
-					border-bottom: 1px solid black;
+				:root {
+					--primary-color: #0d6efd;
+					--secondary-color: #6c757d;
+					--success-color: #198754;
+					--info-color: #0dcaf0;
+					--warning-color: #ffc107;
+					--danger-color: #dc3545;
+					--light-color: #f8f9fa;
+					--dark-color: #212529;
+					--border-radius: 0.5rem;
+					--box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+					--transition: all 0.2s ease-in-out;
 				}
-				nav{
-					display: flex;
+
+				body {
+					font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+					line-height: 1.6;
+					background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+					min-height: 100vh;
+					color: #212529;
 				}
-				.title{
-					position: relative;
-					top: -5px;
-					margin-right: auto;
-					font-size: 25px;
+
+				.main-container {
+					background: rgba(255, 255, 255, 0.98);
+					backdrop-filter: blur(10px);
+					border-radius: var(--border-radius);
+					box-shadow: var(--box-shadow);
+					margin: 2rem auto;
+					max-width: 1200px;
+					overflow: hidden;
+					color: #212529;
 				}
-				.title:hover{
-					color: rgb(0, 0, 164);
-					cursor: pointer;
+
+				@media (prefers-color-scheme: dark) {
+					body {
+						background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+						color: #f7fafc;
+					}
+					.main-container {
+						background: rgba(26, 32, 44, 0.98);
+						color: #f7fafc;
+					}
 				}
-				li{
-					width: 50px;
-					margin-left: 20px;
+
+				.navbar-brand {
+					font-weight: 700;
+					font-size: 1.5rem;
+					background: linear-gradient(45deg, var(--primary-color), var(--info-color));
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+					background-clip: text;
+				}
+
+				.btn {
+					border-radius: var(--border-radius);
+					font-weight: 500;
+					transition: var(--transition);
+					border: none;
+					padding: 0.75rem 1.5rem;
+				}
+
+				.btn-primary {
+					background: linear-gradient(45deg, var(--primary-color), #0056b3);
+					box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+				}
+
+				.btn-primary:hover {
+					transform: translateY(-2px);
+					box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+				}
+
+				.form-control, .form-select {
+					border-radius: var(--border-radius);
+					border: 2px solid #e9ecef;
+					transition: var(--transition);
+					padding: 0.75rem 1rem;
+				}
+
+				.form-control:focus, .form-select:focus {
+					border-color: var(--primary-color);
+					box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+				}
+
+				.card {
+					border: none;
+					border-radius: var(--border-radius);
+					box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+					transition: var(--transition);
+				}
+
+				.card:hover {
+					transform: translateY(-4px);
+					box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
+				}
+
+				/* Custom accordion styling is now in modern-style.css */
+
+				.loading-spinner {
 					display: inline-block;
-					list-style: none;
+					width: 20px;
+					height: 20px;
+					border: 3px solid rgba(255, 255, 255, 0.3);
+					border-radius: 50%;
+					border-top-color: #fff;
+					animation: spin 1s ease-in-out infinite;
+				}
+
+				@keyframes spin {
+					to { transform: rotate(360deg); }
+				}
+
+				.fade-in {
+					animation: fadeIn 0.5s ease-in;
+				}
+
+				@keyframes fadeIn {
+					from { opacity: 0; transform: translateY(20px); }
+					to { opacity: 1; transform: translateY(0); }
 				}
 			</style>`,
 		},
 		Scripts: []string{
-			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js",
+			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
 			"https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js",
+			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js",
+			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js",
 		},
 		Icon: app.Icon{
 			Default: "/web/img/logo.png",
