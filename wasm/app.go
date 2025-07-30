@@ -18,14 +18,17 @@ import (
 	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
 
+// timeout after 2 seconds.
+const timeout = 2000
+
 // crdView is the main component to display a rendered CRD.
 type crdView struct {
 	app.Compo
 	preRenderErr error
 
-	crds    []*pkg.SchemaType
-	comment bool
-	minimal bool
+	crds        []*pkg.SchemaType
+	comment     bool
+	minimal     bool
 	originalURL string
 
 	navigateBackOnClick func(ctx app.Context, _ app.Event)
@@ -78,7 +81,7 @@ func (v *detailsView) Render() app.UI {
 				),
 			),
 		),
-		
+
 		// YAML output container
 		app.Div().Class("position-relative").Body(
 			// Copy button
@@ -89,7 +92,7 @@ func (v *detailsView) Render() app.UI {
 				OnClick(v.onCopyClick).Body(
 				app.I().Class("fas fa-copy"),
 			),
-			
+
 			// YAML content
 			app.Pre().Class("yaml-text").Body(
 				app.Code().ID("yaml-sample-"+v.version.Version).Body(app.If(v.renderErr != nil, func() app.UI {
@@ -137,7 +140,7 @@ func (v *detailsView) onCopyClick(ctx app.Context, _ app.Event) {
 	if content == "" {
 		return
 	}
-	
+
 	// Use JavaScript's clipboard API
 	app.Window().Get("navigator").Get("clipboard").Call("writeText", content).Call("then", app.FuncOf(func(this app.Value, args []app.Value) interface{} {
 		// Show success feedback
@@ -146,15 +149,15 @@ func (v *detailsView) onCopyClick(ctx app.Context, _ app.Event) {
 		btn.Set("innerHTML", `<i class="fas fa-check"></i>`)
 		btn.Get("classList").Call("add", "btn-success")
 		btn.Get("classList").Call("remove", "copy-btn")
-		
-		// Reset after 2 seconds
+
 		app.Window().Call("setTimeout", app.FuncOf(func(this app.Value, args []app.Value) interface{} {
 			btn.Set("innerHTML", originalHTML)
 			btn.Get("classList").Call("remove", "btn-success")
 			btn.Get("classList").Call("add", "copy-btn")
+
 			return nil
-		}), 2000)
-		
+		}), timeout)
+
 		return nil
 	}))
 }
@@ -285,7 +288,7 @@ func (h *crdView) Render() app.UI {
 	container := app.Div().Class("container mt-4")
 	container.Body(app.Range(versions).Slice(func(i int) app.UI {
 		version := versions[i]
-		
+
 		return app.Div().Class("card mb-5 fade-in").Body(
 			// Version header
 			app.Div().Class("card-header bg-primary text-white").Body(
@@ -305,7 +308,7 @@ func (h *crdView) Render() app.UI {
 					),
 				),
 			),
-			
+
 			// Version description
 			app.If(version.Description != "", func() app.UI {
 				return app.Div().Class("card-body border-bottom").Body(
@@ -315,7 +318,7 @@ func (h *crdView) Render() app.UI {
 					),
 				)
 			}),
-			
+
 			// YAML Sample Section
 			app.Div().Class("card-body").Body(
 				app.Div().Class("d-flex justify-content-between align-items-center mb-3").Body(
@@ -337,7 +340,7 @@ func (h *crdView) Render() app.UI {
 					&detailsView{version: &version},
 				),
 			),
-			
+
 			// Properties Schema Section
 			app.Div().Class("card-body border-top").Body(
 				app.H5().Class("mb-3 d-flex align-items-center").Body(
@@ -377,14 +380,14 @@ func (h *crdView) onShareClick(ctx app.Context, _ app.Event) {
 	if h.originalURL == "" {
 		return
 	}
-	
+
 	pageURL := ctx.Page().URL()
 	protocol := "https"
 	if pageURL.Scheme != "" {
 		protocol = pageURL.Scheme
 	}
 	shareURL := fmt.Sprintf("%s://%s/share?url=%s", protocol, pageURL.Host, url.QueryEscape(h.originalURL))
-	
+
 	// Use JavaScript clipboard API
 	app.Window().Get("navigator").Get("clipboard").Call("writeText", shareURL)
 }
@@ -446,7 +449,7 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 
 		// Create header element
 		var header app.UI
-		
+
 		if len(prop.Properties) > 0 {
 			// This property has children - make it collapsible
 			targetID := "accordion-collapse-for-" + prop.Name + accordionID
@@ -468,7 +471,7 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 			// Add collapsible content
 			accordionDiv := app.Div().Class("accordion-collapse collapse").ID(targetID).DataSet("bs-parent", "#"+accordionID)
 			accordionBody := app.Div().Class("accordion-body")
-			
+
 			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, targetID)
 			accordionBody.Body(element)
 			accordionDiv.Body(accordionBody)

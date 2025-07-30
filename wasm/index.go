@@ -63,14 +63,6 @@ func (i *index) dismissError(_ app.Context, _ app.Event) {
 	i.err = nil
 }
 
-type title struct {
-	app.Compo
-}
-
-func (b *title) Render() app.UI {
-	return app.Div().Class("title").Text("CRD Parser")
-}
-
 // header is the site header.
 type header struct {
 	app.Compo
@@ -81,37 +73,6 @@ type header struct {
 	shareOnClick func(ctx app.Context, _ app.Event)
 }
 
-type backButton struct {
-	app.Compo
-
-	hidden  bool
-	onClick func(ctx app.Context, _ app.Event)
-}
-
-type shareButton struct {
-	app.Compo
-
-	hidden  bool
-	url     string
-	onClick func(ctx app.Context, _ app.Event)
-}
-
-func (b *backButton) Render() app.UI {
-	return app.Ul().Body(
-		app.Li().Body(
-			app.A().Href("#").Body(
-				app.I().Class("fa fa-arrow-left fa-2x")),
-		)).Hidden(b.hidden).OnClick(b.onClick)
-}
-
-func (s *shareButton) Render() app.UI {
-	return app.Ul().Body(
-		app.Li().Body(
-			app.A().Href("#").Body(
-				app.I().Class("fa fa-share fa-2x")),
-		)).Hidden(s.hidden).OnClick(s.onClick)
-}
-
 func (h *header) Render() app.UI {
 	return app.Nav().Class("navbar navbar-expand-lg").Body(
 		app.Div().Class("container-fluid").Body(
@@ -120,7 +81,7 @@ func (h *header) Render() app.UI {
 				app.I().Class("fas fa-code me-2").Style("font-size", "1.5rem"),
 				app.Span().Text("CRD to YAML"),
 			),
-			
+
 			// Mobile toggle button
 			app.Button().Class("navbar-toggler").Type("button").
 				DataSet("bs-toggle", "collapse").
@@ -130,7 +91,7 @@ func (h *header) Render() app.UI {
 				Aria("label", "Toggle navigation").Body(
 				app.Span().Class("navbar-toggler-icon"),
 			),
-			
+
 			// Collapsible navbar content
 			app.Div().Class("collapse navbar-collapse").ID("navbarNav").Body(
 				app.Ul().Class("navbar-nav ms-auto").Body(
@@ -142,7 +103,7 @@ func (h *header) Render() app.UI {
 							app.I().Class("fas fa-arrow-left"),
 						),
 					),
-					
+
 					// Share button
 					app.Li().Class("nav-item").Hidden(h.hidden || h.shareURL == "").Body(
 						app.Button().Class("nav-link icon-btn me-2 btn btn-link border-0").
@@ -151,7 +112,7 @@ func (h *header) Render() app.UI {
 							app.I().Class("fas fa-share-alt"),
 						),
 					),
-					
+
 					// GitHub link
 					app.Li().Class("nav-item").Body(
 						app.A().Class("nav-link icon-btn").
@@ -226,7 +187,7 @@ func (i *input) Render() app.UI {
 						app.Label().For("url_to_crd").Text("CRD URL"),
 					),
 				),
-				
+
 				// Authentication section
 				app.Div().Class("col-12").Body(
 					app.Div().Class("border rounded p-3 bg-light").Body(
@@ -342,7 +303,7 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 	submitBtn.Get("classList").Call("add", "btn-loading")
 	originalText := submitBtn.Get("innerHTML").String()
 	submitBtn.Set("innerHTML", `<span class="loading-spinner me-2"></span>Processing...`)
-	
+
 	defer func() {
 		submitBtn.Set("disabled", false)
 		submitBtn.Get("classList").Call("remove", "btn-loading")
