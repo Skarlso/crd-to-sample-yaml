@@ -101,6 +101,9 @@
                                             {{if $v.Enums}}
                                             <kbd class="text-muted">{{$v.Enums}}</kbd>
                                             {{end}}
+                                            {{if $v.Examples}}
+                                            <kbd class="text-muted">{{$v.Examples}}</kbd>
+                                            {{end}}
                                         </summary>
                                         <div id="{{$v.Name}}" class="collapse-content">
                                             <div class="property-description">
