@@ -6,14 +6,14 @@
     font-size: 14px;
     line-height: 1.6;
     white-space: pre-wrap;
-    background: #f8f9fa;
-    color: #2d3748;
+    background: #fafafa;
+    color: #1a1a1a;
     padding: 1.5rem;
     border-radius: 0.75rem;
-    border: 2px solid #e2e8f0;
+    border: 1px solid #d1d5db;
     overflow-x: auto;
     position: relative;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Dark mode YAML styling */
@@ -41,21 +41,21 @@
     }
     
     .form-control, .form-select {
-        background: rgba(45, 55, 72, 0.8);
-        border-color: rgba(74, 85, 104, 0.6);
-        color: #f7fafc;
+        background: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
     }
     
     .form-control:focus, .form-select:focus {
-        background: rgba(45, 55, 72, 0.9);
-        border-color: #3b82f6;
-        color: #f7fafc;
+        background: #475569;
+        border-color: #6366f1;
+        color: #f1f5f9;
     }
     
     .input-group-text {
-        background: rgba(45, 55, 72, 0.8);
-        border-color: rgba(74, 85, 104, 0.6);
-        color: #f7fafc;
+        background: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
     }
     
     .text-muted {
@@ -63,37 +63,37 @@
     }
     
     .accordion-item-static {
-        background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%) !important;
-        border-color: #3730a3 !important;
-        color: #dbeafe;
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc;
     }
     
     .accordion-item-static:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+        background: #334155 !important;
     }
     
     .accordion-button {
-        background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%) !important;
-        color: #dbeafe !important;
+        background: #1e293b !important;
+        color: #f8fafc !important;
     }
     
     .accordion-button:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+        background: #334155 !important;
     }
     
     .accordion-button:not(.collapsed) {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-        color: white !important;
+        background: #475569 !important;
+        color: #f1f5f9 !important;
     }
     
     .accordion-body {
-        background: #0f172a !important;
-        border-color: #3730a3 !important;
-        color: #dbeafe;
+        background: #1e293b !important;
+        border-color: #475569 !important;
+        color: #f8fafc;
     }
     
     .bg-light {
-        background: rgba(45, 55, 72, 0.6) !important;
+        background: rgba(30, 58, 138, 0.6) !important;
     }
 }
 
@@ -102,8 +102,8 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: #3b82f6;
-    border: 1px solid #2563eb;
+    background: #6b7280;
+    border: 1px solid #4b5563;
     color: white;
     padding: 0.5rem 0.75rem;
     border-radius: 0.375rem;
@@ -115,9 +115,8 @@
 }
 
 .copy-btn:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    background: #4b5563;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .btn-success {
@@ -151,21 +150,21 @@
 }
 
 .alert-danger {
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    color: #991b1b;
-    border-left: 4px solid #dc2626;
+    background: #fef7f7;
+    color: #7f1d1d;
+    border-left: 4px solid #b91c1c;
 }
 
 .alert-success {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    color: #166534;
-    border-left: 4px solid #16a34a;
+    background: #f7fdf7;
+    color: #14532d;
+    border-left: 4px solid #15803d;
 }
 
 .alert-info {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    color: #1e40af;
-    border-left: 4px solid #3b82f6;
+    background: #f8fafc;
+    color: #1e293b;
+    border-left: 4px solid #475569;
 }
 
 /* Close button enhancement */
@@ -189,7 +188,6 @@
 
 .closebtn:hover {
     background: rgba(0, 0, 0, 0.2);
-    transform: scale(1.1);
 }
 
 /* Enhanced form controls */
@@ -223,18 +221,22 @@
     margin-bottom: 0.75rem;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: rgba(45, 55, 72, 0.95);
 }
 
 .accordion-item-static {
     transition: all 0.2s ease;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    border: 1px solid #bfdbfe;
+    background: linear-gradient(135deg, #475569 0%, #64748b 100%);
+    border: 1px solid #6b7280;
+    color: #f1f5f9;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .accordion-item-static:hover {
+    background: linear-gradient(135deg, #64748b 0%, #78716c 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.25);
 }
 
 .accordion-header {
@@ -247,24 +249,27 @@
     font-weight: 600;
     padding: 1.25rem 1.5rem;
     position: relative;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+    background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%) !important;
     border-radius: 0.5rem !important;
     color: #1e40af !important;
+    transition: all 0.2s ease;
 }
 
 .accordion-button:hover {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
 
 .accordion-button:not(.collapsed) {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-    color: white !important;
-    box-shadow: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
 }
 
 .accordion-button:focus {
-    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
-    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 0.2rem rgba(71, 85, 105, 0.25) !important;
+    border-color: #475569 !important;
 }
 
 /* Remove default Bootstrap arrow and use our own */
@@ -288,8 +293,9 @@
 
 .accordion-body {
     padding: 1.5rem;
-    background: #f8fafc;
-    border-top: 1px solid #bfdbfe;
+    background: #fdfdfd;
+    border-top: 1px solid #f1f3f4;
+    color: #1f2937;
 }
 
 /* Property type badges */
@@ -300,16 +306,16 @@
     letter-spacing: 0.05em;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    background: linear-gradient(45deg, #6366f1, #8b5cf6);
+    background: #6b7280;
     color: white;
 }
 
 .property-required {
-    background: linear-gradient(45deg, #ef4444, #f97316);
+    background: #991b1b;
 }
 
 .property-enum {
-    background: linear-gradient(45deg, #06b6d4, #0891b2);
+    background: #0f766e;
 }
 
 /* Loading states */
@@ -358,19 +364,19 @@
 
 /* Syntax highlighting enhancements */
 .token.property {
-    color: #f472b6;
+    color: #be185d;
 }
 
 .token.string {
-    color: #10b981;
+    color: #059669;
 }
 
 .token.number {
-    color: #f59e0b;
+    color: #d97706;
 }
 
 .token.boolean {
-    color: #8b5cf6;
+    color: #7c3aed;
 }
 
 .token.null {
@@ -418,29 +424,73 @@
     height: 2.5rem;
     border-radius: 50%;
     border: none;
-    background: rgba(99, 102, 241, 0.1);
-    color: #6366f1;
+    background: rgba(107, 114, 128, 0.1);
+    color: #4b5563;
     transition: all 0.2s ease;
     cursor: pointer;
 }
 
 .icon-btn:hover {
-    background: rgba(99, 102, 241, 0.2);
-    transform: scale(1.05);
+    background: rgba(107, 114, 128, 0.2);
+}
+
+/* Bootstrap overrides for better text contrast */
+.text-primary {
+    color: #111827 !important;
+}
+
+.text-muted {
+    color: #111827 !important;
+}
+
+/* Override text-muted inside accordion body for better contrast */
+.accordion-body .text-muted {
+    color: #cbd5e1 !important;
+}
+
+/* Override text-primary inside accordion body */
+.accordion-body .text-primary {
+    color: #e2e8f0 !important;
+}
+
+/* Override text-muted inside accordion items for better contrast */
+.accordion-item-static .text-muted {
+    color: #cbd5e1 !important;
+}
+
+.bg-light {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.accordion-item-static.bg-light {
+    background: linear-gradient(135deg, #475569 0%, #64748b 100%) !important;
+    color: #f1f5f9 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    border-radius: 0.5rem !important;
+    border: 1px solid #6b7280;
+}
+
+.accordion-item-static.bg-light:hover {
+    background: linear-gradient(135deg, #64748b 0%, #78716c 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.25);
 }
 
 /* Enhanced input groups */
 .input-group-text {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border: 2px solid #e9ecef;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
     font-weight: 600;
-    color: #475569;
+    color: #374151;
 }
 
 @media (prefers-color-scheme: dark) {
     .input-group-text {
-        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-        border-color: #4b5563;
-        color: #e5e7eb;
+        background: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
     }
 }

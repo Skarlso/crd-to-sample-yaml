@@ -84,9 +84,9 @@ func main() {
 				body {
 					font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 					line-height: 1.6;
-					background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+					background: linear-gradient(135deg, #8b9dc3 0%, #9ca3af 100%);
 					min-height: 100vh;
-					color: #212529;
+					color: #111827;
 				}
 
 				.main-container {
@@ -97,7 +97,7 @@ func main() {
 					margin: 2rem auto;
 					max-width: 1200px;
 					overflow: hidden;
-					color: #212529;
+					color: #111827;
 				}
 
 				@media (prefers-color-scheme: dark) {
@@ -114,10 +114,7 @@ func main() {
 				.navbar-brand {
 					font-weight: 700;
 					font-size: 1.5rem;
-					background: linear-gradient(45deg, var(--primary-color), var(--info-color));
-					-webkit-background-clip: text;
-					-webkit-text-fill-color: transparent;
-					background-clip: text;
+					color: #1f2937;
 				}
 
 				.btn {
@@ -129,13 +126,13 @@ func main() {
 				}
 
 				.btn-primary {
-					background: linear-gradient(45deg, var(--primary-color), #0056b3);
-					box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+					background: #4b5563;
+					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 				}
 
 				.btn-primary:hover {
-					transform: translateY(-2px);
-					box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+					background: #374151;
+					box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 				}
 
 				.form-control, .form-select {
@@ -146,8 +143,8 @@ func main() {
 				}
 
 				.form-control:focus, .form-select:focus {
-					border-color: var(--primary-color);
-					box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+					border-color: #6b7280;
+					box-shadow: 0 0 0 0.2rem rgba(107, 114, 128, 0.25);
 				}
 
 				.card {
@@ -158,8 +155,7 @@ func main() {
 				}
 
 				.card:hover {
-					transform: translateY(-4px);
-					box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
+					box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
 				}
 
 				/* Custom accordion styling is now in modern-style.css */
