@@ -67,6 +67,15 @@ func main() {
 			<meta name="description" content="Generate sample YAML files from Kubernetes CRD definitions with an intuitive web interface">
 			<meta name="keywords" content="Kubernetes, CRD, YAML, generator, CustomResourceDefinition">
 			<style>
+				/* Prevent automatic scrolling behavior */
+				* {
+					scroll-behavior: auto !important;
+				}
+
+				*:focus {
+					scroll-behavior: auto !important;
+				}
+
 				:root {
 					--primary-color: #0d6efd;
 					--secondary-color: #6c757d;
@@ -179,8 +188,8 @@ func main() {
 				}
 
 				@keyframes fadeIn {
-					from { opacity: 0; transform: translateY(20px); }
-					to { opacity: 1; transform: translateY(0); }
+					from { opacity: 0; }
+					to { opacity: 1; }
 				}
 			</style>`,
 		},

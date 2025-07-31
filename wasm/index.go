@@ -148,8 +148,7 @@ func (t *textarea) Render() app.UI {
 					ID("crd_data").
 					Name("crd_data").
 					Placeholder("Paste your Kubernetes CRD definition here...").
-					Style("min-height", "200px").
-					AutoFocus(true),
+					Style("min-height", "200px"),
 				app.Label().For("crd_data").Text("Paste your Kubernetes CRD definition here..."),
 			),
 			app.Div().Class("form-text mt-2").Body(
@@ -326,6 +325,9 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 		}
 
 		i.crds = append(i.crds, crd)
+		
+		// Scroll to top after successful CRD processing
+		app.Window().Call("scrollTo", 0, 0)
 
 		return
 	}
@@ -364,6 +366,9 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 	}
 
 	i.crds = append(i.crds, crd)
+	
+	// Scroll to top after successful CRD processing
+	app.Window().Call("scrollTo", 0, 0)
 }
 
 // checkBox defines if comments should be generated for the sample YAML output.

@@ -1,5 +1,5 @@
 <!doctype html>
-<html data-bs-theme="auto" lang="en">
+<html lang="en" data-bs-theme="auto">
   <head>
     <meta charset="UTF-8">
     <meta name="author" content="Gergely Brautigam">
@@ -10,7 +10,7 @@
     <meta property="og:url" content="https:///share">
     <meta property="og:title" content="CRD to YAML Generator">
     <meta property="og:description">
-    <meta content="website" property="og:type">
+    <meta property="og:type" content="website">
     <meta property="og:image" content="https://">
     <title>CRD to YAML Generator</title>
     <link rel="icon" href="https://raw.githubusercontent.com/maxence-charriere/go-app/master/docs/web/icon.svg">
@@ -32,6 +32,15 @@
 			<meta name="description" content="Generate sample YAML files from Kubernetes CRD definitions with an intuitive web interface">
 			<meta name="keywords" content="Kubernetes, CRD, YAML, generator, CustomResourceDefinition">
 			<style>
+				/* Prevent automatic scrolling behavior */
+				* {
+					scroll-behavior: auto !important;
+				}
+
+				*:focus {
+					scroll-behavior: auto !important;
+				}
+
 				:root {
 					--primary-color: #0d6efd;
 					--secondary-color: #6c757d;
@@ -144,8 +153,8 @@
 				}
 
 				@keyframes fadeIn {
-					from { opacity: 0; transform: translateY(20px); }
-					to { opacity: 1; transform: translateY(0); }
+					from { opacity: 0; }
+					to { opacity: 1; }
 				}
 			</style>
   </head>
@@ -165,7 +174,7 @@
       </div>
     </div>
     <aside id="app-wasm-loader" class="goapp-app-info">
-      <img id="app-wasm-loader-icon" class="goapp-logo goapp-spin" alt="wasm loader icon" src="/web/img/logo.png">
+      <img alt="wasm loader icon" src="/web/img/logo.png" id="app-wasm-loader-icon" class="goapp-logo goapp-spin">
       <p id="app-wasm-loader-label" class="goapp-label">0%</p>
     </aside>
   </body>

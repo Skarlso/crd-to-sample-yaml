@@ -556,7 +556,7 @@
                     {{end}}
                     {{if .Enums}}
                         <div class="property-constraints">
-                            <span class="constraint-badge">Values: {{range $i, $enum := .Enums}}{{if $i}}, {{end}}{{$enum}}{{end}}</span>
+                            <span class="constraint-badge">Values: {{.Enums}}</span>
                         </div>
                     {{end}}
                 </div>
