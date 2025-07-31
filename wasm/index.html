@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
     <meta property="og:url" content="https://">
-    <meta content="CRD to YAML Generator" property="og:title">
+    <meta property="og:title" content="CRD to YAML Generator">
     <meta property="og:description">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://">
@@ -21,7 +21,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css" rel="stylesheet" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" type="text/css" rel="stylesheet" integrity="sha384-wFjoQjtV1y5jVHbt0p35Ui8aV8GVpEZkyF99OXWqP/eNJDU93D3Ugxkoyh6Y2I4A" crossorigin="anonymous">
     <link href="/web/css/modern-style.css" type="text/css" rel="stylesheet">
-    <script defer src="/wasm_exec.js"></script>
+    <script src="/wasm_exec.js" defer></script>
     <script defer src="/app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha384-J08i8An/QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
@@ -32,6 +32,15 @@
 			<meta name="description" content="Generate sample YAML files from Kubernetes CRD definitions with an intuitive web interface">
 			<meta name="keywords" content="Kubernetes, CRD, YAML, generator, CustomResourceDefinition">
 			<style>
+				/* Prevent automatic scrolling behavior */
+				* {
+					scroll-behavior: auto !important;
+				}
+
+				*:focus {
+					scroll-behavior: auto !important;
+				}
+
 				:root {
 					--primary-color: #0d6efd;
 					--secondary-color: #6c757d;
@@ -144,14 +153,14 @@
 				}
 
 				@keyframes fadeIn {
-					from { opacity: 0; transform: translateY(20px); }
-					to { opacity: 1; transform: translateY(0); }
+					from { opacity: 0; }
+					to { opacity: 1; }
 				}
 			</style>
   </head>
   <body>
     <main></main>
-    <aside class="goapp-app-info" id="app-wasm-loader">
+    <aside id="app-wasm-loader" class="goapp-app-info">
       <img id="app-wasm-loader-icon" class="goapp-logo goapp-spin" alt="wasm loader icon" src="/web/img/logo.png">
       <p id="app-wasm-loader-label" class="goapp-label">0%</p>
     </aside>

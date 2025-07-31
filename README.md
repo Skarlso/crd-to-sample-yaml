@@ -115,13 +115,10 @@ To get an HTML output provide the format flag like this:
 cty generate crd -c delivery.krok.app_krokcommands --comments --format html
 ```
 
-![parsed1_cli](./imgs/parsed1_cli.png)
-![parsed2_cli](./imgs/parsed2_cli.png)
-
 In case of multiple CRD files being parsed using a `folder` target, the CRDs will be listed
 in collapsed drop-down menus where their KIND is the title.
 
-![parsed3_cli](./imgs/parsed3_cli.png)
+![parsed3_cli](./imgs/rendered-with-folder.png)
 
 ### Minimal required CRD sample
 
@@ -188,11 +185,10 @@ apiGroups:
       - azure-crds
 ```
 
-![rendered with groups](imgs/parsed4_groups.png)
 
 If no grouping information is provided, the rendered CRD's group version is used.
 
-![rendered without groups](imgs/parsed4_groups_2.png)
+![rendered with groups](imgs/showcase5.png)
 
 All ways of fetching CRDs are supported through the configuration file. When dealing with URLs I recommend templating
 this file and fetching sensitive data from elsewhere. For Git, I recommend using the local ssh-agent or a link to
@@ -322,10 +318,7 @@ Where some templated value isn't escaped with `'` will create an invalid YAML th
 
 ## Showcase
 
-![frontpage](./imgs/frontend.png)
-
-Parsed Yaml output on the website:
-
-![parsed1](./imgs/parsed1_website.png)
-![parsed2](./imgs/parsed2_website.png)
-![parsed3](./imgs/parsed1_sample_website.png)
+![showcase1](./imgs/showcase1.png)
+![showcase2](./imgs/showcase2.png)
+![showcase3](./imgs/showcase3.png)
+![showcase4](./imgs/showcase4.png)

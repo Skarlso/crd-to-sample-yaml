@@ -289,7 +289,7 @@ func (h *crdView) Render() app.UI {
 	container.Body(app.Range(versions).Slice(func(i int) app.UI {
 		version := versions[i]
 
-		return app.Div().Class("card mb-5 fade-in").Body(
+		return app.Div().Class("card mb-5").Body(
 			// Version header
 			app.Div().Class("card-header bg-primary text-white").Body(
 				app.Div().Class("d-flex justify-content-between align-items-center").Body(

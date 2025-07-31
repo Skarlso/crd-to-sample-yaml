@@ -1,5 +1,14 @@
 /* Modern CRD to YAML Generator Styles */
 
+/* Prevent automatic scrolling behavior */
+* {
+    scroll-behavior: auto !important;
+}
+
+*:focus {
+    scroll-behavior: auto !important;
+}
+
 /* Enhanced YAML display */
 .yaml-text {
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
@@ -270,6 +279,7 @@
 .accordion-button:focus {
     box-shadow: 0 0 0 0.2rem rgba(71, 85, 105, 0.25) !important;
     border-color: #475569 !important;
+    scroll-behavior: auto !important;
 }
 
 /* Remove default Bootstrap arrow and use our own */
