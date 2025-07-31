@@ -1,64 +1,158 @@
 <!doctype html>
-<html data-bs-core="modern" data-bs-theme="dark" lang="en">
+<html data-bs-theme="auto" lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta content="Gergely Brautigam" name="author">
-    <meta name="description" content>
+    <meta name="author" content="Gergely Brautigam">
+    <meta name="description">
     <meta name="theme-color" content="#2d2c2c">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta property="og:url" content="https://">
-    <meta property="og:title" content="Preview CRDs">
-    <meta property="og:description" content>
+    <meta content="CRD to YAML Generator" property="og:title">
+    <meta property="og:description">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://">
-    <title>Preview CRDs</title>
-    <link href="https://raw.githubusercontent.com/maxence-charriere/go-app/master/docs/web/icon.svg" rel="icon">
+    <title>CRD to YAML Generator</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/maxence-charriere/go-app/master/docs/web/icon.svg">
     <link href="/web/img/logo.png" rel="apple-touch-icon">
-    <link href="/manifest.webmanifest" rel="manifest">
-    <link rel="stylesheet" href="/app.css" type="text/css">
-    <link href="/web/css/alert.css" type="text/css" rel="stylesheet">
-    <link href="/web/css/yaml.css" type="text/css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" type="text/css">
-    <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/cores/halfmoon.modern.css" type="text/css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
-    <script src="/wasm_exec.js" defer></script>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link href="/app.css" type="text/css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css" rel="stylesheet" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" type="text/css" rel="stylesheet" integrity="sha384-wFjoQjtV1y5jVHbt0p35Ui8aV8GVpEZkyF99OXWqP/eNJDU93D3Ugxkoyh6Y2I4A" crossorigin="anonymous">
+    <link href="/web/css/modern-style.css" type="text/css" rel="stylesheet">
+    <script defer src="/wasm_exec.js"></script>
     <script defer src="/app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha384-J08i8An/QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" integrity="sha384-MXybTpajaBV0AkcBaCPT4KIvo0FzoCiWXgcihYsw4FUkEz0Pv3JGV6tk2G8vJtDc" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha384-Uq05+JLko69eOiPr39ta9bh7kld5PKZoU+fF7g0EXTAriEollhZ+DrN8Q/Oi8J2Q" crossorigin="anonymous"></script>
     <meta charset="utf-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+			<meta name="description" content="Generate sample YAML files from Kubernetes CRD definitions with an intuitive web interface">
+			<meta name="keywords" content="Kubernetes, CRD, YAML, generator, CustomResourceDefinition">
 			<style>
-				header{
-					margin: 0px;
-					padding: 20px 20px 0px  ;
-					border-bottom: 1px solid black;
+				:root {
+					--primary-color: #0d6efd;
+					--secondary-color: #6c757d;
+					--success-color: #198754;
+					--info-color: #0dcaf0;
+					--warning-color: #ffc107;
+					--danger-color: #dc3545;
+					--light-color: #f8f9fa;
+					--dark-color: #212529;
+					--border-radius: 0.5rem;
+					--box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+					--transition: all 0.2s ease-in-out;
 				}
-				nav{
-					display: flex;
+
+				body {
+					font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+					line-height: 1.6;
+					background: linear-gradient(135deg, #8b9dc3 0%, #9ca3af 100%);
+					min-height: 100vh;
+					color: #111827;
 				}
-				.title{
-					position: relative;
-					top: -5px;
-					margin-right: auto;
-					font-size: 25px;
+
+				.main-container {
+					background: rgba(255, 255, 255, 0.98);
+					backdrop-filter: blur(10px);
+					border-radius: var(--border-radius);
+					box-shadow: var(--box-shadow);
+					margin: 2rem auto;
+					max-width: 1200px;
+					overflow: hidden;
+					color: #111827;
 				}
-				.title:hover{
-					color: rgb(0, 0, 164);
-					cursor: pointer;
+
+				@media (prefers-color-scheme: dark) {
+					body {
+						background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+						color: #f7fafc;
+					}
+					.main-container {
+						background: rgba(26, 32, 44, 0.98);
+						color: #f7fafc;
+					}
 				}
-				li{
-					width: 50px;
-					margin-left: 20px;
+
+				.navbar-brand {
+					font-weight: 700;
+					font-size: 1.5rem;
+					color: #1f2937;
+				}
+
+				.btn {
+					border-radius: var(--border-radius);
+					font-weight: 500;
+					transition: var(--transition);
+					border: none;
+					padding: 0.75rem 1.5rem;
+				}
+
+				.btn-primary {
+					background: #4b5563;
+					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+				}
+
+				.btn-primary:hover {
+					background: #374151;
+					box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+				}
+
+				.form-control, .form-select {
+					border-radius: var(--border-radius);
+					border: 2px solid #e9ecef;
+					transition: var(--transition);
+					padding: 0.75rem 1rem;
+				}
+
+				.form-control:focus, .form-select:focus {
+					border-color: #6b7280;
+					box-shadow: 0 0 0 0.2rem rgba(107, 114, 128, 0.25);
+				}
+
+				.card {
+					border: none;
+					border-radius: var(--border-radius);
+					box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+					transition: var(--transition);
+				}
+
+				.card:hover {
+					box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
+				}
+
+				/* Custom accordion styling is now in modern-style.css */
+
+				.loading-spinner {
 					display: inline-block;
-					list-style: none;
+					width: 20px;
+					height: 20px;
+					border: 3px solid rgba(255, 255, 255, 0.3);
+					border-radius: 50%;
+					border-top-color: #fff;
+					animation: spin 1s ease-in-out infinite;
+				}
+
+				@keyframes spin {
+					to { transform: rotate(360deg); }
+				}
+
+				.fade-in {
+					animation: fadeIn 0.5s ease-in;
+				}
+
+				@keyframes fadeIn {
+					from { opacity: 0; transform: translateY(20px); }
+					to { opacity: 1; transform: translateY(0); }
 				}
 			</style>
   </head>
   <body>
     <main></main>
-    <aside id="app-wasm-loader" class="goapp-app-info">
-      <img alt="wasm loader icon" src="/web/img/logo.png" id="app-wasm-loader-icon" class="goapp-logo goapp-spin">
+    <aside class="goapp-app-info" id="app-wasm-loader">
+      <img id="app-wasm-loader-icon" class="goapp-logo goapp-spin" alt="wasm loader icon" src="/web/img/logo.png">
       <p id="app-wasm-loader-label" class="goapp-label">0%</p>
     </aside>
   </body>
