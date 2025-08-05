@@ -547,10 +547,11 @@
                     {{if .Description}}
                         <div class="property-description">{{.Description}}</div>
                     {{end}}
-                    {{if or .Format .Default .Patterns}}
+                    {{if or .Format .Default .Patterns .Examples}}
                         <div class="property-constraints">
                             {{if .Format}}<span class="constraint-badge">Format: {{.Format}}</span>{{end}}
                             {{if .Default}}<span class="constraint-badge">Default: {{.Default}}</span>{{end}}
+                            {{if .Examples}}<span class="constraint-badge">Examples: {{.Examples}}</span>{{end}}
                             {{if .Patterns}}<span class="constraint-badge">Pattern: {{.Patterns}}</span>{{end}}
                         </div>
                     {{end}}
