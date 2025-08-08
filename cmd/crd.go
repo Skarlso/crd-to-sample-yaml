@@ -33,6 +33,7 @@ type crdGenArgs struct {
 	output     string
 	format     string
 	stdOut     bool
+	cssFile    string
 }
 
 var crdArgs = &crdGenArgs{}
@@ -51,6 +52,7 @@ func init() {
 	f.StringVarP(&crdArgs.output, "output", "o", "", "The location of the output file. Default is next to the CRD.")
 	f.StringVarP(&crdArgs.format, "format", "f", FormatYAML, "The format in which to output. Default is YAML. Options are: yaml, html.")
 	f.BoolVarP(&crdArgs.stdOut, "stdout", "s", false, "If set, it will output the generated content to stdout.")
+	f.StringVar(&crdArgs.cssFile, "css-file", "", "Path to a custom CSS file to inject into HTML output. Only valid when format is html.")
 }
 
 func runGenerate(_ *cobra.Command, _ []string) error {
@@ -95,10 +97,20 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			}
 		}
 
+		var customCSS string
+		if crdArgs.cssFile != "" {
+			var err error
+			customCSS, err = pkg.SanitizeCSS(crdArgs.cssFile)
+			if err != nil {
+				return fmt.Errorf("failed to process CSS file: %w", err)
+			}
+		}
+
 		opts := pkg.RenderOpts{
-			Comments: crdArgs.comments,
-			Minimal:  crdArgs.minimal,
-			Random:   crdArgs.skipRandom,
+			Comments:  crdArgs.comments,
+			Minimal:   crdArgs.minimal,
+			Random:    crdArgs.skipRandom,
+			CustomCSS: customCSS,
 		}
 
 		return pkg.RenderContent(w, crds, opts)

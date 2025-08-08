@@ -1,0 +1,25 @@
+/* Custom CSS for testing */
+.card {
+    border: 2px solid #ff6b6b !important;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%) !important;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+.property-type {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24) !important;
+}
+
+/* Add some custom animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.card:hover {
+    animation: pulse 0.5s ease-in-out !important;
+}
