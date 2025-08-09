@@ -120,6 +120,17 @@ in collapsed drop-down menus where their KIND is the title.
 
 ![parsed3_cli](./imgs/rendered-with-folder.png)
 
+#### Custom CSS
+
+The HTML output can be customized by providing a custom CSS file.
+To do that, pass `--css-file` to the command like this:
+
+```console
+cty generate crd -c ./sample-crd/delivery.krok.app_krokcommands.yaml --comments --format html --css-file pkg/test-custom.css --output krok.html
+```
+
+This way, you can customize the output however you want.
+
 ### Minimal required CRD sample
 
 It's possible to generate a sample YAML for a CRD that will make the CRD validation pass. Meaning, it will only contain

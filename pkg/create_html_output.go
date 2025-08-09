@@ -76,7 +76,7 @@ type Group struct {
 // will be a list of page views.
 type GroupPage struct {
 	Groups    []Group
-	CustomCSS string
+	CustomCSS template.CSS
 }
 
 type RenderOpts struct {
@@ -143,7 +143,7 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err e
 
 	index := GroupPage{
 		Groups:    allGroups,
-		CustomCSS: opts.CustomCSS,
+		CustomCSS: template.CSS(opts.CustomCSS),
 	}
 
 	if err := t.Execute(w, index); err != nil {
