@@ -182,21 +182,21 @@ func (v *Version) generateYAMLDetails(comment bool, minimal bool) (string, error
 	return buf.String(), nil
 }
 
-// DiffLine represents a single line in a diff with its type
+// DiffLine represents a single line in a diff with its type.
 type DiffLine struct {
 	Type    string // "added", "removed", "unchanged"
 	Content string
 	LineNum int
 }
 
-// simpleDiff performs a basic line-by-line diff between two strings
+// simpleDiff performs a basic line-by-line diff between two strings.
 func simpleDiff(oldContent, newContent string) []DiffLine {
 	oldLines := strings.Split(oldContent, "\n")
 	newLines := strings.Split(newContent, "\n")
-	
+
 	var result []DiffLine
 	oldIdx, newIdx := 0, 0
-	
+
 	for oldIdx < len(oldLines) && newIdx < len(newLines) {
 		if oldLines[oldIdx] == newLines[newIdx] {
 			result = append(result, DiffLine{
@@ -212,7 +212,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 			for lookAhead := 1; lookAhead < 3 && (newIdx+lookAhead) < len(newLines); lookAhead++ {
 				if oldLines[oldIdx] == newLines[newIdx+lookAhead] {
 					// Add the new lines before the match
-					for i := 0; i < lookAhead; i++ {
+					for i := range lookAhead {
 						result = append(result, DiffLine{
 							Type:    "added",
 							Content: newLines[newIdx+i],
@@ -221,6 +221,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 					}
 					newIdx += lookAhead
 					matchFound = true
+
 					break
 				}
 			}
@@ -229,7 +230,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 				for lookAhead := 1; lookAhead < 3 && (oldIdx+lookAhead) < len(oldLines); lookAhead++ {
 					if oldLines[oldIdx+lookAhead] == newLines[newIdx] {
 						// Add the removed lines
-						for i := 0; i < lookAhead; i++ {
+						for i := range lookAhead {
 							result = append(result, DiffLine{
 								Type:    "removed",
 								Content: oldLines[oldIdx+i],
@@ -238,6 +239,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 						}
 						oldIdx += lookAhead
 						matchFound = true
+
 						break
 					}
 				}
@@ -258,7 +260,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 			}
 		}
 	}
-	
+
 	// Add remaining lines
 	for oldIdx < len(oldLines) {
 		result = append(result, DiffLine{
@@ -268,7 +270,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 		})
 		oldIdx++
 	}
-	
+
 	for newIdx < len(newLines) {
 		result = append(result, DiffLine{
 			Type:    "added",
@@ -277,14 +279,14 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 		})
 		newIdx++
 	}
-	
+
 	return result
 }
 
-// diffView component for comparing two versions
+// diffView component for comparing two versions.
 type diffView struct {
 	app.Compo
-	
+
 	versions         []Version
 	selectedVersion1 int
 	selectedVersion2 int
@@ -295,7 +297,8 @@ type diffView struct {
 }
 
 func (d *diffView) OnMount(_ app.Context) {
-	if len(d.versions) >= 2 {
+	minVersions := 2
+	if len(d.versions) >= minVersions {
 		d.selectedVersion1 = 0
 		d.selectedVersion2 = 1
 		d.updateDiff()
@@ -305,24 +308,27 @@ func (d *diffView) OnMount(_ app.Context) {
 func (d *diffView) updateDiff() {
 	if d.selectedVersion1 >= len(d.versions) || d.selectedVersion2 >= len(d.versions) {
 		d.renderErr = errors.New("invalid version selection")
+
 		return
 	}
-	
+
 	version1 := &d.versions[d.selectedVersion1]
 	version2 := &d.versions[d.selectedVersion2]
-	
+
 	yaml1, err := version1.generateYAMLDetails(d.comment, d.minimal)
 	if err != nil {
 		d.renderErr = fmt.Errorf("failed to generate YAML for version 1: %w", err)
+
 		return
 	}
-	
+
 	yaml2, err := version2.generateYAMLDetails(d.comment, d.minimal)
 	if err != nil {
 		d.renderErr = fmt.Errorf("failed to generate YAML for version 2: %w", err)
+
 		return
 	}
-	
+
 	d.diffLines = simpleDiff(yaml1, yaml2)
 	d.renderErr = nil
 }
@@ -332,6 +338,7 @@ func (d *diffView) onVersion1Change(ctx app.Context, _ app.Event) {
 	for i, version := range d.versions {
 		if version.Version == selectedValue {
 			d.selectedVersion1 = i
+
 			break
 		}
 	}
@@ -343,6 +350,7 @@ func (d *diffView) onVersion2Change(ctx app.Context, _ app.Event) {
 	for i, version := range d.versions {
 		if version.Version == selectedValue {
 			d.selectedVersion2 = i
+
 			break
 		}
 	}
@@ -360,10 +368,11 @@ func (d *diffView) onMinimalToggle(_ app.Context, _ app.Event) {
 }
 
 func (d *diffView) Render() app.UI {
-	if len(d.versions) < 2 {
+	minVersions := 2
+	if len(d.versions) < minVersions {
 		return app.Div()
 	}
-	
+
 	return app.Div().Class("card mb-4").Body(
 		app.Div().Class("card-header").Body(
 			app.Div().Class("d-flex justify-content-between align-items-center").Body(
@@ -382,7 +391,7 @@ func (d *diffView) Render() app.UI {
 				),
 			),
 		),
-		
+
 		app.Div().Class("collapse").ID("diff-collapse").Body(
 			app.Div().Class("card-body").Body(
 				// Version selectors and options
@@ -399,6 +408,7 @@ func (d *diffView) Render() app.UI {
 								if i == d.selectedVersion1 {
 									option = option.Selected(true)
 								}
+
 								return option
 							}),
 						),
@@ -415,6 +425,7 @@ func (d *diffView) Render() app.UI {
 								if i == d.selectedVersion2 {
 									option = option.Selected(true)
 								}
+
 								return option
 							}),
 						),
@@ -432,7 +443,7 @@ func (d *diffView) Render() app.UI {
 						),
 					),
 				),
-				
+
 				// Diff display
 				app.If(d.renderErr != nil, func() app.UI {
 					return app.Div().Class("alert alert-danger").Body(
@@ -447,22 +458,22 @@ func (d *diffView) Render() app.UI {
 									line := d.diffLines[i]
 									var lineClass string
 									var icon string
-									
+
 									switch line.Type {
 									case "added":
 										lineClass = "diff-line-added"
 										icon = "fas fa-plus"
 									case "removed":
-										lineClass = "diff-line-removed" 
+										lineClass = "diff-line-removed"
 										icon = "fas fa-minus"
 									default:
 										lineClass = "diff-line-unchanged"
 										icon = ""
 									}
-									
+
 									return app.Div().Class("diff-line "+lineClass).Body(
 										app.If(icon != "", func() app.UI {
-											return app.I().Class(icon+" me-2")
+											return app.I().Class(icon + " me-2")
 										}),
 										app.Text(line.Content),
 									)
@@ -580,15 +591,16 @@ func (h *crdView) Render() app.UI {
 
 	wrapper := app.Div().Class("main-container")
 	container := app.Div().Class("container mt-4")
-	
+
 	// Build the content array
-	var content []app.UI
-	
+	var content []app.UI //nolint:prealloc // avoid preallocation
+
 	// Add diff view if there are multiple versions
-	if len(versions) >= 2 {
+	minVersion := 2
+	if len(versions) >= minVersion {
 		content = append(content, &diffView{versions: versions})
 	}
-	
+
 	// Add version cards
 	for i, version := range versions {
 		content = append(content, app.Div().Class("card mb-5").Body(
