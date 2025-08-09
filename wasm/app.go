@@ -182,6 +182,311 @@ func (v *Version) generateYAMLDetails(comment bool, minimal bool) (string, error
 	return buf.String(), nil
 }
 
+// DiffLine represents a single line in a diff with its type.
+type DiffLine struct {
+	Type    string // "added", "removed", "unchanged"
+	Content string
+	LineNum int
+}
+
+// simpleDiff performs a basic line-by-line diff between two strings.
+func simpleDiff(oldContent, newContent string) []DiffLine {
+	oldLines := strings.Split(oldContent, "\n")
+	newLines := strings.Split(newContent, "\n")
+
+	var result []DiffLine
+	oldIdx, newIdx := 0, 0
+
+	for oldIdx < len(oldLines) && newIdx < len(newLines) {
+		if oldLines[oldIdx] == newLines[newIdx] {
+			result = append(result, DiffLine{
+				Type:    "unchanged",
+				Content: oldLines[oldIdx],
+				LineNum: newIdx + 1,
+			})
+			oldIdx++
+			newIdx++
+		} else {
+			// Look ahead to find matching lines
+			matchFound := false
+			for lookAhead := 1; lookAhead < 3 && (newIdx+lookAhead) < len(newLines); lookAhead++ {
+				if oldLines[oldIdx] == newLines[newIdx+lookAhead] {
+					// Add the new lines before the match
+					for i := range lookAhead {
+						result = append(result, DiffLine{
+							Type:    "added",
+							Content: newLines[newIdx+i],
+							LineNum: newIdx + i + 1,
+						})
+					}
+					newIdx += lookAhead
+					matchFound = true
+
+					break
+				}
+			}
+			if !matchFound {
+				// Look ahead in old lines
+				for lookAhead := 1; lookAhead < 3 && (oldIdx+lookAhead) < len(oldLines); lookAhead++ {
+					if oldLines[oldIdx+lookAhead] == newLines[newIdx] {
+						// Add the removed lines
+						for i := range lookAhead {
+							result = append(result, DiffLine{
+								Type:    "removed",
+								Content: oldLines[oldIdx+i],
+								LineNum: oldIdx + i + 1,
+							})
+						}
+						oldIdx += lookAhead
+						matchFound = true
+
+						break
+					}
+				}
+			}
+			if !matchFound {
+				result = append(result, DiffLine{
+					Type:    "removed",
+					Content: oldLines[oldIdx],
+					LineNum: oldIdx + 1,
+				})
+				result = append(result, DiffLine{
+					Type:    "added",
+					Content: newLines[newIdx],
+					LineNum: newIdx + 1,
+				})
+				oldIdx++
+				newIdx++
+			}
+		}
+	}
+
+	// Add remaining lines
+	for oldIdx < len(oldLines) {
+		result = append(result, DiffLine{
+			Type:    "removed",
+			Content: oldLines[oldIdx],
+			LineNum: oldIdx + 1,
+		})
+		oldIdx++
+	}
+
+	for newIdx < len(newLines) {
+		result = append(result, DiffLine{
+			Type:    "added",
+			Content: newLines[newIdx],
+			LineNum: newIdx + 1,
+		})
+		newIdx++
+	}
+
+	return result
+}
+
+// diffView component for comparing two versions.
+type diffView struct {
+	app.Compo
+
+	versions         []Version
+	selectedVersion1 int
+	selectedVersion2 int
+	diffLines        []DiffLine
+	comment          bool
+	minimal          bool
+	renderErr        error
+}
+
+func (d *diffView) OnMount(_ app.Context) {
+	minVersions := 2
+	if len(d.versions) >= minVersions {
+		d.selectedVersion1 = 0
+		d.selectedVersion2 = 1
+		d.updateDiff()
+	}
+}
+
+func (d *diffView) updateDiff() {
+	if d.selectedVersion1 >= len(d.versions) || d.selectedVersion2 >= len(d.versions) {
+		d.renderErr = errors.New("invalid version selection")
+
+		return
+	}
+
+	version1 := &d.versions[d.selectedVersion1]
+	version2 := &d.versions[d.selectedVersion2]
+
+	yaml1, err := version1.generateYAMLDetails(d.comment, d.minimal)
+	if err != nil {
+		d.renderErr = fmt.Errorf("failed to generate YAML for version 1: %w", err)
+
+		return
+	}
+
+	yaml2, err := version2.generateYAMLDetails(d.comment, d.minimal)
+	if err != nil {
+		d.renderErr = fmt.Errorf("failed to generate YAML for version 2: %w", err)
+
+		return
+	}
+
+	d.diffLines = simpleDiff(yaml1, yaml2)
+	d.renderErr = nil
+}
+
+func (d *diffView) onVersion1Change(ctx app.Context, _ app.Event) {
+	selectedValue := ctx.JSSrc().Get("value").String()
+	for i, version := range d.versions {
+		if version.Version == selectedValue {
+			d.selectedVersion1 = i
+
+			break
+		}
+	}
+	d.updateDiff()
+}
+
+func (d *diffView) onVersion2Change(ctx app.Context, _ app.Event) {
+	selectedValue := ctx.JSSrc().Get("value").String()
+	for i, version := range d.versions {
+		if version.Version == selectedValue {
+			d.selectedVersion2 = i
+
+			break
+		}
+	}
+	d.updateDiff()
+}
+
+func (d *diffView) onCommentToggle(_ app.Context, _ app.Event) {
+	d.comment = !d.comment
+	d.updateDiff()
+}
+
+func (d *diffView) onMinimalToggle(_ app.Context, _ app.Event) {
+	d.minimal = !d.minimal
+	d.updateDiff()
+}
+
+func (d *diffView) Render() app.UI {
+	minVersions := 2
+	if len(d.versions) < minVersions {
+		return app.Div()
+	}
+
+	return app.Div().Class("card mb-4").Body(
+		app.Div().Class("card-header").Body(
+			app.Div().Class("d-flex justify-content-between align-items-center").Body(
+				app.H5().Class("mb-0 d-flex align-items-center").Body(
+					app.I().Class("fas fa-code-compare me-2 text-warning"),
+					app.Text("Version Diff"),
+				),
+				app.Button().Class("btn btn-outline-secondary btn-sm").
+					Type("button").
+					DataSet("bs-toggle", "collapse").
+					DataSet("bs-target", "#diff-collapse").
+					Aria("expanded", "false").
+					Aria("controls", "diff-collapse").Body(
+					app.I().Class("fas fa-eye me-1"),
+					app.Text("Show Diff"),
+				),
+			),
+		),
+
+		app.Div().Class("collapse").ID("diff-collapse").Body(
+			app.Div().Class("card-body").Body(
+				// Version selectors and options
+				app.Div().Class("row g-3 mb-4").Body(
+					app.Div().Class("col-md-3").Body(
+						app.Label().Class("form-label").For("version1-select").Body(
+							app.I().Class("fas fa-tag me-1"),
+							app.Text("Version A"),
+						),
+						app.Select().Class("form-select").ID("version1-select").OnChange(d.onVersion1Change).Body(
+							app.Range(d.versions).Slice(func(i int) app.UI {
+								version := d.versions[i]
+								option := app.Option().Value(version.Version).Text(version.Version)
+								if i == d.selectedVersion1 {
+									option = option.Selected(true)
+								}
+
+								return option
+							}),
+						),
+					),
+					app.Div().Class("col-md-3").Body(
+						app.Label().Class("form-label").For("version2-select").Body(
+							app.I().Class("fas fa-tag me-1"),
+							app.Text("Version B"),
+						),
+						app.Select().Class("form-select").ID("version2-select").OnChange(d.onVersion2Change).Body(
+							app.Range(d.versions).Slice(func(i int) app.UI {
+								version := d.versions[i]
+								option := app.Option().Value(version.Version).Text(version.Version)
+								if i == d.selectedVersion2 {
+									option = option.Selected(true)
+								}
+
+								return option
+							}),
+						),
+					),
+					app.Div().Class("col-md-3").Body(
+						app.Div().Class("form-check form-switch mt-4").Body(
+							app.Input().Class("form-check-input").Type("checkbox").ID("diff-comments").OnClick(d.onCommentToggle),
+							app.Label().Class("form-check-label").For("diff-comments").Text("Comments"),
+						),
+					),
+					app.Div().Class("col-md-3").Body(
+						app.Div().Class("form-check form-switch mt-4").Body(
+							app.Input().Class("form-check-input").Type("checkbox").ID("diff-minimal").OnClick(d.onMinimalToggle),
+							app.Label().Class("form-check-label").For("diff-minimal").Text("Minimal"),
+						),
+					),
+				),
+
+				// Diff display
+				app.If(d.renderErr != nil, func() app.UI {
+					return app.Div().Class("alert alert-danger").Body(
+						app.I().Class("fas fa-exclamation-circle me-2"),
+						app.Text(d.renderErr.Error()),
+					)
+				}).Else(func() app.UI {
+					return app.Div().Class("position-relative").Body(
+						app.Pre().Class("diff-container").Body(
+							app.Code().Body(
+								app.Range(d.diffLines).Slice(func(i int) app.UI {
+									line := d.diffLines[i]
+									var lineClass string
+									var icon string
+
+									switch line.Type {
+									case "added":
+										lineClass = "diff-line-added"
+										icon = "fas fa-plus"
+									case "removed":
+										lineClass = "diff-line-removed"
+										icon = "fas fa-minus"
+									default:
+										lineClass = "diff-line-unchanged"
+										icon = ""
+									}
+
+									return app.Div().Class("diff-line "+lineClass).Body(
+										app.If(icon != "", func() app.UI {
+											return app.I().Class(icon + " me-2")
+										}),
+										app.Text(line.Content),
+									)
+								}),
+							),
+						),
+					)
+				}),
+			),
+		),
+	)
+}
+
 // Property builds up a Tree structure of embedded things.
 type Property struct {
 	Name        string
@@ -286,10 +591,19 @@ func (h *crdView) Render() app.UI {
 
 	wrapper := app.Div().Class("main-container")
 	container := app.Div().Class("container mt-4")
-	container.Body(app.Range(versions).Slice(func(i int) app.UI {
-		version := versions[i]
 
-		return app.Div().Class("card mb-5").Body(
+	// Build the content array
+	var content []app.UI //nolint:prealloc // avoid preallocation
+
+	// Add diff view if there are multiple versions
+	minVersion := 2
+	if len(versions) >= minVersion {
+		content = append(content, &diffView{versions: versions})
+	}
+
+	// Add version cards
+	for i, version := range versions {
+		content = append(content, app.Div().Class("card mb-5").Body(
 			// Version header
 			app.Div().Class("card-header bg-primary text-white").Body(
 				app.Div().Class("d-flex justify-content-between align-items-center").Body(
@@ -351,8 +665,11 @@ func (h *crdView) Render() app.UI {
 					render(app.Div().Class("accordion-item"), version.Properties, "properties-accordion-"+version.Version),
 				),
 			),
-		)
-	}))
+		))
+		_ = i // avoid unused variable
+	}
+
+	container.Body(content...)
 
 	return wrapper.Body(
 		&header{titleOnClick: h.navigateBackOnClick, hidden: false, shareURL: h.originalURL, shareOnClick: h.onShareClick},

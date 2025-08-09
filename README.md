@@ -259,7 +259,14 @@ make run
 
 This will start a front-end that can be used to paste in and parse CRDs.
 
-## Shareable Link
+### Diff View
+
+If you paste in two CRDs ( or the provided content fetched from a link contains two CRDs of the same type by different versions ),
+you can compare them by clicking on the `diff` button.
+
+![diff view](./imgs/diff-view.png)
+
+### Shareable Link
 
 It's possible to provide a link that can be shared using a url parameter like this:
 
