@@ -504,3 +504,138 @@
         color: #e2e8f0;
     }
 }
+
+/* Diff View Styles */
+.diff-container {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #f8fafc;
+    color: #1f2937;
+    padding: 0;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    max-height: 500px;
+    overflow-y: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.diff-line {
+    padding: 0.5rem 1rem;
+    margin: 0;
+    border-left: 4px solid transparent;
+    display: flex;
+    align-items: center;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+
+.diff-line-added {
+    background: #ecfdf5;
+    color: #065f46;
+    border-left-color: #10b981;
+}
+
+.diff-line-added .fas {
+    color: #10b981;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+}
+
+.diff-line-removed {
+    background: #fef2f2;
+    color: #7f1d1d;
+    border-left-color: #ef4444;
+}
+
+.diff-line-removed .fas {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+}
+
+.diff-line-unchanged {
+    background: #ffffff;
+    color: #4b5563;
+}
+
+.diff-line:hover {
+    background-opacity: 0.8;
+}
+
+/* Dark mode diff styles */
+@media (prefers-color-scheme: dark) {
+    .diff-container {
+        background: #1a202c;
+        color: #e2e8f0;
+        border-color: #4a5568;
+    }
+    
+    .diff-line-added {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border-left-color: #10b981;
+    }
+    
+    .diff-line-removed {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border-left-color: #ef4444;
+    }
+    
+    .diff-line-unchanged {
+        background: rgba(30, 41, 59, 0.5);
+        color: #cbd5e1;
+    }
+}
+
+/* Diff version selectors */
+.diff-version-selector {
+    margin-bottom: 1rem;
+}
+
+.diff-version-selector .form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .diff-version-selector .form-label {
+        color: #f3f4f6;
+    }
+}
+
+/* Enhanced scrollbar for diff container */
+.diff-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.diff-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.diff-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.diff-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+@media (prefers-color-scheme: dark) {
+    .diff-container::-webkit-scrollbar-track {
+        background: #334155;
+    }
+    
+    .diff-container::-webkit-scrollbar-thumb {
+        background: #475569;
+    }
+    
+    .diff-container::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+    }
+}
