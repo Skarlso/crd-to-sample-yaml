@@ -75,13 +75,15 @@ type Group struct {
 // GroupPage will have a list of groups and inside these groups
 // will be a list of page views.
 type GroupPage struct {
-	Groups []Group
+	Groups    []Group
+	CustomCSS template.CSS
 }
 
 type RenderOpts struct {
-	Comments bool
-	Minimal  bool
-	Random   bool
+	Comments  bool
+	Minimal   bool
+	Random    bool
+	CustomCSS string
 }
 
 // RenderContent creates an HTML website from the CRD content.
@@ -140,7 +142,8 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err e
 	t := templates["view_with_groups.html"]
 
 	index := GroupPage{
-		Groups: allGroups,
+		Groups:    allGroups,
+		CustomCSS: template.CSS(opts.CustomCSS), //nolint:gosec // opts.CustomCSS is escaped and sanitized input
 	}
 
 	if err := t.Execute(w, index); err != nil {
