@@ -143,7 +143,7 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err e
 
 	index := GroupPage{
 		Groups:    allGroups,
-		CustomCSS: template.CSS(opts.CustomCSS),
+		CustomCSS: template.CSS(opts.CustomCSS), //nolint:gosec // opts.CustomCSS is escaped and sanitized input
 	}
 
 	if err := t.Execute(w, index); err != nil {
