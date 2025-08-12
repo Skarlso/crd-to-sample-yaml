@@ -9,7 +9,7 @@ require (
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/google/go-cmp v0.7.0
 	github.com/jedib0t/go-pretty/v6 v6.6.8
-	github.com/maxence-charriere/go-app/v10 v10.1.4
+	github.com/maxence-charriere/go-app/v10 v10.1.5
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	gopkg.in/yaml.v3 v3.0.1
