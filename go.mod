@@ -11,7 +11,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.6.8
 	github.com/maxence-charriere/go-app/v10 v10.1.5
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apiextensions-apiserver v0.33.4
 	k8s.io/apimachinery v0.33.4
