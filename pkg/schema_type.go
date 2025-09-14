@@ -20,6 +20,7 @@ type SchemaType struct {
 	Validation *Validation
 	Group      string
 	Kind       string
+	Conditions []ConditionInfo
 
 	Rendering Rendering
 }

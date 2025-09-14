@@ -22,6 +22,7 @@ type rootArgs struct {
 	resource           string
 	useSSHAgent        bool
 	stdin              bool
+	apiFolder          string
 }
 
 var (
@@ -38,6 +39,7 @@ func init() {
 	rootCmd.AddCommand(generateCmd)
 	// using persistent flags so all flags will be available for all sub commands.
 	f := generateCmd.PersistentFlags()
+	f.StringVar(&args.apiFolder, "api", "", "Path to folder containing Go API types with condition annotations (enhances any input type).")
 	f.BoolVarP(&args.stdin, "stdin", "i", false, "Take CRD content from stdin.")
 	f.StringVarP(&args.fileLocation, "crd", "c", "", "The CRD file to generate a yaml from.")
 	f.StringVarP(&args.kubeCluster, "kube", "k", "", "Try to access the local cluster and fetch CRD content from there.")

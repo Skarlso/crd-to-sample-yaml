@@ -23,6 +23,13 @@ And the test locations are [here](https://github.com/external-secrets/external-s
 
 For information on this feature, please see [Schema Validation README](SCHEMA_VALIDATION.md).
 
+## Conditions parsing with cty annotation
+
+`cty` can parse conditions and reasons from Go type definitions and render them in the HTML output.
+The annotation to use is of the following two formats: `cty:conditions` and `cty:conditions:reason`.
+
+For information on this feature, please see [Conditions annotation](CONDITION_ANNOTATIONS.md).
+
 ## vscode extension
 
 Under [vscode-extension](./vscode-extension) you can find an extension for CTY for vscode browser.
