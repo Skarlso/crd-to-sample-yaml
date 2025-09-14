@@ -659,7 +659,7 @@
 
                             {{if .Reasons}}
                             <div class="reasons-dropdown">
-                                <button class="reasons-toggle" type="button" onclick="toggleReasons(this)">
+                                <button class="reasons-toggle collapsed" type="button" onclick="toggleReasons(this)">
                                     <span>Reasons ({{len .Reasons}})</span>
                                     <span class="dropdown-arrow">▼</span>
                                 </button>
@@ -775,15 +775,17 @@
         // Toggle reasons dropdown functionality
         function toggleReasons(button) {
             const reasonsList = button.nextElementSibling;
-            const isCollapsed = button.classList.contains('collapsed');
+            const isCurrentlyCollapsed = button.classList.contains('collapsed');
 
             // Toggle collapsed state
             button.classList.toggle('collapsed');
 
             // Toggle reasons list visibility
-            if (isCollapsed) {
+            if (isCurrentlyCollapsed) {
+                // Was collapsed, now expanding
                 reasonsList.classList.add('show');
             } else {
+                // Was expanded, now collapsing
                 reasonsList.classList.remove('show');
             }
         }
