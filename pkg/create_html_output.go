@@ -27,6 +27,7 @@ type Version struct {
 	Properties  []*Property
 	Description string
 	YAML        string
+	Conditions  []ConditionInfo
 }
 
 // ViewPage is the template for view.html.
@@ -110,6 +111,7 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err e
 					return fmt.Errorf("failed to generate yaml sample: %w", err)
 				}
 
+				v.Conditions = crd.Conditions
 				versions = append(versions, v)
 			}
 
@@ -120,6 +122,7 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err e
 					return fmt.Errorf("failed to generate yaml sample: %w", err)
 				}
 
+				version.Conditions = crd.Conditions
 				versions = append(versions, version)
 			} else if len(versions) == 0 {
 				continue

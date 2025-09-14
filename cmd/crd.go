@@ -86,6 +86,15 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("failed to load CRDs: %w", err)
 	}
 
+	// Enhance CRDs with conditions from the API folder if specified
+	if args.apiFolder != "" {
+		enhancer := pkg.NewConditionEnhancer(args.apiFolder)
+		if err := enhancer.LoadConditions(); err != nil {
+			return fmt.Errorf("failed to load conditions: %w", err)
+		}
+		crds = enhancer.EnhanceSchemas(crds)
+	}
+
 	var w io.WriteCloser
 	if crdArgs.format == FormatHTML {
 		if crdArgs.stdOut {

@@ -439,6 +439,149 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Condition styles */
+        .conditions-section {
+            margin-top: 1.5rem;
+        }
+
+        .condition-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .condition-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .condition-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reasons-dropdown {
+            margin-top: 1rem;
+        }
+
+        .reasons-toggle {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .reasons-toggle:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.2s ease;
+            font-size: 0.8rem;
+        }
+
+        .reasons-toggle.collapsed .dropdown-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .reasons-list {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .reasons-list.show {
+            display: block;
+        }
+
+        .reason-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .reason-item:last-child {
+            border-bottom: none;
+        }
+
+        .reason-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reason-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1rem;
+        }
+
+        .reason-value {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .reason-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Dark mode condition styles */
+        @media (prefers-color-scheme: dark) {
+            .condition-item {
+                background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+                border-color: #6b7280;
+            }
+
+            .condition-item:hover {
+                background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+            }
+
+            .reasons-list {
+                background: #374151;
+                border-color: #6b7280;
+            }
+
+            .reason-item {
+                border-color: #6b7280;
+            }
+
+            .reason-name {
+                color: #f9fafb;
+            }
+
+            .reason-description {
+                color: #d1d5db;
+            }
+        }
+
         /* Utility classes */
         .mt-4 { margin-top: 1.5rem; }
         .mb-4 { margin-bottom: 1.5rem; }
@@ -492,10 +635,53 @@
                         <span class="icon icon-cog"></span>
                         Schema Properties
                     </h5>
-                    
+
                     <div class="accordion" id="properties-{{.Version}}">
                         {{template "renderProperties" .Properties}}
                     </div>
+
+                    {{if .Conditions}}
+                    <h5 class="d-flex align-items-center gap-2 mb-4 mt-4">
+                        <span class="icon icon-info"></span>
+                        Conditions
+                    </h5>
+
+                    <div class="conditions-section">
+                        {{range .Conditions}}
+                        <div class="condition-item">
+                            <div class="condition-header">
+                                <span class="property-name">{{.Type}}</span>
+                                <span class="property-type">Condition</span>
+                            </div>
+                            {{if .Description}}
+                            <div class="property-description">{{.Description}}</div>
+                            {{end}}
+
+                            {{if .Reasons}}
+                            <div class="reasons-dropdown">
+                                <button class="reasons-toggle" type="button" onclick="toggleReasons(this)">
+                                    <span>Reasons ({{len .Reasons}})</span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </button>
+                                <div class="reasons-list">
+                                    {{range .Reasons}}
+                                    <div class="reason-item">
+                                        <div class="reason-header">
+                                            <span class="reason-name">{{.Name}}</span>
+                                            {{if .Value}}<span class="reason-value">{{.Value}}</span>{{end}}
+                                        </div>
+                                        {{if .Description}}
+                                        <div class="reason-description">{{.Description}}</div>
+                                        {{end}}
+                                    </div>
+                                    {{end}}
+                                </div>
+                            </div>
+                            {{end}}
+                        </div>
+                        {{end}}
+                    </div>
+                    {{end}}
                 </div>
             </div>
             {{end}}
@@ -574,15 +760,31 @@
             const accordionItem = button.closest('.accordion-item');
             const collapse = accordionItem.querySelector('.collapse');
             const isCollapsed = button.classList.contains('collapsed');
-            
+
             // Toggle collapsed state
             button.classList.toggle('collapsed');
-            
+
             // Toggle collapse visibility
             if (isCollapsed) {
                 collapse.classList.add('show');
             } else {
                 collapse.classList.remove('show');
+            }
+        }
+
+        // Toggle reasons dropdown functionality
+        function toggleReasons(button) {
+            const reasonsList = button.nextElementSibling;
+            const isCollapsed = button.classList.contains('collapsed');
+
+            // Toggle collapsed state
+            button.classList.toggle('collapsed');
+
+            // Toggle reasons list visibility
+            if (isCollapsed) {
+                reasonsList.classList.add('show');
+            } else {
+                reasonsList.classList.remove('show');
             }
         }
         
