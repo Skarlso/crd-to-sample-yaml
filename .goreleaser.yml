@@ -1,3 +1,5 @@
+version: 2
+
 release:
   prerelease: auto # this should detect a release candidate and mark it as pre-release in GitHub
 
@@ -35,31 +37,31 @@ archives:
 checksum:
   name_template: "cty_checksums.txt"
 
-krews:
-  - name: crd-to-yaml
-    repository:
-      owner: Skarlso
-      name: crd-to-sample-yaml
-      token: "{{ .Env.GITHUB_TOKEN }}"
-      pull_request:
-        # Whether to enable it or not.
-        enabled: true
-
-        # Whether to open the PR as a draft or not.
-        draft: true
-        # Base can also be another repository, in which case the owner and name
-        # above will be used as HEAD, allowing cross-repository pull requests.
-        base:
-          owner: Skarlso
-          name: crd-to-sample-yaml
-          branch: main
-    commit_author:
-      name: goreleaserbot
-      email: bot@goreleaser.com
-    commit_msg_template: "Update krew plugin {{ .ProjectName }} to {{ .Tag }}"
-    homepage: https://crdtoyaml.com
-    description: |
-      Generate sample YAML files from Kubernetes CustomResourceDefinition (CRD) schemas.
-      Supports multiple input sources including files, URLs, Git repositories, and Kubernetes clusters.
-      Features include minimal mode, schema validation, comments, and HTML output generation.
-    short_description: Generate sample YAML from CRD definitions
+#krews:
+#  - name: crd-to-yaml
+#    repository:
+#      owner: Skarlso
+#      name: crd-to-sample-yaml
+#      token: "{{ .Env.GITHUB_TOKEN }}"
+#      pull_request:
+#        # Whether to enable it or not.
+#        enabled: true
+#
+#        # Whether to open the PR as a draft or not.
+#        draft: true
+#        # Base can also be another repository, in which case the owner and name
+#        # above will be used as HEAD, allowing cross-repository pull requests.
+#        base:
+#          owner: Skarlso
+#          name: crd-to-sample-yaml
+#          branch: main
+#    commit_author:
+#      name: goreleaserbot
+#      email: bot@goreleaser.com
+#    commit_msg_template: "Update krew plugin {{ .ProjectName }} to {{ .Tag }}"
+#    homepage: https://crdtoyaml.com
+#    description: |
+#      Generate sample YAML files from Kubernetes CustomResourceDefinition (CRD) schemas.
+#      Supports multiple input sources including files, URLs, Git repositories, and Kubernetes clusters.
+#      Features include minimal mode, schema validation, comments, and HTML output generation.
+#    short_description: Generate sample YAML from CRD definitions
