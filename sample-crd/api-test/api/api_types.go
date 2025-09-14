@@ -1,3 +1,4 @@
+//nolint:godot // ignore this entire file.
 package v1alpha1
 
 // AppConditionType defines the condition types for App CRD
