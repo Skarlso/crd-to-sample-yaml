@@ -5,84 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>CRD Schema Preview</title>
     <meta name="description" content="Interactive preview of Kubernetes Custom Resource Definition schemas">
-    
+
     <style>
-        /* Modern CRD Template Styles - Offline Compatible */
-        
+        /* Minimal Modern CRD Template */
+
         :root {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --success-color: #198754;
-            --info-color: #0dcaf0;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --border-radius: 0.5rem;
-            --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            --transition: all 0.2s ease-in-out;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-500: #3b82f6;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+
+            --indigo-50: #eef2ff;
+            --indigo-100: #e0e7ff;
+            --indigo-500: #6366f1;
+            --indigo-600: #4f46e5;
+
+            --purple-50: #faf5ff;
+            --purple-100: #f3e8ff;
+            --purple-500: #a855f7;
+            --purple-600: #9333ea;
+
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+
+            --amber-50: #fffbeb;
+            --amber-100: #fef3c7;
+            --amber-500: #f59e0b;
+            --amber-600: #d97706;
+
+            --red-50: #fef2f2;
+            --red-100: #fee2e2;
+            --red-500: #ef4444;
+            --red-600: #dc2626;
+
+            --radius: 8px;
+            --radius-lg: 12px;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Base styles */
+        /* Clean base styles */
         * {
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gray-50);
             min-height: 100vh;
-            color: #212529;
+            color: var(--gray-900);
             margin: 0;
             padding: 2rem 1rem;
         }
 
         .main-container {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
             margin: 0 auto;
             max-width: 1200px;
             overflow: hidden;
-            color: #212529;
         }
 
         /* Dark mode */
         @media (prefers-color-scheme: dark) {
             body {
-                background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-                color: #f7fafc;
+                background: var(--gray-900);
+                color: var(--gray-100);
             }
             .main-container {
-                background: rgba(26, 32, 44, 0.98);
-                color: #f7fafc;
+                background: var(--gray-800);
+                border-color: var(--gray-700);
+                color: var(--gray-100);
             }
         }
 
-        /* Header */
+        /* Colorful minimal header */
         .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
-            color: white;
             padding: 2rem;
-            text-align: center;
+            background: linear-gradient(135deg, var(--indigo-500) 0%, var(--blue-600) 100%);
+            color: white;
         }
 
         .header h1 {
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 1.875rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .header p {
             margin: 0.5rem 0 0;
             opacity: 0.9;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         /* Content area */
@@ -90,107 +128,117 @@
             padding: 2rem;
         }
 
-        /* Card styles */
+        /* Clean minimal cards */
         .card {
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            background: white;
+            margin-bottom: 1.5rem;
             overflow: hidden;
             transition: var(--transition);
         }
 
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-lg);
         }
 
         .card-header {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border-bottom: 2px solid #bfdbfe;
+            background: linear-gradient(135deg, var(--indigo-50) 0%, var(--blue-50) 100%);
+            border-bottom: 1px solid var(--blue-200);
             padding: 1.5rem;
-            font-weight: 600;
-            color: #1e40af;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            justify-content: space-between;
+        }
+
+        .card-header .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        .card-header strong {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .card-header .version-info {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-top: 0.25rem;
         }
 
         .card-body {
             padding: 1.5rem;
-            background: #f8fafc;
         }
 
-        /* Accordion styles */
+        .card-body h5 {
+            margin: 0 0 1rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Clean accordion styles */
         .accordion-item {
-            border: none;
-            border-radius: 0.5rem !important;
-            margin-bottom: 0.75rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            background: rgba(45, 55, 72, 0.95);
         }
 
         .accordion-item-static {
-            transition: all 0.2s ease;
-            background: linear-gradient(135deg, #475569 0%, #64748b 100%);
-            border: 1px solid #6b7280;
-            color: #f1f5f9;
-            border-radius: 0.5rem;
-            padding: 1.25rem 1.5rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
         }
 
         .accordion-item-static:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.25);
-            background: linear-gradient(135deg, #64748b 0%, #78716c 100%);
+            background: var(--gray-100);
         }
 
         .accordion-button {
             border: none;
-            box-shadow: none !important;
-            font-weight: 600;
-            padding: 1.25rem 1.5rem;
-            position: relative;
-            background: linear-gradient(135deg, #7ab6f8 0%, #60a5fa 100%) !important;
-            border-radius: 0.5rem !important;
-            color: #1e40af !important;
+            background: linear-gradient(135deg, var(--indigo-50) 0%, var(--blue-50) 100%) !important;
+            color: var(--gray-900) !important;
+            padding: 1rem;
             width: 100%;
             text-align: left;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 500;
         }
 
         .accordion-button:hover {
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
-        }
-
-        .accordion-button:not(.collapsed) {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-            color: white !important;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+            background: linear-gradient(135deg, var(--indigo-100) 0%, var(--blue-100) 100%) !important;
         }
 
         .accordion-button::after {
-            content: '▼';
-            margin-left: auto;
-            transition: transform 0.2s ease;
-            font-size: 0.8rem;
+            content: '›';
+            font-size: 1.25rem;
+            transition: transform 150ms ease;
+            color: var(--gray-400);
         }
 
-        .accordion-button.collapsed::after {
-            transform: rotate(-90deg);
+        .accordion-button:not(.collapsed)::after {
+            transform: rotate(90deg);
         }
 
         .accordion-body {
-            padding: 1.5rem;
-            background: #fdfdfd;
-            border-top: 1px solid #f1f3f4;
-            color: #1f2937;
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid var(--gray-200);
         }
 
         .collapse {
@@ -201,55 +249,49 @@
             display: block;
         }
 
-        /* Property badges */
+        /* Colorful property badges */
         .property-type {
             font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            background: linear-gradient(45deg, #6366f1, #8b5cf6);
-            color: white;
-            margin-right: 0.5rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: var(--indigo-100);
+            color: var(--indigo-700);
+            border: 1px solid var(--indigo-200);
         }
 
         .property-required {
-            background: linear-gradient(45deg, #ef4444, #f97316);
+            background: var(--red-50);
+            color: var(--red-600);
+            border-color: var(--red-200);
         }
 
         .property-enum {
-            background: linear-gradient(45deg, #06b6d4, #0891b2);
+            background: var(--blue-50);
+            color: var(--blue-600);
+            border-color: var(--blue-200);
         }
 
-        /* Property info */
+        /* Clean property info */
         .property-info {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 0.5rem;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
         .property-name {
-            font-weight: 700;
-            color: #111827;
-            font-size: 1.1rem;
-        }
-        
-        .accordion-item-static .property-name {
-            color: #f1f5f9;
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 0.95rem;
         }
 
         .property-description {
-            color: #111827;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
+            color: var(--gray-600);
+            font-size: 0.875rem;
             line-height: 1.5;
-        }
-        
-        .accordion-item-static .property-description {
-            color: #cbd5e1;
+            margin-bottom: 0.5rem;
         }
 
         .property-constraints {
@@ -260,12 +302,13 @@
         }
 
         .constraint-badge {
-            background: #e2e8f0;
-            color: #475569;
-            padding: 0.2rem 0.6rem;
-            border-radius: 0.375rem;
-            font-size: 0.8rem;
+            background: var(--purple-50);
+            color: var(--purple-600);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 500;
+            border: 1px solid var(--purple-200);
         }
 
         /* YAML output */
@@ -307,20 +350,42 @@
             box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
         }
 
-        /* Icons (FontAwesome-like) */
+        /* Colorful text icons */
         .icon {
-            display: inline-block;
-            width: 1em;
-            height: 1em;
-            vertical-align: -0.125em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
-        .icon-cube::before { content: '🧊'; }
-        .icon-code::before { content: '💻'; }
-        .icon-file::before { content: '📄'; }
-        .icon-cog::before { content: '⚙️'; }
-        .icon-info::before { content: 'ℹ️'; }
-        .icon-copy::before { content: '📋'; }
+        .icon-cube {
+            background: var(--indigo-100);
+            color: var(--indigo-700);
+        }
+
+        .icon-file {
+            background: var(--green-100);
+            color: var(--green-700);
+        }
+
+        .icon-cog {
+            background: var(--amber-100);
+            color: var(--amber-700);
+        }
+
+        .icon-info {
+            background: var(--blue-100);
+            color: var(--blue-700);
+        }
+
+        .icon-cube::before { content: 'K8s'; }
+        .icon-file::before { content: 'CRD'; }
+        .icon-cog::before { content: '⚙'; }
+        .icon-info::before { content: 'i'; }
 
         /* Responsive design */
         @media (max-width: 768px) {
@@ -353,90 +418,86 @@
             }
         }
 
-        /* Dark mode specific styles */
+        /* Clean dark mode */
         @media (prefers-color-scheme: dark) {
             .card {
-                background: rgba(45, 55, 72, 0.95);
-                border-color: rgba(74, 85, 104, 0.4);
-                color: #f7fafc;
+                background: var(--gray-800);
+                border-color: var(--gray-700);
+                color: var(--gray-100);
             }
-            
+
             .card-header {
-                background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
-                border-color: #3730a3;
-                color: #dbeafe;
+                background: var(--gray-700);
+                border-color: var(--gray-600);
+                color: var(--gray-100);
             }
-            
+
+            .card-header strong {
+                color: var(--gray-100);
+            }
+
             .card-body {
-                background: #1a202c;
+                background: var(--gray-800);
             }
-            
+
+            .card-body h5 {
+                color: var(--gray-100);
+            }
+
+            .accordion-item {
+                border-color: var(--gray-700);
+            }
+
             .accordion-item-static {
-                background: linear-gradient(135deg, #475569 0%, #64748b 100%);
-                border-color: #6b7280;
-                color: #f1f5f9;
+                background: var(--gray-700);
+                border-color: var(--gray-600);
+                color: var(--gray-100);
             }
-            
+
             .accordion-item-static:hover {
-                background: linear-gradient(135deg, #64748b 0%, #78716c 100%);
+                background: var(--gray-600);
             }
-            
+
             .accordion-button {
-                background: linear-gradient(135deg, #7ab6f8 0%, #60a5fa 100%) !important;
-                color: #1e40af !important;
-            }
-            
-            .accordion-button:hover {
-                background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
-            }
-            
-            .accordion-button:not(.collapsed) {
-                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+                background: linear-gradient(135deg, var(--indigo-600) 0%, var(--blue-600) 100%) !important;
                 color: white !important;
             }
-            
+
+            .accordion-button:hover {
+                background: linear-gradient(135deg, var(--indigo-700) 0%, var(--blue-700) 100%) !important;
+            }
+
             .accordion-body {
-                background: #1a202c;
-                border-color: #475569;
-                color: #f7fafc;
+                background: var(--gray-800);
+                border-color: var(--gray-700);
+                color: var(--gray-100);
             }
-            
-            .yaml-output {
-                background: #1a202c;
-                color: #e2e8f0;
-                border-color: #4a5568;
-            }
-            
+
             .property-name {
-                color: #e2e8f0;
+                color: var(--gray-100);
             }
-            
-            .accordion-item-static .property-name {
-                color: #f1f5f9;
-            }
-            
+
             .property-description {
-                color: #cbd5e1;
+                color: var(--gray-300);
             }
-            
-            .accordion-item-static .property-description {
-                color: #cbd5e1;
+
+            .constraint-badge,
+            .property-type {
+                background: var(--gray-700);
+                color: var(--gray-300);
+                border-color: var(--gray-600);
             }
-            
-            .constraint-badge {
-                background: #4a5568;
-                color: #e2e8f0;
+
+            .icon {
+                background: var(--gray-700);
+                color: var(--gray-300);
             }
         }
 
-        /* Animation classes */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
+        /* Minimal animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* Condition styles */
@@ -597,28 +658,32 @@
 <body>
     <div class="main-container fade-in">
         <div class="header">
-            <h1>
-                <span class="icon icon-cube"></span>
-                CRD Schema Preview
-            </h1>
-            <p>Interactive Kubernetes Custom Resource Definition Explorer</p>
+            <div class="header-content">
+                <h1>
+                    <span class="icon icon-cube"></span>
+                    CRD Schema Preview
+                </h1>
+                <p>Interactive Kubernetes Custom Resource Definition Explorer</p>
+            </div>
         </div>
-        
+
         <div class="content">
             {{range .Groups}}
-            <h2 class="text-center mb-4" style="color: #1f2937; font-weight: 700;">{{.Name}}</h2>
+            <div style="margin: 2rem 0 1.5rem 0;">
+                <h2 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--indigo-600); border-bottom: 2px solid var(--indigo-200); padding-bottom: 0.5rem;">{{.Name}}</h2>
+            </div>
             {{range .Page}}
             {{range .Versions}}
             <div class="card">
                 <div class="card-header">
-                    <span class="icon icon-file"></span>
-                    <div>
-                        <strong>{{.Kind}}</strong>
-                        <div style="font-size: 0.9rem; opacity: 0.8;">{{.Group}}/{{.Version}}</div>
+                    <div class="card-title">
+                        <span class="icon icon-file"></span>
+                        <div>
+                            <strong>{{.Kind}}</strong>
+                            <div class="version-info">{{.Group}}/{{.Version}}</div>
+                        </div>
                     </div>
-                    <div style="margin-left: auto;">
-                        <span class="property-type">{{.Version}}</span>
-                    </div>
+                    <span class="property-type">{{.Version}}</span>
                 </div>
                 
                 {{if .Description}}
