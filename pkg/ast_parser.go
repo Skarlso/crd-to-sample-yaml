@@ -48,21 +48,30 @@ func NewConditionParser() *ConditionParser {
 }
 
 // ParseGoFiles parses Go source files in the given directory for condition annotations.
+// It recursively searches through all subdirectories.
 func (p *ConditionParser) ParseGoFiles(dir string) error {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		return fmt.Errorf("directory does not exist: %s", dir)
 	}
 
-	pattern := filepath.Join(dir, "*.go")
-	files, err := filepath.Glob(pattern)
-	if err != nil {
-		return fmt.Errorf("failed to glob Go files: %w", err)
-	}
-
-	for _, file := range files {
-		if err := p.parseFile(file); err != nil {
-			return fmt.Errorf("failed to parse file %s: %w", file, err)
+	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
 		}
+
+		// Skip non-Go files
+		if d.IsDir() || !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+
+		if err := p.parseFile(path); err != nil {
+			return fmt.Errorf("failed to parse file %s: %w", path, err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to walk directory: %w", err)
 	}
 
 	p.associateReasons()
