@@ -625,7 +625,7 @@
                 <div class="card-body">
                     <div class="property-description">
                         <span class="icon icon-info"></span>
-                        {{.Description}}
+                        {{parseDescription .Description}}
                     </div>
                 </div>
                 {{end}}
@@ -654,7 +654,7 @@
                                 <span class="property-type">{{.Type}}</span>
                             </div>
                             {{if .Description}}
-                            <div class="property-description">{{.Description}}</div>
+                            <div class="property-description">{{parseDescription .Description}}</div>
                             {{end}}
 
                             {{if .Reasons}}
@@ -671,7 +671,7 @@
                                             {{if .Value}}<span class="reason-value">{{.Value}}</span>{{end}}
                                         </div>
                                         {{if .Description}}
-                                        <div class="reason-description">{{.Description}}</div>
+                                        <div class="reason-description">{{parseDescription .Description}}</div>
                                         {{end}}
                                     </div>
                                     {{end}}
@@ -703,7 +703,7 @@
                                 {{if .Enums}}<span class="property-type property-enum">Enum</span>{{end}}
                             </div>
                             {{if .Description}}
-                                <div class="property-description">{{.Description}}</div>
+                                <div class="property-description">{{parseDescription .Description}}</div>
                             {{end}}
                             {{if or .Format .Default .Patterns}}
                                 <div class="property-constraints">
@@ -734,7 +734,7 @@
                         {{if .Enums}}<span class="property-type property-enum">Enum</span>{{end}}
                     </div>
                     {{if .Description}}
-                        <div class="property-description">{{.Description}}</div>
+                        <div class="property-description">{{parseDescription .Description}}</div>
                     {{end}}
                     {{if or .Format .Default .Patterns .Examples}}
                         <div class="property-constraints">

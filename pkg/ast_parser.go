@@ -166,7 +166,7 @@ func (p *ConditionParser) parseAnnotations(varName, value string, comments []str
 
 		if !strings.Contains(comment, "+cty:") {
 			if description.Len() > 0 {
-				description.WriteString(" ")
+				description.WriteString("\n")
 			}
 
 			description.WriteString(strings.TrimSpace(comment))

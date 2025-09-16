@@ -5,12 +5,19 @@ package v1alpha1
 type AppConditionType string
 
 const (
+	// This condition indicates that the frontend service is ready.
+	//
+	// The frontend service readiness includes:
+	// - Health checks passing
+	// - All dependencies available
+	// - Configuration loaded successfully
+	//
+	// When this condition is True, the frontend is operational.
 	// +cty:condition:for:App
-	// This condition indicates that the frontend service is ready
 	FrontendReadyCond AppConditionType = "FrontendReady"
 
-	// +cty:condition:for:App
 	// This condition indicates that the backend service is ready
+	// +cty:condition:for:App
 	BackendReadyCond AppConditionType = "BackendReady"
 )
 
@@ -18,16 +25,21 @@ const (
 type FrontendReadyReason string
 
 const (
+	// Frontend service is healthy and responding to requests.
+	//
+	// This means:
+	// - HTTP endpoints are responding
+	// - Database connectivity is established
+	// - All required services are available
 	// +cty:reason:for:App/FrontendReady
-	// Frontend service is healthy and responding to requests
 	FrontendHealthy FrontendReadyReason = "Healthy"
 
-	// +cty:reason:for:App/FrontendReady
 	// Frontend service is not responding or unhealthy
+	// +cty:reason:for:App/FrontendReady
 	FrontendUnhealthy FrontendReadyReason = "Unhealthy"
 
-	// +cty:reason:for:App/FrontendReady
 	// Frontend service is starting up
+	// +cty:reason:for:App/FrontendReady
 	FrontendStarting FrontendReadyReason = "Starting"
 )
 
@@ -35,11 +47,11 @@ const (
 type BackendReadyReason string
 
 const (
-	// +cty:reason:for:App/BackendReady
 	// Backend database connection is established
+	// +cty:reason:for:App/BackendReady
 	DatabaseConnected BackendReadyReason = "DatabaseConnected"
 
-	// +cty:reason:for:App/BackendReady
 	// Backend database connection failed
+	// +cty:reason:for:App/BackendReady
 	DatabaseDisconnected BackendReadyReason = "DatabaseDisconnected"
 )

@@ -8,12 +8,15 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"regexp"
 	"slices"
 	"sort"
 	"strings"
 
 	"github.com/Skarlso/crd-to-sample-yaml/v1beta1"
 )
+
+var bulletRegex = regexp.MustCompile(`^\s*[-*+•]\s+(.+)$`)
 
 type Index struct {
 	Page []ViewPage
@@ -42,6 +45,78 @@ var (
 	templates map[string]*template.Template
 )
 
+// parseDescription converts plain text descriptions into HTML with proper paragraph and list formatting.
+func parseDescription(desc string) template.HTML {
+	if desc == "" {
+		return ""
+	}
+
+	// Split by double newlines to identify paragraphs
+	paragraphs := strings.Split(strings.TrimSpace(desc), "\n\n")
+	var result strings.Builder
+
+	for _, para := range paragraphs {
+		para = strings.TrimSpace(para)
+		if para == "" {
+			continue
+		}
+
+		lines := strings.Split(para, "\n")
+		var listItems []string
+		var nonListLines []string
+		inList := false
+
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if bulletRegex.MatchString(line) {
+				if !inList && len(nonListLines) > 0 {
+					// Process accumulated non-list lines as paragraph first
+					result.WriteString("<p>")
+					result.WriteString(template.HTMLEscapeString(strings.Join(nonListLines, " ")))
+					result.WriteString("</p>\n")
+					nonListLines = nil
+				}
+				inList = true
+				matches := bulletRegex.FindStringSubmatch(line)
+				listItems = append(listItems, matches[1])
+			} else {
+				if inList {
+					// End the list and start new paragraph
+					if len(listItems) > 0 {
+						result.WriteString("<ul>\n")
+						for _, item := range listItems {
+							result.WriteString("<li>")
+							result.WriteString(template.HTMLEscapeString(item))
+							result.WriteString("</li>\n")
+						}
+						result.WriteString("</ul>\n")
+						listItems = nil
+					}
+					inList = false
+				}
+				nonListLines = append(nonListLines, line)
+			}
+		}
+
+		// Handle remaining content
+		if inList && len(listItems) > 0 {
+			result.WriteString("<ul>\n")
+			for _, item := range listItems {
+				result.WriteString("<li>")
+				result.WriteString(template.HTMLEscapeString(item))
+				result.WriteString("</li>\n")
+			}
+			result.WriteString("</ul>\n")
+		} else if len(nonListLines) > 0 {
+			result.WriteString("<p>")
+			result.WriteString(template.HTMLEscapeString(strings.Join(nonListLines, " ")))
+			result.WriteString("</p>\n")
+		}
+	}
+
+	return template.HTML(result.String())
+}
+
 // LoadTemplates creates a map of loaded templates that are primed and ready to be rendered.
 func LoadTemplates() error {
 	if templates == nil {
@@ -52,11 +127,15 @@ func LoadTemplates() error {
 		return err
 	}
 
+	funcMap := template.FuncMap{
+		"parseDescription": parseDescription,
+	}
+
 	for _, tmpl := range tmplFiles {
 		if tmpl.IsDir() {
 			continue
 		}
-		pt, err := template.ParseFS(files, "templates/"+tmpl.Name())
+		pt, err := template.New(tmpl.Name()).Funcs(funcMap).ParseFS(files, "templates/"+tmpl.Name())
 		if err != nil {
 			return err
 		}
