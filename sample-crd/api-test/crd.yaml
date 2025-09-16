@@ -16,6 +16,12 @@ spec:
               type: object
               properties:
                 frontend:
+                  description: |
+                    Frontend properties
+                    - image: string
+                    - imagePullPolicy: string
+                    
+                    This is something amazing.
                   type: object
                   properties:
                     image:

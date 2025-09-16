@@ -114,7 +114,7 @@ func parseDescription(desc string) template.HTML {
 		}
 	}
 
-	return template.HTML(result.String())
+	return template.HTML(result.String()) //nolint:gosec // desc is escaped elsewhere during formatting.
 }
 
 // LoadTemplates creates a map of loaded templates that are primed and ready to be rendered.
