@@ -50,7 +50,7 @@ func main() {
 		Name:    "CRD to YAML Generator",
 		Title:   "CRD to YAML Generator",
 		Author:  "Gergely Brautigam",
-		Version: "v0.8.0",
+		Version: "v1.0.0",
 		HTML: func() app.HTMLHtml {
 			return app.Html().DataSet("bs-theme", "auto")
 		},

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -20,6 +21,73 @@ import (
 
 // timeout after 2 seconds.
 const timeout = 2000
+
+var bulletRegex = regexp.MustCompile(`^\s*[-*+•]\s+(.+)$`)
+
+// parseDescriptionElements converts plain text descriptions into go-app UI elements with proper paragraph and list formatting.
+func parseDescriptionElements(desc string) []app.UI {
+	if desc == "" {
+		return nil
+	}
+
+	var elements []app.UI
+
+	// Split by double newlines to identify paragraphs
+	paragraphs := strings.Split(strings.TrimSpace(desc), "\n\n")
+
+	for _, para := range paragraphs {
+		para = strings.TrimSpace(para)
+		if para == "" {
+			continue
+		}
+
+		lines := strings.Split(para, "\n")
+		var listItems []string
+		var nonListLines []string
+		inList := false
+
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if bulletRegex.MatchString(line) {
+				if !inList && len(nonListLines) > 0 {
+					// Add accumulated non-list lines as paragraph first
+					elements = append(elements, app.P().Text(strings.Join(nonListLines, " ")))
+					nonListLines = nil
+				}
+				inList = true
+				matches := bulletRegex.FindStringSubmatch(line)
+				listItems = append(listItems, matches[1])
+			} else {
+				if inList {
+					// End the list and start new paragraph
+					if len(listItems) > 0 {
+						var liElements []app.UI
+						for _, item := range listItems {
+							liElements = append(liElements, app.Li().Text(item))
+						}
+						elements = append(elements, app.Ul().Body(liElements...))
+						listItems = nil
+					}
+					inList = false
+				}
+				nonListLines = append(nonListLines, line)
+			}
+		}
+
+		// Handle remaining content
+		if inList && len(listItems) > 0 {
+			var liElements []app.UI
+			for _, item := range listItems {
+				liElements = append(liElements, app.Li().Text(item))
+			}
+			elements = append(elements, app.Ul().Body(liElements...))
+		} else if len(nonListLines) > 0 {
+			elements = append(elements, app.P().Text(strings.Join(nonListLines, " ")))
+		}
+	}
+
+	return elements
+}
 
 // crdView is the main component to display a rendered CRD.
 type crdView struct {
@@ -625,11 +693,13 @@ func (h *crdView) Render() app.UI {
 
 			// Version description
 			app.If(version.Description != "", func() app.UI {
+				descElements := parseDescriptionElements(version.Description)
+				var content []app.UI
+				content = append(content, app.I().Class("fas fa-info-circle me-2"))
+				content = append(content, descElements...)
+
 				return app.Div().Class("card-body border-bottom").Body(
-					app.P().Class("text-muted mb-0").Body(
-						app.I().Class("fas fa-info-circle me-2"),
-						app.Text(version.Description),
-					),
+					app.Div().Class("text-muted mb-0").Body(content...),
 				)
 			}),
 
@@ -748,9 +818,11 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 				headerElements...,
 			),
 			app.If(prop.Description != "", func() app.UI {
+				descElements := parseDescriptionElements(prop.Description)
+
 				return app.Div().Class("row mt-2").Body(
 					app.Div().Class("col-12").Body(
-						app.P().Class("text-muted mb-0 small").Text(prop.Description),
+						app.Div().Class("text-muted mb-0 small").Body(descElements...),
 					),
 				)
 			}),

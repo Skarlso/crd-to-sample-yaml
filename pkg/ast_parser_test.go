@@ -223,3 +223,109 @@ func TestConditionParser_NonExistentDirectory(t *testing.T) {
 	err := parser.ParseGoFiles("/non/existent/path")
 	require.Error(t, err)
 }
+
+func TestConditionParser_RecursiveDirectoryParsing(t *testing.T) {
+	// Create a temporary directory structure with nested Go files
+	tempDir := t.TempDir()
+
+	// Create subdirectories
+	v1Dir := filepath.Join(tempDir, "v1")
+	v2Dir := filepath.Join(tempDir, "v2")
+	nestedDir := filepath.Join(tempDir, "v1", "nested")
+
+	require.NoError(t, os.MkdirAll(v1Dir, 0755))
+	require.NoError(t, os.MkdirAll(v2Dir, 0755))
+	require.NoError(t, os.MkdirAll(nestedDir, 0755))
+
+	// Create test Go files in different directories
+	v1File := `package v1
+
+const (
+	// +cty:condition:for:AppV1
+	// V1 specific condition
+	V1ReadyCond = "V1Ready"
+)
+
+const (
+	// +cty:reason:for:AppV1/V1ReadyCond
+	// V1 is operational
+	V1Operational = "Operational"
+)
+`
+
+	v2File := `package v2
+
+const (
+	// +cty:condition:for:AppV2
+	// V2 specific condition
+	V2ReadyCond = "V2Ready"
+)
+
+const (
+	// +cty:reason:for:AppV2/V2ReadyCond
+	// V2 is running
+	V2Running = "Running"
+)
+`
+
+	nestedFile := `package nested
+
+const (
+	// +cty:condition:for:NestedApp
+	// Nested condition
+	NestedCond = "NestedReady"
+)
+
+const (
+	// +cty:reason:for:NestedApp/NestedCond
+	// Nested is ready
+	NestedReady = "Ready"
+)
+`
+
+	// Write test files to different directories
+	require.NoError(t, os.WriteFile(filepath.Join(v1Dir, "v1_types.go"), []byte(v1File), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(v2Dir, "v2_types.go"), []byte(v2File), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(nestedDir, "nested_types.go"), []byte(nestedFile), 0644))
+
+	// Add a non-Go file to ensure it's ignored
+	require.NoError(t, os.WriteFile(filepath.Join(tempDir, "README.md"), []byte("# Documentation"), 0644))
+
+	// Parse the directory recursively
+	parser := NewConditionParser()
+	err := parser.ParseGoFiles(tempDir)
+	require.NoError(t, err)
+
+	// Get conditions
+	conditions := parser.GetConditions()
+
+	// Verify all conditions from different directories were parsed
+	assert.Len(t, conditions, 3, "Should have conditions from all subdirectories")
+
+	// Verify V1 conditions
+	v1Conditions, exists := conditions["AppV1"]
+	require.True(t, exists, "AppV1 conditions should exist")
+	require.Len(t, v1Conditions, 1, "Should have 1 AppV1 condition")
+	assert.Equal(t, "V1ReadyCond", v1Conditions[0].Type)
+	assert.Equal(t, "V1 specific condition", v1Conditions[0].Description)
+	assert.Len(t, v1Conditions[0].Reasons, 1, "Should have 1 reason")
+	assert.Equal(t, "V1Operational", v1Conditions[0].Reasons[0].Name)
+
+	// Verify V2 conditions
+	v2Conditions, exists := conditions["AppV2"]
+	require.True(t, exists, "AppV2 conditions should exist")
+	require.Len(t, v2Conditions, 1, "Should have 1 AppV2 condition")
+	assert.Equal(t, "V2ReadyCond", v2Conditions[0].Type)
+	assert.Equal(t, "V2 specific condition", v2Conditions[0].Description)
+	assert.Len(t, v2Conditions[0].Reasons, 1, "Should have 1 reason")
+	assert.Equal(t, "V2Running", v2Conditions[0].Reasons[0].Name)
+
+	// Verify Nested conditions
+	nestedConditions, exists := conditions["NestedApp"]
+	require.True(t, exists, "NestedApp conditions should exist")
+	require.Len(t, nestedConditions, 1, "Should have 1 NestedApp condition")
+	assert.Equal(t, "NestedCond", nestedConditions[0].Type)
+	assert.Equal(t, "Nested condition", nestedConditions[0].Description)
+	assert.Len(t, nestedConditions[0].Reasons, 1, "Should have 1 reason")
+	assert.Equal(t, "NestedReady", nestedConditions[0].Reasons[0].Name)
+}
