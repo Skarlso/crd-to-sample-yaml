@@ -176,9 +176,13 @@ func (p *ConditionParser) parseAnnotations(varName, value string, comments []str
 	// create "condition" if annotation was found
 	if isCondition {
 		key := fmt.Sprintf("%s/%s", crdName, varName)
+		conditionValue := value
+		if conditionValue == "" {
+			conditionValue = varName // fallback to variable name if no value
+		}
 		p.conditions[key] = &ConditionInfo{
 			CRDName:     crdName,
-			Type:        varName,
+			Type:        conditionValue,
 			Description: strings.TrimSpace(description.String()),
 			Reasons:     []ReasonInfo{},
 		}
@@ -187,10 +191,14 @@ func (p *ConditionParser) parseAnnotations(varName, value string, comments []str
 	// create "reason" if annotation was found
 	if isReason {
 		key := fmt.Sprintf("%s/%s/%s", crdName, conditionType, varName)
+		reasonValue := value
+		if reasonValue == "" {
+			reasonValue = varName // fallback to variable name if no value
+		}
 		p.reasons[key] = &ReasonInfo{
-			Name:        varName,
+			Name:        reasonValue,
 			Description: strings.TrimSpace(description.String()),
-			Value:       value,
+			Value:       reasonValue,
 		}
 	}
 }
@@ -204,11 +212,15 @@ func (p *ConditionParser) associateReasons() {
 		}
 
 		crdName := parts[0]
-		conditionType := parts[1]
+		conditionRef := parts[1] // This could be variable name or condition value from the annotation
 
-		for _, condition := range p.conditions {
+		for conditionKey, condition := range p.conditions {
 			if condition.CRDName == crdName {
-				if strings.Contains(condition.Type, conditionType) {
+				// Match based on either:
+				// 1. The condition key which includes the variable name
+				// 2. The condition Type (value)
+				conditionParts := strings.Split(conditionKey, "/")
+				if len(conditionParts) == 2 && (conditionParts[1] == conditionRef || condition.Type == conditionRef) {
 					condition.Reasons = append(condition.Reasons, *reason)
 
 					break
