@@ -103,14 +103,14 @@ const (
 	// Verify FrontendReady condition
 	var frontendCond *ConditionInfo
 	for i := range appConditions {
-		if appConditions[i].Type == "FrontendReadyCond" {
+		if appConditions[i].Type == "FrontendReady" {
 			frontendCond = &appConditions[i]
 			break
 		}
 	}
 	require.NotNil(t, frontendCond, "FrontendReady condition should exist")
 	assert.Equal(t, "App", frontendCond.CRDName)
-	assert.Equal(t, "FrontendReadyCond", frontendCond.Type)
+	assert.Equal(t, "FrontendReady", frontendCond.Type)
 	assert.Equal(t, "This condition indicates that the frontend is ready", frontendCond.Description)
 	assert.Len(t, frontendCond.Reasons, 2, "Should have 2 reasons")
 
@@ -119,13 +119,13 @@ const (
 	for i, reason := range frontendCond.Reasons {
 		reasonNames[i] = reason.Name
 	}
-	assert.Contains(t, reasonNames, "FrontendReady")
-	assert.Contains(t, reasonNames, "FrontendNotReady")
+	assert.Contains(t, reasonNames, "Ready")
+	assert.Contains(t, reasonNames, "NotReady")
 
 	// Find and verify specific reason
 	var readyReason *ReasonInfo
 	for i := range frontendCond.Reasons {
-		if frontendCond.Reasons[i].Name == "FrontendReady" {
+		if frontendCond.Reasons[i].Name == "Ready" {
 			readyReason = &frontendCond.Reasons[i]
 			break
 		}
@@ -141,7 +141,7 @@ const (
 
 	dbCond := dbConditions[0]
 	assert.Equal(t, "Database", dbCond.CRDName)
-	assert.Equal(t, "DBConnectionCond", dbCond.Type)
+	assert.Equal(t, "Connection", dbCond.Type)
 	assert.Equal(t, "Connection status to the database", dbCond.Description)
 	assert.Len(t, dbCond.Reasons, 2, "Should have 2 reasons")
 }
@@ -306,26 +306,26 @@ const (
 	v1Conditions, exists := conditions["AppV1"]
 	require.True(t, exists, "AppV1 conditions should exist")
 	require.Len(t, v1Conditions, 1, "Should have 1 AppV1 condition")
-	assert.Equal(t, "V1ReadyCond", v1Conditions[0].Type)
+	assert.Equal(t, "V1Ready", v1Conditions[0].Type)
 	assert.Equal(t, "V1 specific condition", v1Conditions[0].Description)
 	assert.Len(t, v1Conditions[0].Reasons, 1, "Should have 1 reason")
-	assert.Equal(t, "V1Operational", v1Conditions[0].Reasons[0].Name)
+	assert.Equal(t, "Operational", v1Conditions[0].Reasons[0].Name)
 
 	// Verify V2 conditions
 	v2Conditions, exists := conditions["AppV2"]
 	require.True(t, exists, "AppV2 conditions should exist")
 	require.Len(t, v2Conditions, 1, "Should have 1 AppV2 condition")
-	assert.Equal(t, "V2ReadyCond", v2Conditions[0].Type)
+	assert.Equal(t, "V2Ready", v2Conditions[0].Type)
 	assert.Equal(t, "V2 specific condition", v2Conditions[0].Description)
 	assert.Len(t, v2Conditions[0].Reasons, 1, "Should have 1 reason")
-	assert.Equal(t, "V2Running", v2Conditions[0].Reasons[0].Name)
+	assert.Equal(t, "Running", v2Conditions[0].Reasons[0].Name)
 
 	// Verify Nested conditions
 	nestedConditions, exists := conditions["NestedApp"]
 	require.True(t, exists, "NestedApp conditions should exist")
 	require.Len(t, nestedConditions, 1, "Should have 1 NestedApp condition")
-	assert.Equal(t, "NestedCond", nestedConditions[0].Type)
+	assert.Equal(t, "NestedReady", nestedConditions[0].Type)
 	assert.Equal(t, "Nested condition", nestedConditions[0].Description)
 	assert.Len(t, nestedConditions[0].Reasons, 1, "Should have 1 reason")
-	assert.Equal(t, "NestedReady", nestedConditions[0].Reasons[0].Name)
+	assert.Equal(t, "Ready", nestedConditions[0].Reasons[0].Name)
 }
