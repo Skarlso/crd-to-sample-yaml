@@ -143,9 +143,10 @@ func (p *ConditionParser) parseValueSpecWithComments(spec *ast.ValueSpec, commen
 // parseAnnotations parses condition and reason annotations from comments.
 func (p *ConditionParser) parseAnnotations(varName, value string, comments []string) {
 	var (
-		description            strings.Builder
-		crdName, conditionType string
-		isCondition, isReason  bool
+		description     strings.Builder
+		crdName         string
+		isCondition     bool
+		reasonTargets   []struct{ crdName, conditionType string } // Store multiple reason annotations
 	)
 
 	for _, comment := range comments {
@@ -157,9 +158,11 @@ func (p *ConditionParser) parseAnnotations(varName, value string, comments []str
 		}
 
 		if matches := reasonRegex.FindStringSubmatch(comment); len(matches) > 2 { //nolint:mnd // crdName/conditionType
-			isReason = true
-			crdName = matches[1]
-			conditionType = matches[2]
+			// Collect all reason annotations instead of just keeping the last one
+			reasonTargets = append(reasonTargets, struct{ crdName, conditionType string }{
+				crdName:       matches[1],
+				conditionType: matches[2],
+			})
 
 			continue
 		}
@@ -188,9 +191,9 @@ func (p *ConditionParser) parseAnnotations(varName, value string, comments []str
 		}
 	}
 
-	// create "reason" if annotation was found
-	if isReason {
-		key := fmt.Sprintf("%s/%s/%s", crdName, conditionType, varName)
+	// create "reason" entries for each annotation found
+	for _, target := range reasonTargets {
+		key := fmt.Sprintf("%s/%s/%s", target.crdName, target.conditionType, varName)
 		reasonValue := value
 		if reasonValue == "" {
 			reasonValue = varName // fallback to variable name if no value
@@ -222,8 +225,7 @@ func (p *ConditionParser) associateReasons() {
 				conditionParts := strings.Split(conditionKey, "/")
 				if len(conditionParts) == 2 && (conditionParts[1] == conditionRef || condition.Type == conditionRef) {
 					condition.Reasons = append(condition.Reasons, *reason)
-
-					break
+					// Don't break - continue to associate with all matching conditions
 				}
 			}
 		}
