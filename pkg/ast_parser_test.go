@@ -329,3 +329,93 @@ const (
 	assert.Len(t, nestedConditions[0].Reasons, 1, "Should have 1 reason")
 	assert.Equal(t, "Ready", nestedConditions[0].Reasons[0].Name)
 }
+
+func TestConditionParser_MultipleReasonAnnotations(t *testing.T) {
+	tempDir := t.TempDir()
+
+	// Create a Go file with a reason that applies to multiple conditions
+	testFile := `package types
+
+const (
+	// +cty:condition:for:RemoteStorage
+	// Primary encryption is ready
+	PrimaryEncryptionReadyCond = "PrimaryEncryptionReady"
+
+	// +cty:condition:for:RemoteStorage
+	// Secondary encryption is ready
+	SecondaryEncryptionReadyCond = "SecondaryEncryptionReady"
+)
+
+type RemoteStorageEncryptionReadyReason string
+
+const (
+	// The encryption is ready
+	// +cty:reason:for:RemoteStorage/PrimaryEncryptionReady
+	// +cty:reason:for:RemoteStorage/SecondaryEncryptionReady
+	RemoteStorageEncryptionReady RemoteStorageEncryptionReadyReason = "Ready"
+
+	// The encryption failed
+	// +cty:reason:for:RemoteStorage/PrimaryEncryptionReady
+	// +cty:reason:for:RemoteStorage/SecondaryEncryptionReady
+	RemoteStorageEncryptionFailed RemoteStorageEncryptionReadyReason = "Failed"
+)
+`
+
+	require.NoError(t, os.WriteFile(filepath.Join(tempDir, "types.go"), []byte(testFile), 0644))
+
+	parser := NewConditionParser()
+	err := parser.ParseGoFiles(tempDir)
+	require.NoError(t, err)
+
+	conditions := parser.GetConditions()
+
+	// Verify RemoteStorage conditions exist
+	remoteStorageConditions, exists := conditions["RemoteStorage"]
+	require.True(t, exists, "RemoteStorage conditions should exist")
+	require.Len(t, remoteStorageConditions, 2, "Should have 2 RemoteStorage conditions")
+
+	// Find PrimaryEncryptionReady condition
+	var primaryCond *ConditionInfo
+	var secondaryCond *ConditionInfo
+	for i := range remoteStorageConditions {
+		if remoteStorageConditions[i].Type == "PrimaryEncryptionReady" {
+			primaryCond = &remoteStorageConditions[i]
+		}
+		if remoteStorageConditions[i].Type == "SecondaryEncryptionReady" {
+			secondaryCond = &remoteStorageConditions[i]
+		}
+	}
+
+	require.NotNil(t, primaryCond, "PrimaryEncryptionReady condition should exist")
+	require.NotNil(t, secondaryCond, "SecondaryEncryptionReady condition should exist")
+
+	// Both conditions should have the same 2 reasons
+	require.Len(t, primaryCond.Reasons, 2, "PrimaryEncryptionReady should have 2 reasons")
+	require.Len(t, secondaryCond.Reasons, 2, "SecondaryEncryptionReady should have 2 reasons")
+
+	// Verify reason names
+	primaryReasonNames := make([]string, len(primaryCond.Reasons))
+	for i, r := range primaryCond.Reasons {
+		primaryReasonNames[i] = r.Name
+	}
+	assert.Contains(t, primaryReasonNames, "Ready")
+	assert.Contains(t, primaryReasonNames, "Failed")
+
+	secondaryReasonNames := make([]string, len(secondaryCond.Reasons))
+	for i, r := range secondaryCond.Reasons {
+		secondaryReasonNames[i] = r.Name
+	}
+	assert.Contains(t, secondaryReasonNames, "Ready")
+	assert.Contains(t, secondaryReasonNames, "Failed")
+
+	// Verify descriptions
+	var readyReason *ReasonInfo
+	for i := range primaryCond.Reasons {
+		if primaryCond.Reasons[i].Name == "Ready" {
+			readyReason = &primaryCond.Reasons[i]
+			break
+		}
+	}
+	require.NotNil(t, readyReason)
+	assert.Equal(t, "The encryption is ready", readyReason.Description)
+}
