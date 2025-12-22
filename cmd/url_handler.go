@@ -28,6 +28,7 @@ func (h *URLHandler) CRDs() ([]*pkg.SchemaType, error) {
 	client.Timeout = timeout * time.Second
 
 	f := fetcher.NewFetcher(client, h.username, h.password, h.token)
+
 	content, err := f.Fetch(h.url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch content: %w", err)
@@ -42,6 +43,7 @@ func (h *URLHandler) CRDs() ([]*pkg.SchemaType, error) {
 	if err := yaml.Unmarshal(content, crd); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
 	}
+
 	schemaType, err := pkg.ExtractSchemaType(crd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract schema type: %w", err)

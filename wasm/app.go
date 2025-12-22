@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -33,17 +34,21 @@ func parseDescriptionElements(desc string) []app.UI {
 	var elements []app.UI
 
 	// Split by double newlines to identify paragraphs
-	paragraphs := strings.Split(strings.TrimSpace(desc), "\n\n")
+	paragraphs := strings.SplitSeq(strings.TrimSpace(desc), "\n\n")
 
-	for _, para := range paragraphs {
+	for para := range paragraphs {
 		para = strings.TrimSpace(para)
 		if para == "" {
 			continue
 		}
 
 		lines := strings.Split(para, "\n")
-		var listItems []string
-		var nonListLines []string
+
+		var (
+			listItems    []string
+			nonListLines []string
+		)
+
 		inList := false
 
 		for _, line := range lines {
@@ -54,6 +59,7 @@ func parseDescriptionElements(desc string) []app.UI {
 					elements = append(elements, app.P().Text(strings.Join(nonListLines, " ")))
 					nonListLines = nil
 				}
+
 				inList = true
 				matches := bulletRegex.FindStringSubmatch(line)
 				listItems = append(listItems, matches[1])
@@ -65,11 +71,14 @@ func parseDescriptionElements(desc string) []app.UI {
 						for _, item := range listItems {
 							liElements = append(liElements, app.Li().Text(item))
 						}
+
 						elements = append(elements, app.Ul().Body(liElements...))
 						listItems = nil
 					}
+
 					inList = false
 				}
+
 				nonListLines = append(nonListLines, line)
 			}
 		}
@@ -80,6 +89,7 @@ func parseDescriptionElements(desc string) []app.UI {
 			for _, item := range listItems {
 				liElements = append(liElements, app.Li().Text(item))
 			}
+
 			elements = append(elements, app.Ul().Body(liElements...))
 		} else if len(nonListLines) > 0 {
 			elements = append(elements, app.P().Text(strings.Join(nonListLines, " ")))
@@ -92,6 +102,7 @@ func parseDescriptionElements(desc string) []app.UI {
 // crdView is the main component to display a rendered CRD.
 type crdView struct {
 	app.Compo
+
 	preRenderErr error
 
 	crds        []*pkg.SchemaType
@@ -178,6 +189,7 @@ func (v *detailsView) Render() app.UI {
 
 func (v *detailsView) OnCheckComment(_ app.Context, _ app.Event) {
 	v.comment = !v.comment
+
 	content, err := v.version.generateYAMLDetails(v.comment, v.minimal)
 	if err != nil {
 		v.renderErr = err
@@ -191,6 +203,7 @@ func (v *detailsView) OnCheckComment(_ app.Context, _ app.Event) {
 
 func (v *detailsView) OnCheckMinimal(_ app.Context, _ app.Event) {
 	v.minimal = !v.minimal
+
 	content, err := v.version.generateYAMLDetails(v.comment, v.minimal)
 	if err != nil {
 		v.renderErr = err
@@ -210,7 +223,7 @@ func (v *detailsView) onCopyClick(ctx app.Context, _ app.Event) {
 	}
 
 	// Use JavaScript's clipboard API
-	app.Window().Get("navigator").Get("clipboard").Call("writeText", content).Call("then", app.FuncOf(func(this app.Value, args []app.Value) interface{} {
+	app.Window().Get("navigator").Get("clipboard").Call("writeText", content).Call("then", app.FuncOf(func(this app.Value, args []app.Value) any {
 		// Show success feedback
 		btn := ctx.JSSrc()
 		originalHTML := btn.Get("innerHTML").String()
@@ -218,7 +231,7 @@ func (v *detailsView) onCopyClick(ctx app.Context, _ app.Event) {
 		btn.Get("classList").Call("add", "btn-success")
 		btn.Get("classList").Call("remove", "copy-btn")
 
-		app.Window().Call("setTimeout", app.FuncOf(func(this app.Value, args []app.Value) interface{} {
+		app.Window().Call("setTimeout", app.FuncOf(func(this app.Value, args []app.Value) any {
 			btn.Set("innerHTML", originalHTML)
 			btn.Get("classList").Call("remove", "btn-success")
 			btn.Get("classList").Call("add", "copy-btn")
@@ -242,8 +255,10 @@ type Version struct {
 
 func (v *Version) generateYAMLDetails(comment bool, minimal bool) (string, error) {
 	buf := bytes.NewBuffer(nil)
+
 	parser := pkg.NewParser(v.Group, v.Kind, comment, minimal, true)
-	if err := parser.ParseProperties(v.Version, buf, v.Schema, pkg.RootRequiredFields); err != nil {
+	err := parser.ParseProperties(v.Version, buf, v.Schema, pkg.RootRequiredFields)
+	if err != nil {
 		return "", err
 	}
 
@@ -263,6 +278,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 	newLines := strings.Split(newContent, "\n")
 
 	var result []DiffLine
+
 	oldIdx, newIdx := 0, 0
 
 	for oldIdx < len(oldLines) && newIdx < len(newLines) {
@@ -277,6 +293,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 		} else {
 			// Look ahead to find matching lines
 			matchFound := false
+
 			for lookAhead := 1; lookAhead < 3 && (newIdx+lookAhead) < len(newLines); lookAhead++ {
 				if oldLines[oldIdx] == newLines[newIdx+lookAhead] {
 					// Add the new lines before the match
@@ -287,12 +304,14 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 							LineNum: newIdx + i + 1,
 						})
 					}
+
 					newIdx += lookAhead
 					matchFound = true
 
 					break
 				}
 			}
+
 			if !matchFound {
 				// Look ahead in old lines
 				for lookAhead := 1; lookAhead < 3 && (oldIdx+lookAhead) < len(oldLines); lookAhead++ {
@@ -305,6 +324,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 								LineNum: oldIdx + i + 1,
 							})
 						}
+
 						oldIdx += lookAhead
 						matchFound = true
 
@@ -312,6 +332,7 @@ func simpleDiff(oldContent, newContent string) []DiffLine {
 					}
 				}
 			}
+
 			if !matchFound {
 				result = append(result, DiffLine{
 					Type:    "removed",
@@ -410,6 +431,7 @@ func (d *diffView) onVersion1Change(ctx app.Context, _ app.Event) {
 			break
 		}
 	}
+
 	d.updateDiff()
 }
 
@@ -422,6 +444,7 @@ func (d *diffView) onVersion2Change(ctx app.Context, _ app.Event) {
 			break
 		}
 	}
+
 	d.updateDiff()
 }
 
@@ -472,6 +495,7 @@ func (d *diffView) Render() app.UI {
 						app.Select().Class("form-select").ID("version1-select").OnChange(d.onVersion1Change).Body(
 							app.Range(d.versions).Slice(func(i int) app.UI {
 								version := d.versions[i]
+
 								option := app.Option().Value(version.Version).Text(version.Version)
 								if i == d.selectedVersion1 {
 									option = option.Selected(true)
@@ -489,6 +513,7 @@ func (d *diffView) Render() app.UI {
 						app.Select().Class("form-select").ID("version2-select").OnChange(d.onVersion2Change).Body(
 							app.Range(d.versions).Slice(func(i int) app.UI {
 								version := d.versions[i]
+
 								option := app.Option().Value(version.Version).Text(version.Version)
 								if i == d.selectedVersion2 {
 									option = option.Selected(true)
@@ -524,8 +549,11 @@ func (d *diffView) Render() app.UI {
 							app.Code().Body(
 								app.Range(d.diffLines).Slice(func(i int) app.UI {
 									line := d.diffLines[i]
-									var lineClass string
-									var icon string
+
+									var (
+										lineClass string
+										icon      string
+									)
 
 									switch line.Type {
 									case "added":
@@ -610,6 +638,7 @@ func (h *crdView) OnNav(ctx app.Context) {
 
 	// authentication is not available here.
 	f := fetcher.NewFetcher(http.DefaultClient, "", "", "")
+
 	content, err := f.Fetch(u)
 	if err != nil {
 		h.preRenderErr = err
@@ -636,6 +665,7 @@ func (h *crdView) Render() app.UI {
 	}
 
 	versions := make([]Version, 0)
+
 	for _, schemaType := range h.crds {
 		for _, version := range schemaType.Versions {
 			v, err := h.generate(schemaType, version.Schema, schemaType.Kind+"-"+version.Name)
@@ -694,7 +724,9 @@ func (h *crdView) Render() app.UI {
 			// Version description
 			app.If(version.Description != "", func() app.UI {
 				descElements := parseDescriptionElements(version.Description)
+
 				var content []app.UI
+
 				content = append(content, app.I().Class("fas fa-info-circle me-2"))
 				content = append(content, descElements...)
 
@@ -769,10 +801,12 @@ func (h *crdView) onShareClick(ctx app.Context, _ app.Event) {
 	}
 
 	pageURL := ctx.Page().URL()
+
 	protocol := "https"
 	if pageURL.Scheme != "" {
 		protocol = pageURL.Scheme
 	}
+
 	shareURL := fmt.Sprintf("%s://%s/share?url=%s", protocol, pageURL.Host, url.QueryEscape(h.originalURL))
 
 	// Use JavaScript clipboard API
@@ -797,18 +831,23 @@ func render(d app.UI, p []*Property, accordionID string) app.UI {
 		if prop.Required {
 			badges = append(badges, app.Span().Class("property-type property-required me-1").Text("Required"))
 		}
+
 		if prop.Enums != nil {
 			badges = append(badges, app.Span().Class("property-type property-enum me-1").Text("Enum"))
 		}
+
 		if prop.Format != "" {
 			badges = append(badges, app.Span().Class("badge bg-info me-1").Text("Format: "+prop.Format))
 		}
+
 		if prop.Default != "" {
 			badges = append(badges, app.Span().Class("badge bg-secondary me-1").Text("Default: "+prop.Default))
 		}
+
 		if prop.Patterns != "" {
 			badges = append(badges, app.Span().Class("badge bg-warning text-dark me-1").Text("Pattern: "+prop.Patterns))
 		}
+
 		if len(badges) > 0 {
 			headerElements = append(headerElements, app.Div().Class("col-12 mt-2").Body(badges...))
 		}
@@ -902,12 +941,9 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 		// If not, or if we are done, add this new property to the list of properties and return it.
 		v := properties[k]
 		required := false
-		for _, item := range requiredList {
-			if item == k {
-				required = true
 
-				break
-			}
+		if slices.Contains(requiredList, k) {
+			required = true
 		}
 
 		// skip if only minimal is required
@@ -916,6 +952,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 		}
 
 		var enums []string
+
 		if v.Enum != nil {
 			for _, e := range v.Enum {
 				enums = append(enums, string(e.Raw))
@@ -940,24 +977,30 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, req
 		switch {
 		case len(properties[k].Properties) > 0:
 			requiredList = v.Required
+
 			out, err := parseCRD(properties[k].Properties, version, requiredList, minimal)
 			if err != nil {
 				return nil, err
 			}
+
 			p.Properties = out
 		case properties[k].Type == "array" && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0:
 			requiredList = v.Required
+
 			out, err := parseCRD(properties[k].Items.Schema.Properties, version, properties[k].Items.Schema.Required, minimal)
 			if err != nil {
 				return nil, err
 			}
+
 			p.Properties = out
 		case properties[k].AdditionalProperties != nil && properties[k].AdditionalProperties.Schema != nil:
 			requiredList = v.Required
+
 			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, properties[k].AdditionalProperties.Schema.Required, minimal)
 			if err != nil {
 				return nil, err
 			}
+
 			p.Properties = out
 		}
 

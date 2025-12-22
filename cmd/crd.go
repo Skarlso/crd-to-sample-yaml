@@ -66,7 +66,8 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 			return errors.New("output must be set to a filename if format is HTML")
 		}
 
-		if err := pkg.LoadTemplates(); err != nil {
+		err := pkg.LoadTemplates()
+		if err != nil {
 			return fmt.Errorf("failed to load templates: %w", err)
 		}
 	}
@@ -89,13 +90,16 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 	// Enhance CRDs with conditions from the API folder if specified
 	if args.apiFolder != "" {
 		enhancer := pkg.NewConditionEnhancer(args.apiFolder)
-		if err := enhancer.LoadConditions(); err != nil {
+		err := enhancer.LoadConditions()
+		if err != nil {
 			return fmt.Errorf("failed to load conditions: %w", err)
 		}
+
 		crds = enhancer.EnhanceSchemas(crds)
 	}
 
 	var w io.WriteCloser
+
 	if crdArgs.format == FormatHTML {
 		if crdArgs.stdOut {
 			w = os.Stdout
@@ -107,8 +111,10 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 		}
 
 		var customCSS string
+
 		if crdArgs.cssFile != "" {
 			var err error
+
 			customCSS, err = pkg.SanitizeCSS(crdArgs.cssFile)
 			if err != nil {
 				return fmt.Errorf("failed to process CSS file: %w", err)
@@ -126,6 +132,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 	}
 
 	var errs []error //nolint:prealloc // nope
+
 	for _, crd := range crds {
 		if crdArgs.stdOut {
 			w = os.Stdout

@@ -82,7 +82,8 @@ func (s *SuiteRunner) Run(ctx context.Context) ([]Outcome, error) {
 		for _, t := range v {
 			for _, assert := range t.Asserts {
 				m := map[string]*apiextensionsv1.JSON{}
-				if err := yaml.Unmarshal(assert.Raw, &m); err != nil {
+				err := yaml.Unmarshal(assert.Raw, &m)
+				if err != nil {
 					outcome = append(outcome, Outcome{
 						Status:   "FAIL",
 						Name:     t.It,
@@ -108,7 +109,8 @@ func (s *SuiteRunner) Run(ctx context.Context) ([]Outcome, error) {
 					}
 
 					matcher := matchers[k]
-					if err := matcher.Match(ctx, file, payload.Raw); err != nil {
+					err := matcher.Match(ctx, file, payload.Raw)
+					if err != nil {
 						// test failed
 						outcome = append(outcome, Outcome{
 							Status:   "FAIL",
@@ -161,6 +163,7 @@ func (s *SuiteRunner) constructTestMatrix() (map[string][]Test, error) {
 	// build up the test matrix
 	// for each template, gather the `tests`s
 	testMatrix := map[string][]Test{}
+
 	for _, testFile := range testFiles {
 		content, err := os.ReadFile(filepath.Clean(testFile))
 		if err != nil {

@@ -1,7 +1,7 @@
 version: "2"
 
 run:
-  go: "1.24"
+  go: "1.25"
   timeout: 10m
   tests: false
   allow-parallel-runners: true
@@ -20,7 +20,9 @@ linters:
     - exhaustive       # Doesn't really make sense.
     - exhaustruct      # Doesn't really make sense.
     - forcetypeassert  # Priority: that can lead to serious crashes.
+    - funcorder
     - funlen           # Break long functions.
+    - godoclint
     - gochecknoglobals
     - gochecknoinits   # Init functions cause an import to have side effects,
     - err113
@@ -30,6 +32,8 @@ linters:
     - loggercheck         # Doesn't really make sense.
     - nestif           # Some nexted if statements are 8 or 9 deep.
     - nilnil           # A function should return either something valuable
+    - noinlineerr
+    - nolintlint
     - nonamedreturns   # Either named return, or use simply `return`.
     - paralleltest
     - rowserrcheck
@@ -41,6 +45,7 @@ linters:
     - wastedassign
     - wrapcheck
     - wsl
+    - wsl_v5
 
   settings:
     funlen:

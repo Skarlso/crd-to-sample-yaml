@@ -35,10 +35,12 @@ func (h *KubeHandler) CRDs() ([]*pkg.SchemaType, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error building config from flags: %w", err)
 	}
+
 	cliSet, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, fmt.Errorf("error creating dynamic client: %w", err)
 	}
+
 	ctx := context.Background()
 
 	result, err := cliSet.Resource(schema.GroupVersionResource{

@@ -12,6 +12,7 @@ import (
 // server.
 func main() {
 	args := os.Args
+
 	var static bool
 	if len(args) > 1 && args[1] == "--static" {
 		static = true
@@ -210,13 +211,15 @@ func main() {
 		os.Exit(0)
 	}
 
-	if err := http.ListenAndServe(":8000", nil); err != nil { //nolint:gosec // it's fine
+	err := http.ListenAndServe(":8000", nil) //nolint:gosec // it's fine
+	if err != nil {
 		panic(err)
 	}
 }
 
 func generateGitHubPages(h *app.Handler) {
-	if err := app.GenerateStaticWebsite(".", h); err != nil {
+	err := app.GenerateStaticWebsite(".", h)
+	if err != nil {
 		panic(err)
 	}
 }

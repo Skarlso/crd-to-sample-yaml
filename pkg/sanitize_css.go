@@ -72,7 +72,8 @@ func sanitizeCSSContent(css string) (string, error) {
 		}
 	}
 
-	if err := validateCSSStructure(css); err != nil {
+	err := validateCSSStructure(css)
+	if err != nil {
 		return "", fmt.Errorf("invalid CSS structure: %w", err)
 	}
 

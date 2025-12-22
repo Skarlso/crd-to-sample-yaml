@@ -29,12 +29,14 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 	if err != nil {
 		return err
 	}
+
 	baseName := strings.Trim(filepath.Base(sourceTemplateLocation), filepath.Ext(sourceTemplateLocation))
 
 	crd := &unstructured.Unstructured{}
 	if err := yaml.Unmarshal(sourceTemplate, crd); err != nil {
 		return fmt.Errorf("failed to unmarshal into custom resource definition: %w", err)
 	}
+
 	schemaType, err := pkg.ExtractSchemaType(crd)
 	if err != nil {
 		return fmt.Errorf("failed to extract schema type: %w", err)
@@ -45,6 +47,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 		if minimal {
 			name = baseName + "-" + version.Name + ".min.yaml"
 		}
+
 		file, err := os.OpenFile(filepath.Clean(filepath.Join(targetSnapshotLocation, name)), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
 		if err != nil {
 			return fmt.Errorf("failed to open file %s: %w", filepath.Clean(filepath.Join(targetSnapshotLocation, name)), err)
@@ -65,6 +68,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 		if minimal {
 			name = baseName + "-" + schemaType.Validation.Name + ".min.yaml"
 		}
+
 		file, err := os.OpenFile(filepath.Clean(filepath.Join(targetSnapshotLocation, name)), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
 		if err != nil {
 			return fmt.Errorf("failed to open file %s: %w", filepath.Clean(filepath.Join(targetSnapshotLocation, name)), err)
@@ -76,6 +80,7 @@ func (u *Update) Update(sourceTemplateLocation string, targetSnapshotLocation st
 
 		schemaType.Validation.Schema.Properties["kind"] = v1beta1.JSONSchemaProps{}
 		schemaType.Validation.Schema.Properties["apiVersion"] = v1beta1.JSONSchemaProps{}
+
 		parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, minimal, false)
 		if err := parser.ParseProperties(schemaType.Validation.Name, file, schemaType.Validation.Schema.Properties, pkg.RootRequiredFields); err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)

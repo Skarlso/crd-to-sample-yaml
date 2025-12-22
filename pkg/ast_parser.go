@@ -129,6 +129,7 @@ func (p *ConditionParser) parseValueSpecWithComments(spec *ast.ValueSpec, commen
 
 	for i, name := range spec.Names {
 		var value string
+
 		if i < len(spec.Values) {
 			if lit, ok := spec.Values[i].(*ast.BasicLit); ok && lit.Kind == token.STRING {
 				// Remove quotes from string literal if exists
@@ -143,10 +144,10 @@ func (p *ConditionParser) parseValueSpecWithComments(spec *ast.ValueSpec, commen
 // parseAnnotations parses condition and reason annotations from comments.
 func (p *ConditionParser) parseAnnotations(varName, value string, comments []string) {
 	var (
-		description     strings.Builder
-		crdName         string
-		isCondition     bool
-		reasonTargets   []struct{ crdName, conditionType string } // Store multiple reason annotations
+		description   strings.Builder
+		crdName       string
+		isCondition   bool
+		reasonTargets []struct{ crdName, conditionType string } // Store multiple reason annotations
 	)
 
 	for _, comment := range comments {
@@ -179,10 +180,12 @@ func (p *ConditionParser) parseAnnotations(varName, value string, comments []str
 	// create "condition" if annotation was found
 	if isCondition {
 		key := fmt.Sprintf("%s/%s", crdName, varName)
+
 		conditionValue := value
 		if conditionValue == "" {
 			conditionValue = varName // fallback to variable name if no value
 		}
+
 		p.conditions[key] = &ConditionInfo{
 			CRDName:     crdName,
 			Type:        conditionValue,
@@ -194,10 +197,12 @@ func (p *ConditionParser) parseAnnotations(varName, value string, comments []str
 	// create "reason" entries for each annotation found
 	for _, target := range reasonTargets {
 		key := fmt.Sprintf("%s/%s/%s", target.crdName, target.conditionType, varName)
+
 		reasonValue := value
 		if reasonValue == "" {
 			reasonValue = varName // fallback to variable name if no value
 		}
+
 		p.reasons[key] = &ReasonInfo{
 			Name:        reasonValue,
 			Description: strings.TrimSpace(description.String()),
@@ -250,10 +255,12 @@ func extractComments(cg *ast.CommentGroup) []string {
 	}
 
 	var comments []string
+
 	for _, comment := range cg.List {
 		text := strings.TrimPrefix(comment.Text, "//")
 		text = strings.TrimPrefix(text, "/*")
 		text = strings.TrimSuffix(text, "*/")
+
 		text = strings.TrimSpace(text)
 		if text != "" {
 			comments = append(comments, text)

@@ -16,7 +16,7 @@ func Sanitize(content []byte) ([]byte, error) {
 
 	var result [][]byte //nolint:prealloc // no idea what the size will be
 
-	for _, line := range bytes.Split(content, []byte("\n")) {
+	for line := range bytes.SplitSeq(content, []byte("\n")) {
 		if bytes.HasPrefix(bytes.TrimLeft(line, " "), []byte("{{")) {
 			// skip lines that begin with {{
 			continue
@@ -33,6 +33,7 @@ func Sanitize(content []byte) ([]byte, error) {
 			}
 
 			var newLine []byte
+
 			newLine = append(newLine, line[:begin]...)
 			newLine = append(newLine, []byte("replaced")...)
 			newLine = append(newLine, line[end+2:]...)

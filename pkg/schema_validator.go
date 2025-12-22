@@ -63,6 +63,7 @@ func (r *ValidationReport) OutputJSON(w io.Writer) error {
 // OutputYAML writes the validation report as YAML.
 func (r *ValidationReport) OutputYAML(w io.Writer) error {
 	encoder := yaml.NewEncoder(w)
+
 	defer func() {
 		_ = encoder.Close()
 	}()
@@ -92,12 +93,15 @@ func (r *ValidationReport) OutputText(w io.Writer) error {
 	}
 
 	wr.write(w, "Changes:\n")
+
 	for _, change := range r.Changes {
 		symbol := getChangeSymbol(change.Type)
 		wr.write(w, fmt.Sprintf("  %s [%s] %s: %s\n", symbol, change.Type, change.Path, change.Description))
+
 		if change.OldValue != "" {
 			wr.write(w, fmt.Sprintf("    Old: %s\n", change.OldValue))
 		}
+
 		if change.NewValue != "" {
 			wr.write(w, fmt.Sprintf("    New: %s\n", change.NewValue))
 		}
