@@ -46,7 +46,8 @@ func (f *Fetcher) Fetch(url string) ([]byte, error) {
 	}
 
 	defer func() {
-		if closeErr := resp.Body.Close(); closeErr != nil {
+		closeErr := resp.Body.Close()
+		if closeErr != nil {
 			err = fmt.Errorf("failed to close with %w after %w", closeErr, err)
 		}
 	}()

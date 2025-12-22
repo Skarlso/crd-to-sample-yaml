@@ -16,7 +16,8 @@ func main() {
 		cmd.Version = version
 	}
 
-	if err := cmd.Execute(); err != nil {
+	err := cmd.Execute()
+	if err != nil {
 		log.Fatal("failed to run command: ", err)
 	}
 }

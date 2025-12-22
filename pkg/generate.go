@@ -23,14 +23,16 @@ var RootRequiredFields = []string{"apiVersion", "kind", "spec", "metadata", "sta
 // Generate takes a CRD content and path, and outputs.
 func Generate(crd *SchemaType, w io.WriteCloser, enableComments, minimal, skipRandom bool) (err error) {
 	defer func() {
-		if err := w.Close(); err != nil {
+		err := w.Close()
+		if err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
 		}
 	}()
 
 	parser := NewParser(crd.Group, crd.Kind, enableComments, minimal, skipRandom)
 	for i, version := range crd.Versions {
-		if err := parser.ParseProperties(version.Name, w, version.Schema.Properties, RootRequiredFields); err != nil {
+		err := parser.ParseProperties(version.Name, w, version.Schema.Properties, RootRequiredFields)
+		if err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 
@@ -43,7 +45,8 @@ func Generate(crd *SchemaType, w io.WriteCloser, enableComments, minimal, skipRa
 
 	// Parse validation instead
 	if len(crd.Versions) == 0 && crd.Validation != nil {
-		if err := parser.ParseProperties(crd.Validation.Name, w, crd.Validation.Schema.Properties, RootRequiredFields); err != nil {
+		err := parser.ParseProperties(crd.Validation.Name, w, crd.Validation.Schema.Properties, RootRequiredFields)
+		if err != nil {
 			return fmt.Errorf("failed to parse properties: %w", err)
 		}
 	}
@@ -59,6 +62,7 @@ func (w *writer) write(wc io.Writer, msg string) {
 	if w.err != nil {
 		return
 	}
+
 	_, w.err = wc.Write([]byte(msg))
 }
 
@@ -91,9 +95,11 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
 	}
+
 	sort.Strings(sortedKeys)
 
 	w := &writer{}
+
 	for _, k := range sortedKeys {
 		// skip the entire key if it's not required
 		if p.onlyRequired && !slices.Contains(requiredFields, k) {
@@ -106,12 +112,14 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 
 		if p.inArray {
 			w.write(file, k+":")
+
 			p.inArray = false
 		} else {
 			if p.comments && properties[k].Description != "" {
 				comment := strings.Builder{}
-				multiLine := strings.Split(properties[k].Description, "\n")
-				for _, line := range multiLine {
+
+				multiLine := strings.SplitSeq(properties[k].Description, "\n")
+				for line := range multiLine {
 					comment.WriteString(fmt.Sprintf("%s# %s\n", strings.Repeat(" ", p.indent), line))
 				}
 
@@ -120,6 +128,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 
 			w.write(file, fmt.Sprintf("%s%s:", strings.Repeat(" ", p.indent), k))
 		}
+
 		switch {
 		case len(properties[k].Properties) == 0 && properties[k].AdditionalProperties == nil:
 			if k == "apiVersion" {
@@ -140,9 +149,11 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 				p.indent += 2
 				p.inArray = true
 
-				if err := p.ParseProperties(version, file, properties[k].Items.Schema.Properties, properties[k].Items.Schema.Required); err != nil {
+				err := p.ParseProperties(version, file, properties[k].Items.Schema.Properties, properties[k].Items.Schema.Required)
+				if err != nil {
 					return err
 				}
+
 				p.indent -= 2
 			} else {
 				w.write(file, fmt.Sprintf(" %s\n", outputValueType(properties[k], p.skipRandom)))
@@ -152,15 +163,19 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 			p.indent += 2
 			if p.onlyRequired && p.emptyAfterTrimRequired(properties[k].Properties, properties[k].Required) {
 				p.indent -= 2
+
 				w.write(file, " {}\n")
 
 				continue
 			}
 
 			w.write(file, "\n")
-			if err := p.ParseProperties(version, file, properties[k].Properties, properties[k].Required); err != nil {
+			err := p.ParseProperties(version, file, properties[k].Properties, properties[k].Required)
+
+			if err != nil {
 				return err
 			}
+
 			p.indent -= 2
 		case properties[k].AdditionalProperties != nil:
 			// if there are no properties defined but only additional properties, we will not generate the
@@ -173,14 +188,16 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 
 				// This will eventually end up in case len(properties[k].Properties) > 0: hence, we don't need
 				// an empty check in here. That would be redundant.
-				if err := p.ParseProperties(
+				err := p.ParseProperties(
 					version,
 					file,
 					properties[k].AdditionalProperties.Schema.Properties,
 					properties[k].AdditionalProperties.Schema.Required,
-				); err != nil {
+				)
+				if err != nil {
 					return err
 				}
+
 				p.indent -= 2
 			}
 		}
@@ -259,13 +276,18 @@ func outputValueType(v v1beta1.JSONSchemaProps, skipRandom bool) string {
 	case array: // deal with arrays of other types that weren't objects
 		if v.Items.Schema != nil {
 			t := v.Items.Schema.Type
-			var s string
-			var items []string
+
+			var (
+				s     string
+				items []string
+			)
+
 			if v.MinItems != nil {
 				for range int(*v.MinItems) {
 					items = append(items, t)
 				}
 			}
+
 			s = fmt.Sprintf("[%s] # minItems %d of type %s", strings.Join(items, ","), len(items), t)
 
 			return s

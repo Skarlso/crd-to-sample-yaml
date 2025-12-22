@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
@@ -51,6 +52,7 @@ func (g *GitHandler) CRDs() ([]*pkg.SchemaType, error) {
 	} else {
 		ref, err = r.Head()
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to construct reference: %w", err)
 	}
@@ -104,10 +106,8 @@ func (g *GitHandler) gatherSchemaTypesForRef(r *git.Repository, ref *plumbing.Re
 }
 
 func (g *GitHandler) processEntry(f *object.File) (*pkg.SchemaType, error) {
-	for _, path := range strings.Split(f.Name, string(filepath.Separator)) {
-		if path == "test" {
-			return nil, nil
-		}
+	if slices.Contains(strings.Split(f.Name, string(filepath.Separator)), "test") {
+		return nil, nil
 	}
 
 	if ext := filepath.Ext(f.Name); ext != ".yaml" {
@@ -154,14 +154,17 @@ func (g *GitHandler) constructGitOptions() (*git.CloneOptions, error) {
 			Password: g.Password,
 		}
 	}
+
 	if g.Token != "" {
 		opts.Auth = &http.TokenAuth{
 			Token: g.Token,
 		}
 	}
+
 	if g.caBundle != "" {
 		opts.CABundle = []byte(g.caBundle)
 	}
+
 	if g.privSSHKey != "" {
 		if !strings.Contains(g.URL, "@") {
 			return nil, fmt.Errorf("git URL does not contain an ssh address: %s", g.URL)
@@ -174,6 +177,7 @@ func (g *GitHandler) constructGitOptions() (*git.CloneOptions, error) {
 
 		opts.Auth = keys
 	}
+
 	if g.useSSHAgent {
 		if !strings.Contains(g.URL, "@") {
 			return nil, fmt.Errorf("git URL does not contain an ssh address: %s", g.URL)
@@ -183,6 +187,7 @@ func (g *GitHandler) constructGitOptions() (*git.CloneOptions, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		opts.Auth = authMethod
 	}
 

@@ -20,6 +20,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 	if _, err := os.Stat(h.configFileLocation); os.IsNotExist(err) {
 		return nil, fmt.Errorf("file under '%s' does not exist", h.configFileLocation)
 	}
+
 	content, err := os.ReadFile(filepath.Clean(h.configFileLocation))
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
@@ -37,6 +38,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 	for _, group := range configFile.APIGroups {
 		for _, file := range group.Files {
 			handler := FileHandler{location: file, group: group.Name}
+
 			fileResults, err := handler.CRDs()
 			if err != nil {
 				return nil, fmt.Errorf("failed to process CRDs for files in groups %s: %w", group.Name, err)
@@ -47,6 +49,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 
 		for _, folder := range group.Folders {
 			handler := FolderHandler{location: folder, group: group.Name}
+
 			folderResults, err := handler.CRDs()
 			if err != nil {
 				return nil, fmt.Errorf("failed to process CRDs for folders %s: %w", handler.location, err)
@@ -63,6 +66,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 				token:    url.Token,
 				group:    group.Name,
 			}
+
 			crds, err := handler.CRDs()
 			if err != nil {
 				return nil, fmt.Errorf("failed to process CRDs for url %s: %w", handler.url, err)
@@ -82,6 +86,7 @@ func (h *ConfigHandler) CRDs() ([]*pkg.SchemaType, error) {
 				useSSHAgent: url.UseSSHAgent,
 				group:       group.Name,
 			}
+
 			crds, err := handler.CRDs()
 			if err != nil {
 				return nil, fmt.Errorf("failed to process CRDs for git url %s: %w", handler.URL, err)

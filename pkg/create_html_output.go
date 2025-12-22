@@ -53,6 +53,7 @@ func parseDescription(desc string) template.HTML {
 
 	// Split by double newlines to identify paragraphs
 	paragraphs := strings.Split(strings.TrimSpace(desc), "\n\n")
+
 	var result strings.Builder
 
 	for _, para := range paragraphs {
@@ -62,8 +63,12 @@ func parseDescription(desc string) template.HTML {
 		}
 
 		lines := strings.Split(para, "\n")
-		var listItems []string
-		var nonListLines []string
+
+		var (
+			listItems    []string
+			nonListLines []string
+		)
+
 		inList := false
 
 		for _, line := range lines {
@@ -74,8 +79,10 @@ func parseDescription(desc string) template.HTML {
 					result.WriteString("<p>")
 					result.WriteString(template.HTMLEscapeString(strings.Join(nonListLines, " ")))
 					result.WriteString("</p>\n")
+
 					nonListLines = nil
 				}
+
 				inList = true
 				matches := bulletRegex.FindStringSubmatch(line)
 				listItems = append(listItems, matches[1])
@@ -84,16 +91,21 @@ func parseDescription(desc string) template.HTML {
 					// End the list and start new paragraph
 					if len(listItems) > 0 {
 						result.WriteString("<ul>\n")
+
 						for _, item := range listItems {
 							result.WriteString("<li>")
 							result.WriteString(template.HTMLEscapeString(item))
 							result.WriteString("</li>\n")
 						}
+
 						result.WriteString("</ul>\n")
+
 						listItems = nil
 					}
+
 					inList = false
 				}
+
 				nonListLines = append(nonListLines, line)
 			}
 		}
@@ -101,11 +113,13 @@ func parseDescription(desc string) template.HTML {
 		// Handle remaining content
 		if inList && len(listItems) > 0 {
 			result.WriteString("<ul>\n")
+
 			for _, item := range listItems {
 				result.WriteString("<li>")
 				result.WriteString(template.HTMLEscapeString(item))
 				result.WriteString("</li>\n")
 			}
+
 			result.WriteString("</ul>\n")
 		} else if len(nonListLines) > 0 {
 			result.WriteString("<p>")
@@ -122,6 +136,7 @@ func LoadTemplates() error {
 	if templates == nil {
 		templates = make(map[string]*template.Template)
 	}
+
 	tmplFiles, err := fs.ReadDir(files, "templates")
 	if err != nil {
 		return err
@@ -135,6 +150,7 @@ func LoadTemplates() error {
 		if tmpl.IsDir() {
 			continue
 		}
+
 		pt, err := template.New(tmpl.Name()).Funcs(funcMap).ParseFS(files, "templates/"+tmpl.Name())
 		if err != nil {
 			return err
@@ -169,7 +185,8 @@ type RenderOpts struct {
 // RenderContent creates an HTML website from the CRD content.
 func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err error) {
 	defer func() {
-		if err := w.Close(); err != nil {
+		err := w.Close()
+		if err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "failed to close output file: %s", err.Error())
 		}
 	}()
@@ -237,6 +254,7 @@ func RenderContent(w io.WriteCloser, crds []*SchemaType, opts RenderOpts) (err e
 
 func buildUpGroup(crds []*SchemaType) map[string][]*SchemaType {
 	result := map[string][]*SchemaType{}
+
 	for _, crd := range crds {
 		if crd.Rendering.Group == "" {
 			crd.Rendering.Group = crd.Group
@@ -253,7 +271,9 @@ func generate(name, group, kind string, properties *v1beta1.JSONSchemaProps, min
 	if err != nil {
 		return Version{}, fmt.Errorf("failed to parse properties: %w", err)
 	}
+
 	var buffer []byte
+
 	buf := bytes.NewBuffer(buffer)
 	if err := parser.ParseProperties(name, buf, properties.Properties, RootRequiredFields); err != nil {
 		return Version{}, fmt.Errorf("failed to generate yaml sample: %w", err)
@@ -295,6 +315,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 	for k := range properties {
 		sortedKeys = append(sortedKeys, k)
 	}
+
 	sort.Strings(sortedKeys)
 
 	for _, k := range sortedKeys {
@@ -309,18 +330,17 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		// If not, or if we are done, add this new property to the list of properties and return it.
 		v := properties[k]
 		required := false
-		for _, item := range requiredList {
-			if item == k {
-				required = true
 
-				break
-			}
+		if slices.Contains(requiredList, k) {
+			required = true
 		}
+
 		description := v.Description
 		if description == "" && depth == 0 {
 			if k == "apiVersion" {
 				description = fmt.Sprintf("%s/%s", group, version)
 			}
+
 			if k == "kind" {
 				description = kind
 			}
@@ -345,6 +365,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		if v.Default != nil {
 			p.Default = string(v.Default.Raw)
 		}
+
 		if v.Example != nil {
 			p.Examples = string(v.Example.Raw)
 		}
@@ -353,28 +374,34 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 		case len(properties[k].Properties) > 0:
 			requiredList = v.Required
 			depth++
+
 			out, err := parseCRD(properties[k].Properties, version, minimal, group, kind, requiredList, depth)
 			if err != nil {
 				return nil, err
 			}
+
 			depth--
 			p.Properties = out
 		case properties[k].Type == array && properties[k].Items.Schema != nil && len(properties[k].Items.Schema.Properties) > 0:
 			depth++
 			requiredList = v.Required
+
 			out, err := parseCRD(properties[k].Items.Schema.Properties, version, minimal, group, kind, requiredList, depth)
 			if err != nil {
 				return nil, err
 			}
+
 			depth--
 			p.Properties = out
 		case properties[k].AdditionalProperties != nil && properties[k].AdditionalProperties.Schema != nil:
 			depth++
 			requiredList = v.Required
+
 			out, err := parseCRD(properties[k].AdditionalProperties.Schema.Properties, version, minimal, group, kind, requiredList, depth)
 			if err != nil {
 				return nil, err
 			}
+
 			depth--
 			p.Properties = out
 		}

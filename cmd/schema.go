@@ -31,7 +31,8 @@ type KindVersionGroup struct {
 }
 
 type Schema struct {
-	*v1beta1.JSONSchemaProps       `json:",inline"`
+	*v1beta1.JSONSchemaProps `json:",inline"`
+
 	KubernetesGroupVersionKindList []KindVersionGroup `json:"x-kubernetes-group-version-kind"`
 }
 
@@ -67,6 +68,7 @@ func runGenerateSchema(_ *cobra.Command, _ []string) error {
 			if v.Schema.ID == "" {
 				v.Schema.ID = "https://crdtoyaml.com/" + crd.Kind + "." + crd.Group + "." + v.Name + ".schema.json"
 			}
+
 			if v.Schema.Schema == "" {
 				v.Schema.Schema = "https://json-schema.org/draft/2020-12/schema"
 			}

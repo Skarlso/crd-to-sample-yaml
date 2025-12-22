@@ -23,6 +23,7 @@ func (h *FileHandler) CRDs() ([]*pkg.SchemaType, error) {
 	if _, err := os.Stat(h.location); os.IsNotExist(err) {
 		return nil, fmt.Errorf("file under '%s' does not exist", h.location)
 	}
+
 	content, err := os.ReadFile(filepath.Clean(h.location))
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)

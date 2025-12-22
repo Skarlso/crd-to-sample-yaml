@@ -32,7 +32,8 @@ func (e *ConditionEnhancer) LoadConditions() error {
 		return fmt.Errorf("API folder does not exist: %s", e.apiFolder)
 	}
 
-	if err := e.parser.ParseGoFiles(e.apiFolder); err != nil {
+	err := e.parser.ParseGoFiles(e.apiFolder)
+	if err != nil {
 		return fmt.Errorf("failed to parse conditions from API folder: %w", err)
 	}
 

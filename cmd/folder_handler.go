@@ -27,7 +27,7 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 
 	var crds []*pkg.SchemaType
 
-	if err := filepath.Walk(h.location, func(path string, info fs.FileInfo, err error) error {
+	err := filepath.Walk(h.location, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 		if err := yaml.Unmarshal(content, crd); err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, "skipping none CRD file: "+path)
 
-			return nil //nolint:nilerr // intentional
+			return nil //nolint:nilerr // intentional none nil
 		}
 		schemaType, err := pkg.ExtractSchemaType(crd)
 		if err != nil {
@@ -72,7 +72,8 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 		}
 
 		return nil
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, fmt.Errorf("failed to walk the selected folder: %w", err)
 	}
 
