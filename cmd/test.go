@@ -43,6 +43,7 @@ func runTest(cmd *cobra.Command, args []string) {
 
 	path := args[0]
 	runner := tests.NewSuiteRunner(path, testArgs.update)
+
 	outcome, err := runner.Run(cmd.Context())
 	if err != nil {
 		os.Exit(1)
@@ -59,6 +60,7 @@ func displayWarnings(warnings []tests.Outcome) error {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"Status", "It", "Matcher", "Error", "Template"})
+
 	rows := make([]table.Row, 0, len(warnings))
 	for _, w := range warnings {
 		if w.Error != nil {
@@ -69,14 +71,17 @@ func displayWarnings(warnings []tests.Outcome) error {
 		if w.Status == "FAIL" {
 			status = color.RedString(w.Status)
 		}
+
 		var errText string
 		if w.Error != nil {
 			errText = text.WrapText(w.Error.Error(), wrapLen)
 		}
+
 		rows = append(rows, table.Row{
 			status, w.Name, w.Matcher, errText, w.Template,
 		})
 	}
+
 	t.AppendRows(rows)
 	t.AppendSeparator()
 	t.Render()

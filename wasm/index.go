@@ -325,7 +325,7 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 		}
 
 		i.crds = append(i.crds, crd)
-		
+
 		// Scroll to top after successful CRD processing
 		app.Window().Call("scrollTo", 0, 0)
 
@@ -342,6 +342,7 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 	}
 
 	f := fetcher.NewFetcher(http.DefaultClient, username.String(), password.String(), token.String())
+
 	content, err := f.Fetch(inp.String())
 	if err != nil {
 		i.err = fmt.Errorf("failed to fetch CRD content: %w", err)
@@ -366,7 +367,7 @@ func (i *index) OnClick(ctx app.Context, _ app.Event) {
 	}
 
 	i.crds = append(i.crds, crd)
-	
+
 	// Scroll to top after successful CRD processing
 	app.Window().Call("scrollTo", 0, 0)
 }
@@ -461,13 +462,17 @@ func (e *editView) OnInput(ctx app.Context, _ app.Event) {
 	parser := pkg.NewParser(schemaType.Group, schemaType.Kind, false, false, false)
 	for _, version := range schemaType.Versions {
 		e.content = append(e.content, []byte("---\n")...)
+
 		var buffer []byte
+
 		buf := bytes.NewBuffer(buffer)
-		if err := parser.ParseProperties(version.Name, buf, version.Schema.Properties, pkg.RootRequiredFields); err != nil {
+		err := parser.ParseProperties(version.Name, buf, version.Schema.Properties, pkg.RootRequiredFields)
+		if err != nil {
 			e.content = []byte(err.Error())
 
 			return
 		}
+
 		e.content = append(e.content, buf.Bytes()...)
 	}
 }

@@ -18,6 +18,7 @@ const maxBufferSize = 2048
 func Validate(sourceCRD []byte, sampleFile []byte, ignoreErrors []string) error {
 	reader := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(sampleFile), maxBufferSize)
 	obj := &unstructured.Unstructured{}
+
 	err := reader.Decode(obj)
 	if err != nil {
 		return fmt.Errorf("failed to decode sample file: %w", err)
@@ -41,7 +42,8 @@ func Validate(sourceCRD []byte, sampleFile []byte, ignoreErrors []string) error 
 		// Make sure we are only testing versions that equal to the CRD's version.
 		// This is important in case there are multiple versions in the CRD.
 		if obj.GroupVersionKind().Version == v.Name {
-			if err := validate(v.Schema.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, v.Name, ignoreErrors); err != nil {
+			err := validate(v.Schema.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, v.Name, ignoreErrors)
+			if err != nil {
 				return fmt.Errorf("failed to validate kind %s and version %s: %w", crd.Spec.Names.Kind, v.Name, err)
 			}
 
@@ -60,6 +62,7 @@ func Validate(sourceCRD []byte, sampleFile []byte, ignoreErrors []string) error 
 func ValidateCRDValidation(crd *apiextensions.CustomResourceDefinition, sampleFile []byte, ignoreErrors []string) error {
 	reader := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(sampleFile), maxBufferSize)
 	obj := &unstructured.Unstructured{}
+
 	err := reader.Decode(obj)
 	if err != nil {
 		return fmt.Errorf("failed to decode sample file: %w", err)
@@ -75,7 +78,9 @@ func validate(props *apiextensions.JSONSchemaProps, obj *unstructured.Unstructur
 	}
 
 	var resultErrors error
+
 	result := eval.Validate(obj)
+
 loop:
 	for _, e := range result.Errors {
 		for _, ignore := range ignoreErrors {

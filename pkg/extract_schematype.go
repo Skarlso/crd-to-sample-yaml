@@ -45,7 +45,7 @@ func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
 		return nil, err
 	}
 
-	versionsList, ok := versions.([]interface{})
+	versionsList, ok := versions.([]any)
 	if !ok {
 		return nil, fmt.Errorf("invalid version list type not a list: %T", versionsList)
 	}
@@ -54,8 +54,9 @@ func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
 		Group: group,
 		Kind:  kind,
 	}
+
 	for _, v := range versionsList {
-		vMap, ok := v.(map[string]interface{})
+		vMap, ok := v.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("invalid version type not a map: %T", v)
 		}
@@ -69,6 +70,7 @@ func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
 		if !ok {
 			return nil, fmt.Errorf("no schema found for version: %v", v)
 		}
+
 		openAPIV3schema, err := extractValue[map[string]any](schema, "openAPIV3Schema")
 		if err != nil {
 			return nil, err
@@ -78,6 +80,7 @@ func ExtractSchemaType(obj *unstructured.Unstructured) (*SchemaType, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		schemaValue := &v1beta1.JSONSchemaProps{}
 		if err := json.Unmarshal(content, schemaValue); err != nil {
 			return nil, err
@@ -108,10 +111,12 @@ func extractValidation(obj *unstructured.Unstructured, specMap map[string]any) (
 	}
 
 	props := &v1beta1.JSONSchemaProps{}
+
 	content, err := json.Marshal(schema)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = json.Unmarshal(content, props); err != nil {
 		return nil, err
 	}
@@ -166,6 +171,7 @@ func extractGroupKind(specMap map[string]any) (string, string, error) {
 // extractValue fetches a specific key value that we are looking for in a map.
 func extractValue[T any](m any, k string) (T, error) {
 	var result T
+
 	v, ok := m.(map[string]any)
 	if !ok {
 		return result, fmt.Errorf("value was not of type map[string]any but: %T", m)

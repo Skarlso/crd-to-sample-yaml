@@ -45,12 +45,14 @@ func (m *Matcher) Match(ctx context.Context, crdLocation string, payload []byte)
 	// we only create the snapshots if update is requested, otherwise,
 	// we just loop check existing snapshots
 	if v := ctx.Value(matches.UpdateSnapshotKey); v != nil {
-		if err := m.Updater.Update(crdLocation, c.Path, c.Minimal); err != nil {
+		err := m.Updater.Update(crdLocation, c.Path, c.Minimal)
+		if err != nil {
 			return fmt.Errorf("failed to update snapshot at %s: %w", c.Path, err)
 		}
 	}
 
 	var snapshots []string
+
 	err := filepath.Walk(c.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -90,6 +92,7 @@ func (m *Matcher) Match(ctx context.Context, crdLocation string, payload []byte)
 
 	// gather all the errors for all the files
 	var validationErrors error
+
 	for _, s := range snapshots {
 		// one snapshot will contain a single version and the validation
 		// will know which version to check against
