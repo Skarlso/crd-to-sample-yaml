@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -238,11 +239,21 @@ func (p *ConditionParser) associateReasons() {
 }
 
 // GetConditions returns all parsed conditions grouped by CRD name.
+// Conditions and their reasons are sorted for deterministic output.
 func (p *ConditionParser) GetConditions() map[string][]ConditionInfo {
 	result := make(map[string][]ConditionInfo)
 
 	for _, condition := range p.conditions {
+		sort.Slice(condition.Reasons, func(i, j int) bool {
+			return condition.Reasons[i].Name < condition.Reasons[j].Name
+		})
 		result[condition.CRDName] = append(result[condition.CRDName], *condition)
+	}
+
+	for crdName := range result {
+		sort.Slice(result[crdName], func(i, j int) bool {
+			return result[crdName][i].Type < result[crdName][j].Type
+		})
 	}
 
 	return result

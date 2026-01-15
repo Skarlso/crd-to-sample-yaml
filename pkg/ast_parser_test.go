@@ -419,3 +419,60 @@ const (
 	require.NotNil(t, readyReason)
 	assert.Equal(t, "The encryption is ready", readyReason.Description)
 }
+
+func TestConditionParser_GetConditions_DeterministicOrder(t *testing.T) {
+	tempDir := t.TempDir()
+	testFile := `package types
+
+const (
+	// +cty:condition:for:TestCRD
+	// Zebra condition
+	ZebraCond = "ZebraReady"
+
+	// +cty:condition:for:TestCRD
+	// Alpha condition
+	AlphaCond = "AlphaReady"
+
+	// +cty:condition:for:TestCRD
+	// Mike condition
+	MikeCond = "MikeReady"
+)
+
+const (
+	// +cty:reason:for:TestCRD/AlphaReady
+	// Zulu reason
+	ZuluReason = "Zulu"
+
+	// +cty:reason:for:TestCRD/AlphaReady
+	// Alpha reason
+	AlphaReason = "Alpha"
+
+	// +cty:reason:for:TestCRD/AlphaReady
+	// Mike reason
+	MikeReason = "Mike"
+)
+`
+
+	require.NoError(t, os.WriteFile(filepath.Join(tempDir, "types.go"), []byte(testFile), 0644))
+	for i := range 10 {
+		parser := NewConditionParser()
+		err := parser.ParseGoFiles(tempDir)
+		require.NoError(t, err)
+
+		conditions := parser.GetConditions()
+
+		testConditions, exists := conditions["TestCRD"]
+		require.True(t, exists)
+		require.Len(t, testConditions, 3)
+
+		assert.Equal(t, "AlphaReady", testConditions[0].Type, "iteration %d: first condition should be AlphaReady", i)
+		assert.Equal(t, "MikeReady", testConditions[1].Type, "iteration %d: second condition should be MikeReady", i)
+		assert.Equal(t, "ZebraReady", testConditions[2].Type, "iteration %d: third condition should be ZebraReady", i)
+
+		alphaReasons := testConditions[0].Reasons
+		require.Len(t, alphaReasons, 3, "iteration %d", i)
+		assert.Equal(t, "Alpha", alphaReasons[0].Name, "iteration %d: first reason should be Alpha", i)
+		assert.Equal(t, "Mike", alphaReasons[1].Name, "iteration %d: second reason should be Mike", i)
+		assert.Equal(t, "Zulu", alphaReasons[2].Name, "iteration %d: third reason should be Zulu", i)
+	}
+}

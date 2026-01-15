@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -65,6 +66,10 @@ func (e *ConditionEnhancer) findConditionsForKind(kind string) ([]ConditionInfo,
 
 	for crdName, conditions := range e.conditions {
 		if e.namesMatch(kind, crdName) {
+			sort.SliceStable(conditions, func(i, j int) bool {
+				return conditions[i].Type < conditions[j].Type
+			})
+
 			return conditions, true
 		}
 	}
