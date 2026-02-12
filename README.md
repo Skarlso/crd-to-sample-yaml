@@ -42,6 +42,23 @@ The extension can be installed from it's official page: [CRD To Sample YAML Exte
 
 ## Getting started
 
+### Installing Cty
+
+#### Homebrew
+
+You can use homebrew to install cty:
+
+```
+brew tap skarlso/tap
+brew install crd-to-sample-yaml
+```
+
+#### Release
+
+Or directly download from the releases: https://github.com/Skarlso/crd-to-sample-yaml/releases.
+
+#### Building from source
+
 - Prerequisites: Go installed on your machine. (Check out this link for details: https://go.dev/doc/install)
 - Clone the repository
 - Execute `make build` to build the binary
@@ -57,8 +74,6 @@ Optionally, define a URL at which a CRD is located:
 ```
 cty generate crd -u https://raw.githubusercontent.com/kubernetes-sigs/cluster-api-provider-aws/main/config/crd/bases/infrastructure.cluster.x-k8s.io_awsclusters.yaml
 ```
-
-`cty` does not support authentication modes, therefore the CRD needs to be publicly accessible.
 
 This will result in a file similar to this:
 
