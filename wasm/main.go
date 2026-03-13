@@ -58,7 +58,6 @@ func main() {
 		Styles: []string{
 			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
 			"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
-			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css",
 			"web/css/modern-style.css",
 		},
 		RawHeaders: []string{
@@ -68,137 +67,92 @@ func main() {
 			<meta name="description" content="Generate sample YAML files from Kubernetes CRD definitions with an intuitive web interface">
 			<meta name="keywords" content="Kubernetes, CRD, YAML, generator, CustomResourceDefinition">
 			<style>
-				/* Prevent automatic scrolling behavior */
-				* {
-					scroll-behavior: auto !important;
-				}
-
-				*:focus {
-					scroll-behavior: auto !important;
-				}
-
-				:root {
-					--primary-color: #0d6efd;
-					--secondary-color: #6c757d;
-					--success-color: #198754;
-					--info-color: #0dcaf0;
-					--warning-color: #ffc107;
-					--danger-color: #dc3545;
-					--light-color: #f8f9fa;
-					--dark-color: #212529;
-					--border-radius: 0.5rem;
-					--box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-					--transition: all 0.2s ease-in-out;
-				}
-
 				body {
 					font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 					line-height: 1.6;
-					background: linear-gradient(135deg, #8b9dc3 0%, #9ca3af 100%);
+					background: #f9fafb;
 					min-height: 100vh;
-					color: #111827;
+					color: #1f2937;
 				}
 
 				.main-container {
-					background: rgba(255, 255, 255, 0.98);
-					backdrop-filter: blur(10px);
-					border-radius: var(--border-radius);
-					box-shadow: var(--box-shadow);
+					background: #fff;
+					border: 1px solid #e5e7eb;
+					border-radius: 0.5rem;
 					margin: 2rem auto;
 					max-width: 1200px;
 					overflow: hidden;
-					color: #111827;
+					color: #1f2937;
 				}
 
 				@media (prefers-color-scheme: dark) {
 					body {
-						background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-						color: #f7fafc;
+						background: #1e1f22;
+						color: #f2f3f5;
 					}
 					.main-container {
-						background: rgba(26, 32, 44, 0.98);
-						color: #f7fafc;
+						background: #2b2d31;
+						border-color: #3f4147;
+						color: #f2f3f5;
 					}
-				}
-
-				.navbar-brand {
-					font-weight: 700;
-					font-size: 1.5rem;
-					color: #1f2937;
 				}
 
 				.btn {
-					border-radius: var(--border-radius);
+					border-radius: 0.375rem;
 					font-weight: 500;
-					transition: var(--transition);
+					transition: background 0.15s ease;
 					border: none;
-					padding: 0.75rem 1.5rem;
+					padding: 0.625rem 1.25rem;
 				}
 
 				.btn-primary {
-					background: #4b5563;
-					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+					background: #2563eb;
+					color: #fff;
 				}
 
 				.btn-primary:hover {
-					background: #374151;
-					box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+					background: #1d4ed8;
+				}
+
+				@media (prefers-color-scheme: dark) {
+					.btn-primary {
+						background: #5865f2;
+						color: #fff;
+					}
+					.btn-primary:hover {
+						background: #7983f5;
+					}
+					.form-control, .form-select {
+						background: #383a40;
+						border-color: #3f4147;
+						color: #f2f3f5;
+					}
+					.card {
+						background: #2b2d31;
+						border-color: #3f4147;
+					}
 				}
 
 				.form-control, .form-select {
-					border-radius: var(--border-radius);
-					border: 2px solid #e9ecef;
-					transition: var(--transition);
-					padding: 0.75rem 1rem;
+					border-radius: 0.375rem;
+					border: 1px solid #e5e7eb;
+					transition: border-color 0.15s ease;
+					padding: 0.625rem 0.75rem;
 				}
 
 				.form-control:focus, .form-select:focus {
-					border-color: #6b7280;
-					box-shadow: 0 0 0 0.2rem rgba(107, 114, 128, 0.25);
+					border-color: #2563eb;
+					box-shadow: none;
 				}
 
 				.card {
-					border: none;
-					border-radius: var(--border-radius);
-					box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
-					transition: var(--transition);
-				}
-
-				.card:hover {
-					box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
-				}
-
-				/* Custom accordion styling is now in modern-style.css */
-
-				.loading-spinner {
-					display: inline-block;
-					width: 20px;
-					height: 20px;
-					border: 3px solid rgba(255, 255, 255, 0.3);
-					border-radius: 50%;
-					border-top-color: #fff;
-					animation: spin 1s ease-in-out infinite;
-				}
-
-				@keyframes spin {
-					to { transform: rotate(360deg); }
-				}
-
-				.fade-in {
-					animation: fadeIn 0.5s ease-in;
-				}
-
-				@keyframes fadeIn {
-					from { opacity: 0; }
-					to { opacity: 1; }
+					border: 1px solid #e5e7eb;
+					border-radius: 0.375rem;
 				}
 			</style>`,
 		},
 		Scripts: []string{
 			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js",
 		},
 		Icon: app.Icon{
 			Default: "/web/img/logo.png",
