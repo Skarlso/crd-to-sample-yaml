@@ -346,7 +346,7 @@ func parseCRD(properties map[string]v1beta1.JSONSchemaProps, version string, min
 			}
 		}
 
-		var enums []string
+		enums := make([]string, 0, len(v.Enum))
 		for _, e := range v.Enum {
 			enums = append(enums, string(e.Raw))
 		}

@@ -120,7 +120,7 @@ func (p *Parser) ParseProperties(version string, file io.Writer, properties map[
 
 				multiLine := strings.SplitSeq(properties[k].Description, "\n")
 				for line := range multiLine {
-					comment.WriteString(fmt.Sprintf("%s# %s\n", strings.Repeat(" ", p.indent), line))
+					_, _ = fmt.Fprintf(&comment, "%s# %s\n", strings.Repeat(" ", p.indent), line)
 				}
 
 				w.write(file, comment.String())

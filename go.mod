@@ -1,6 +1,6 @@
 module github.com/Skarlso/crd-to-sample-yaml
 
-go 1.25.5
+go 1.26.1
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
