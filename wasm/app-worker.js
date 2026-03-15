@@ -61,40 +61,60 @@ async function fetchWithCache(request) {
 // Push Notifications
 // -----------------------------------------------------------------------------
 self.addEventListener("push", (event) => {
-  if (!event.data || !event.data.text()) {
+  event.waitUntil((async () => {
+    let notification;
+
+    try {
+      notification = event.data ? event.data.json() : null;
+    } catch {
+      notification = null;
+    }
+
+    if (!notification) {
+      return;
+    }
+
+    await showNotification(self.registration, notification);
+  })());
+});
+
+self.addEventListener("message", (event) => {
+  const msg = event.data;
+  if (!msg || msg.type !== "goapp:notify") {
     return;
   }
 
-  const notification = JSON.parse(event.data.text());
-  if (!notification) {
-    return;
-  }
+  event.waitUntil(
+    showNotification(self.registration, msg.options)
+  );
+});
 
-  const title = notification.title;
-  delete notification.title;
+async function showNotification(registration, notification) {
+  const title = notification.title || "Notification";
 
-  if (!notification.data) {
-    notification.data = {};
-  }
   let actions = [];
   for (let i in notification.actions) {
     const action = notification.actions[i];
-
     actions.push({
       action: action.action,
       path: action.path,
     });
-
     delete action.path;
   }
-  notification.data.goapp = {
-    path: notification.path,
-    actions: actions,
-  };
-  delete notification.path;
 
-  event.waitUntil(self.registration.showNotification(title, notification));
-});
+  await registration.showNotification(title, {
+    body: notification.body,
+    icon: notification.icon,
+    badge: notification.badge,
+    actions: notification.actions,
+    data: {
+      goapp: {
+        path: notification.path,
+        actions: actions
+      }
+    }
+  });
+}
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();

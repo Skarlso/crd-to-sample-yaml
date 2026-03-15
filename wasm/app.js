@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // go-app
 // -----------------------------------------------------------------------------
-var goappNav = function () {};
+var goappNav = function () { };
 
 var goappUpdatedBeforeWasmLoaded = false;
 var goappOnUpdate = function () {
@@ -89,12 +89,24 @@ function goappWatchForInstallable() {
 }
 
 function goappIsAppInstallable() {
-  return !goappIsAppInstalled() && deferredPrompt != null;
+  return !goappIsAppInstalled() && (deferredPrompt != null || goappIsAppleBrowser());
 }
 
 function goappIsAppInstalled() {
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-  return isStandalone || navigator.standalone;
+  return navigator.standalone === true ||
+    window.matchMedia("(display-mode: standalone)").matches ||
+    document.referrer.startsWith('android-app://');
+}
+
+function goappIsAppleBrowser() {
+  const ua = navigator.userAgent;
+  const isIPadOS = /\bMacintosh\b/.test(ua) && navigator.maxTouchPoints > 1;
+  const isIOSFamily = /iP(hone|ad|od)/.test(ua) || isIPadOS;
+  const isMacSafari =
+    /\bMacintosh\b/.test(ua) &&
+    /\bSafari\b/.test(ua) &&
+    !/\bChrome\b|\bEdg\b|\bOPR\b|\bBrave\b/.test(ua);
+  return isIOSFamily || isMacSafari;
 }
 
 async function goappShowInstallPrompt() {
@@ -153,12 +165,21 @@ function goappNewNotification(jsonNotification) {
     path = "/";
   }
 
-  const webNotification = new Notification(title, notification);
+  if (!("serviceWorker" in navigator) || !goappServiceWorkerRegistration || !goappServiceWorkerRegistration.active) {
+    const webNotification = new Notification(title, notification);
 
-  webNotification.onclick = () => {
-    goappNav(path);
-    webNotification.close();
-  };
+    webNotification.onclick = () => {
+      goappNav(path);
+      webNotification.close();
+    };
+    return;
+  }
+
+  const serviceWorker = goappServiceWorkerRegistration.active;
+  serviceWorker.postMessage({
+    type: "goapp:notify",
+    options: notification,
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -248,7 +269,7 @@ async function fetchWithProgress(url, progess) {
   if (contentLength <= 0) {
     try {
       contentLength = response.headers.get(goappWasmContentLengthHeader);
-    } catch {}
+    } catch { }
     if (!goappWasmContentLengthHeader || !contentLength) {
       contentLength = response.headers.get("Content-Length");
     }
@@ -266,7 +287,7 @@ async function fetchWithProgress(url, progess) {
       {
         async start(controller) {
           var reader = response.body.getReader();
-          for (;;) {
+          for (; ;) {
             var { done, value } = await reader.read();
 
             if (done) {
