@@ -25,9 +25,17 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 		return nil, fmt.Errorf("file under '%s' does not exist", h.location)
 	}
 
+	dir, err := os.OpenRoot(h.location)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open location %s: %w", h.location, err)
+	}
+	defer func() {
+		_ = dir.Close()
+	}()
+
 	var crds []*pkg.SchemaType
 
-	err := filepath.Walk(h.location, func(path string, info fs.FileInfo, err error) error {
+	err = filepath.Walk(h.location, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -36,13 +44,18 @@ func (h *FolderHandler) CRDs() ([]*pkg.SchemaType, error) {
 			return nil
 		}
 
-		if filepath.Ext(path) != ".yaml" {
-			_, _ = fmt.Fprintln(os.Stderr, "skipping file "+path)
+		rel, err := filepath.Rel(h.location, path)
+		if err != nil {
+			return fmt.Errorf("failed to get relative path for %s: %w", path, err)
+		}
+
+		if filepath.Ext(rel) != ".yaml" {
+			_, _ = fmt.Fprintln(os.Stderr, "skipping file "+rel)
 
 			return nil
 		}
 
-		content, err := os.ReadFile(filepath.Clean(path))
+		content, err := dir.ReadFile(rel)
 		if err != nil {
 			return fmt.Errorf("failed to read file: %w", err)
 		}
