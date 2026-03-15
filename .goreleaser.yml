@@ -24,13 +24,19 @@ builds:
       - 7
     goarm64:
       - v9.0
+    ignore:
+      - goos: windows
+        goarch: arm
+      - goos: darwin
+        goarch: arm
 
 archives:
   - id: default
-    builds:
+    ids:
       - default
     name_template: "cty_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
-    format: tar.gz
+    formats:
+      - tar.gz
     files:
       - none*
 
