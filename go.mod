@@ -6,7 +6,7 @@ require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/fatih/color v1.19.0
 	github.com/fxamacker/cbor/v2 v2.9.0
-	github.com/go-git/go-git/v5 v5.17.0
+	github.com/go-git/go-git/v5 v5.17.1
 	github.com/google/go-cmp v0.7.0
 	github.com/jedib0t/go-pretty/v6 v6.7.8
 	github.com/maxence-charriere/go-app/v10 v10.1.11
@@ -27,7 +27,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
