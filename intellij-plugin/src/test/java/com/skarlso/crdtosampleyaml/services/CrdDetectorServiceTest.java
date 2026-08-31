@@ -1,11 +1,7 @@
 package com.skarlso.crdtosampleyaml.services;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import com.intellij.testFramework.fixtures.TempDirTestFixture;
 import org.junit.Test;
 
 public class CrdDetectorServiceTest extends BasePlatformTestCase {
@@ -15,7 +11,7 @@ public class CrdDetectorServiceTest extends BasePlatformTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        crdDetectorService = new CrdDetectorService(getProject());
+        crdDetectorService = new CrdDetectorService();
     }
     
     @Test

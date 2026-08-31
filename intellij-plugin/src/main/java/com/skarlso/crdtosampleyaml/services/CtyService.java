@@ -2,87 +2,102 @@ package com.skarlso.crdtosampleyaml.services;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.process.ProcessHandlerFactory;
+import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.execution.process.ProcessOutput;
 import com.intellij.execution.util.ExecUtil;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.skarlso.crdtosampleyaml.settings.CtySettings;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class CtyService {
-    
-    private static final NotificationGroup NOTIFICATION_GROUP = 
-        NotificationGroup.balloonGroup("CRD to Sample YAML");
-    
+
+    private static final Logger LOG = Logger.getInstance(CtyService.class);
+    private static final String NOTIFICATION_GROUP_ID = "CRD to Sample YAML";
+    private static final String BINARY_NAME = "cty";
+
     private final Project project;
-    
+
     public CtyService(Project project) {
         this.project = project;
     }
-    
+
     public void generateSample(VirtualFile crdFile, GenerationType type) {
-        try {
+        runInBackground("Generating sample YAML", () -> {
             String ctyPath = getCtyPath();
             if (ctyPath == null) {
-                showError("CTY binary not found. Please install it or configure the path in settings.");
+                showError(binaryMissingMessage());
                 return;
             }
-            
-            GeneralCommandLine commandLine = buildCommand(ctyPath, crdFile, type);
-            ProcessOutput output = ExecUtil.execAndGetOutput(commandLine);
-            
-            if (output.getExitCode() == 0) {
-                String outputPath = getOutputPath(crdFile, type);
-                showSuccess("Sample YAML generated: " + outputPath);
+
+            String outputDir = resolveOutputDirectory(crdFile);
+            ProcessOutput output = run(buildGenerateCommand(ctyPath, crdFile, type, outputDir));
+
+            if (output != null && output.getExitCode() == 0) {
+                refresh(outputDir);
+                showInfo("Sample YAML generated in " + outputDir);
             } else {
-                showError("Failed to generate sample: " + output.getStderr());
+                showError("Failed to generate sample: " + describeFailure(output));
             }
-        } catch (ExecutionException e) {
-            showError("Error executing CTY: " + e.getMessage());
-        }
+        });
     }
-    
+
     public void validateSample(VirtualFile sampleFile, VirtualFile crdFile) {
-        try {
+        runInBackground("Validating sample YAML", () -> {
             String ctyPath = getCtyPath();
             if (ctyPath == null) {
-                showError("CTY binary not found. Please install it or configure the path in settings.");
+                showError(binaryMissingMessage());
                 return;
             }
-            
-            GeneralCommandLine commandLine = buildValidateCommand(ctyPath, sampleFile, crdFile);
-            ProcessOutput output = ExecUtil.execAndGetOutput(commandLine);
-            
-            if (output.getExitCode() == 0) {
-                showSuccess("Sample YAML is valid!");
+
+            ProcessOutput output = run(buildValidateCommand(ctyPath, sampleFile, crdFile));
+
+            if (output != null && output.getExitCode() == 0) {
+                showInfo(sampleFile.getName() + " is valid.");
             } else {
-                showError("Validation failed: " + output.getStderr());
+                showError("Validation failed: " + describeFailure(output));
             }
+        });
+    }
+
+    /**
+     * Runs the work on a pooled thread. Generation shells out to cty, which must never happen
+     * on the event dispatch thread or the whole IDE freezes for the duration of the process.
+     */
+    private void runInBackground(String title, Runnable work) {
+        new Task.Backgroundable(project, title, true) {
+            @Override
+            public void run(ProgressIndicator indicator) {
+                indicator.setIndeterminate(true);
+                work.run();
+            }
+        }.queue();
+    }
+
+    private ProcessOutput run(GeneralCommandLine commandLine) {
+        try {
+            return ExecUtil.execAndGetOutput(commandLine);
         } catch (ExecutionException e) {
-            showError("Error executing CTY validation: " + e.getMessage());
+            LOG.warn("failed to execute " + commandLine.getCommandLineString(), e);
+            return null;
         }
     }
-    
-    private GeneralCommandLine buildCommand(String ctyPath, VirtualFile crdFile, GenerationType type) {
+
+    // Package-private so tests can assert on the exact cty invocation.
+    GeneralCommandLine buildGenerateCommand(
+            String ctyPath, VirtualFile crdFile, GenerationType type, String outputDir) {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(ctyPath);
-        commandLine.addParameter("generate");
-        commandLine.addParameter("crd");
-        
-        // Add CRD file parameter
-        commandLine.addParameter("-c");
-        commandLine.addParameter(crdFile.getPath());
-        
-        // Add type-specific flags
+        commandLine.addParameters("generate", "crd");
+        commandLine.addParameters("-c", crdFile.getPath());
+
         switch (type) {
             case MINIMAL:
                 commandLine.addParameter("-l");
@@ -92,79 +107,133 @@ public class CtyService {
                 break;
             case COMPLETE:
             default:
-                // No additional flags for complete
                 break;
         }
-        
-        // Set output directory to same as CRD file
-        String outputDir = crdFile.getParent().getPath();
-        commandLine.addParameter("-o");
-        commandLine.addParameter(outputDir);
-        
+
+        commandLine.addParameters("-o", outputDir);
+
         return commandLine;
     }
-    
-    private GeneralCommandLine buildValidateCommand(String ctyPath, VirtualFile sampleFile, VirtualFile crdFile) {
+
+    GeneralCommandLine buildValidateCommand(String ctyPath, VirtualFile sampleFile, VirtualFile crdFile) {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(ctyPath);
-        commandLine.addParameter("validate");
-        commandLine.addParameter("-c");
-        commandLine.addParameter(crdFile.getPath());
-        commandLine.addParameter("-s");
-        commandLine.addParameter(sampleFile.getPath());
-        
+        commandLine.addParameters("validate", "sample");
+        commandLine.addParameters("-c", crdFile.getPath());
+        commandLine.addParameters("-s", sampleFile.getPath());
+
         return commandLine;
     }
-    
-    private String getCtyPath() {
+
+    /**
+     * Where generated samples land: next to the CRD unless the settings point somewhere else.
+     */
+    String resolveOutputDirectory(VirtualFile crdFile) {
+        CtySettings settings = CtySettings.getInstance();
+
+        if (CtySettings.OUTPUT_CUSTOM_DIRECTORY.equals(settings.getOutputLocation())) {
+            String custom = settings.getCustomOutputPath();
+            if (custom != null && !custom.trim().isEmpty()) {
+                return custom.trim();
+            }
+        }
+
+        return crdFile.getParent().getPath();
+    }
+
+    String getCtyPath() {
         CtySettings settings = CtySettings.getInstance();
         String configuredPath = settings.getCtyPath();
-        
-        if (configuredPath != null && !configuredPath.trim().isEmpty()) {
-            File file = new File(configuredPath);
-            if (file.exists() && file.canExecute()) {
-                return configuredPath;
+
+        if (isExplicitPath(configuredPath)) {
+            File file = new File(configuredPath.trim());
+            if (file.isFile() && file.canExecute()) {
+                return file.getAbsolutePath();
             }
         }
-        
-        // Try to find in PATH
-        try {
-            ProcessOutput output = ExecUtil.execAndGetOutput(new GeneralCommandLine("which", "cty"));
-            if (output.getExitCode() == 0) {
-                return output.getStdout().trim();
-            }
-        } catch (ExecutionException e) {
-            // Ignore and continue
+
+        // Resolves against PATH using the platform's own rules, so this also works on Windows
+        // where `which` does not exist and the binary is cty.exe.
+        File onPath = PathEnvironmentVariableUtil.findInPath(BINARY_NAME);
+
+        return onPath != null ? onPath.getAbsolutePath() : null;
+    }
+
+    /**
+     * A bare "cty" was the old default for this setting, so treat it as "look on PATH"
+     * rather than as a relative file path that will never resolve.
+     */
+    private boolean isExplicitPath(String configuredPath) {
+        return configuredPath != null
+                && !configuredPath.trim().isEmpty()
+                && !BINARY_NAME.equals(configuredPath.trim());
+    }
+
+    private String binaryMissingMessage() {
+        String configured = CtySettings.getInstance().getCtyPath();
+
+        if (isExplicitPath(configured)) {
+            return "cty was not found at '" + configured.trim()
+                    + "'. Fix the path in Settings | Tools | CRD to Sample YAML.";
         }
-        
-        return null;
+
+        return "cty was not found on your PATH. Install it (brew install crd-to-sample-yaml) "
+                + "or set the full path in Settings | Tools | CRD to Sample YAML.";
     }
-    
-    private String getOutputPath(VirtualFile crdFile, GenerationType type) {
-        // CTY generates files based on the Kind name from CRD, not filename
-        // We'll show the directory and let the user discover the actual filename
-        String outputDir = crdFile.getParent().getPath();
-        return outputDir + "/*_sample.yaml (check output directory for generated file)";
+
+    /**
+     * cty reports validation failures on stderr but falls back to stdout for some errors,
+     * so prefer whichever actually carries the message.
+     */
+    String describeFailure(ProcessOutput output) {
+        if (output == null) {
+            return "cty could not be executed, see the IDE log for details.";
+        }
+
+        String stderr = output.getStderr().trim();
+        if (!stderr.isEmpty()) {
+            return stderr;
+        }
+
+        String stdout = output.getStdout().trim();
+        if (!stdout.isEmpty()) {
+            return stdout;
+        }
+
+        return "cty exited with code " + output.getExitCode() + ".";
     }
-    
-    private void showSuccess(String message) {
-        Notification notification = NOTIFICATION_GROUP.createNotification(
-            "CRD to Sample YAML", 
-            message, 
-            NotificationType.INFORMATION
-        );
-        notification.notify(project);
+
+    /**
+     * Generated files are written behind the VFS's back, so refresh or they stay invisible
+     * in the project view until the next external change is noticed.
+     */
+    private void refresh(String outputDir) {
+        VirtualFile dir = LocalFileSystem.getInstance().refreshAndFindFileByPath(outputDir);
+        if (dir != null) {
+            dir.refresh(true, false);
+        }
     }
-    
+
+    private void showInfo(String message) {
+        notify(message, NotificationType.INFORMATION);
+    }
+
     private void showError(String message) {
-        Notification notification = NOTIFICATION_GROUP.createNotification(
-            "CRD to Sample YAML", 
-            message, 
-            NotificationType.ERROR
-        );
-        notification.notify(project);
+        notify(message, NotificationType.ERROR);
     }
-    
+
+    private void notify(String message, NotificationType type) {
+        // Errors are always worth surfacing; the setting only silences success balloons.
+        if (type != NotificationType.ERROR && !CtySettings.getInstance().isShowNotifications()) {
+            return;
+        }
+
+        NotificationGroupManager.getInstance()
+                .getNotificationGroup(NOTIFICATION_GROUP_ID)
+                .createNotification("CRD to Sample YAML", message, type)
+                .notify(project);
+    }
+
     public enum GenerationType {
         COMPLETE,
         MINIMAL,

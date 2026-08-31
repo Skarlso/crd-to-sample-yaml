@@ -114,9 +114,27 @@ export class CtyService {
     }
 
     async validateSample(samplePath: string, crdPath: string): Promise<{ valid: boolean; errors: string[] }> {
-        return new Promise((resolve) => {
-            // TODO: finish this
-            resolve({ valid: true, errors: [] });
+        const ctyPath = this.getCtyPath();
+        const args = ['validate', 'sample', '-c', path.resolve(crdPath), '-s', path.resolve(samplePath)];
+
+        return new Promise((resolve, reject) => {
+            execFile(ctyPath, args, (error, stdout, stderr) => {
+                if (!error) {
+                    resolve({ valid: true, errors: [] });
+                    return;
+                }
+
+                const output = (stderr || stdout || '').trim();
+                if (!output) {
+                    reject(new Error(`CTY execution failed: ${error.message}`));
+                    return;
+                }
+
+                resolve({
+                    valid: false,
+                    errors: output.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+                });
+            });
         });
     }
 

@@ -1,11 +1,36 @@
 # Schema Validation Feature
 
-CTY now supports schema validation between CRD versions to detect breaking changes and compatibility issues.
+CTY supports two kinds of validation:
+
+`cty validate schema` compares two *versions of a CRD* against each other to detect breaking changes.
+
+and
+
+`cty validate sample` checks that a *sample YAML* actually satisfies the schema of a CRD.
 
 This is separate from tests because it adds an immediate output and can be more refined than what the test
 framework is doing by showing what changed _exactly_ with some nicely formatted output. 
 
-## Usage
+## Validating a sample against a CRD
+
+```bash
+# Check a sample against the schema of the CRD it belongs to
+cty validate sample -c path/to/crd.yaml -s path/to/sample.yaml
+
+# The CRD can also come from a URL
+cty validate sample -u https://example.com/crd.yaml -s path/to/sample.yaml
+
+# Ignore specific validation errors by substring
+cty validate sample -c path/to/crd.yaml -s path/to/sample.yaml --ignore-errors "spec.image in body is required"
+```
+
+The version to validate against is taken from the sample's own `apiVersion`, so a CRD serving multiple
+versions is handled without extra flags. Exits non-zero when the sample does not satisfy the schema.
+
+Only `-c/--crd` and `-u/--url` are supported as CRD sources here, because validation needs the original
+document rather than the parsed schema.
+
+## Comparing versions of a schema
 
 ```bash
 # Validate schema compatibility between two versions
@@ -20,7 +45,7 @@ cty validate schema -c path/to/crd.yaml --from v1alpha1 --to v1beta1 --fail-on-b
 
 ## Supported Input Sources
 
-The validation command supports all the same input sources as the generate command:
+`validate schema` supports all the same input sources as the generate command:
 
 - file `-c path/to/crd.yaml`
 - URL `-u https://example.com/crd.yaml`

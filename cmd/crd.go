@@ -74,12 +74,7 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 
 	// determine location of output
 	if crdArgs.output == "" {
-		loc, err := os.Executable()
-		if err != nil {
-			return fmt.Errorf("failed to determine executable location: %w", err)
-		}
-
-		crdArgs.output = filepath.Dir(loc)
+		crdArgs.output = defaultOutputLocation(args)
 	}
 
 	crds, err := crdHandler.CRDs()
@@ -153,6 +148,20 @@ func runGenerate(_ *cobra.Command, _ []string) error {
 	}
 
 	return errors.Join(errs...)
+}
+
+// defaultOutputLocation is the folder generated samples land in when --output isn't set:
+// next to the CRD for file based input, otherwise the working directory. Anything else
+// would write into whichever folder the cty binary happens to live in.
+func defaultOutputLocation(args *rootArgs) string {
+	switch {
+	case args.fileLocation != "":
+		return filepath.Dir(args.fileLocation)
+	case args.folderLocation != "":
+		return args.folderLocation
+	default:
+		return "."
+	}
 }
 
 func constructHandler(args *rootArgs) (Handler, error) {

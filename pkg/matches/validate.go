@@ -42,12 +42,7 @@ func Validate(sourceCRD []byte, sampleFile []byte, ignoreErrors []string) error 
 		// Make sure we are only testing versions that equal to the CRD's version.
 		// This is important in case there are multiple versions in the CRD.
 		if obj.GroupVersionKind().Version == v.Name {
-			err := validate(v.Schema.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, v.Name, ignoreErrors)
-			if err != nil {
-				return fmt.Errorf("failed to validate kind %s and version %s: %w", crd.Spec.Names.Kind, v.Name, err)
-			}
-
-			return nil
+			return validate(v.Schema.OpenAPIV3Schema, obj, crd.Spec.Names.Kind, v.Name, ignoreErrors)
 		}
 	}
 

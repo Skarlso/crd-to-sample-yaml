@@ -13,10 +13,14 @@ import org.jetbrains.annotations.Nullable;
     storages = @Storage("ctySettings.xml")
 )
 public class CtySettings implements PersistentStateComponent<CtySettings> {
-    
-    public String ctyPath = "cty";
+
+    public static final String OUTPUT_SAME_DIRECTORY = "same_directory";
+    public static final String OUTPUT_CUSTOM_DIRECTORY = "custom_directory";
+
+    // Empty means "resolve cty from PATH".
+    public String ctyPath = "";
     public boolean showNotifications = true;
-    public String outputLocation = "same_directory";
+    public String outputLocation = OUTPUT_SAME_DIRECTORY;
     public String customOutputPath = "";
     
     public static CtySettings getInstance() {

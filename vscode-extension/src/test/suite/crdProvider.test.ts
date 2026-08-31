@@ -300,13 +300,41 @@ suite('CRDProvider Test Suite', () => {
     });
 
     suite('validateSample', () => {
-        test('Should show coming soon message', async () => {
+        test('Should do nothing when no sample is picked', async () => {
             const testUri = vscode.Uri.file('/test.yaml');
-            const showInfoStub = sandbox.stub(vscode.window, 'showInformationMessage');
+            sandbox.stub(vscode.window, 'showOpenDialog').resolves(undefined);
 
             await provider.validateSample(testUri);
 
-            assert.ok(showInfoStub.calledWith('Sample validation feature coming soon!'), 'Should show coming soon message');
+            assert.ok(mockCtyService.validateSample.notCalled, 'Should not validate without a sample');
+        });
+
+        test('Should report a valid sample', async () => {
+            const testUri = vscode.Uri.file('/test.yaml');
+            sandbox.stub(vscode.window, 'showOpenDialog').resolves([vscode.Uri.file('/sample.yaml')]);
+            const showInfoStub = sandbox.stub(vscode.window, 'showInformationMessage');
+            mockCtyService.validateSample.resolves({ valid: true, errors: [] });
+
+            await provider.validateSample(testUri);
+
+            assert.ok(
+                mockCtyService.validateSample.calledWith('/sample.yaml', '/test.yaml'),
+                'Should validate the picked sample against the selected CRD'
+            );
+            assert.ok(showInfoStub.called, 'Should report success');
+        });
+
+        test('Should report an invalid sample', async () => {
+            const testUri = vscode.Uri.file('/test.yaml');
+            sandbox.stub(vscode.window, 'showOpenDialog').resolves([vscode.Uri.file('/sample.yaml')]);
+            const showErrorStub = sandbox.stub(vscode.window, 'showErrorMessage').returns({
+                then: (cb: any) => cb(undefined)
+            } as any);
+            mockCtyService.validateSample.resolves({ valid: false, errors: ['spec.image must be a string'] });
+
+            await provider.validateSample(testUri);
+
+            assert.ok(showErrorStub.called, 'Should report the failure');
         });
     });
 

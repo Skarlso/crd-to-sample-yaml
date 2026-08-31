@@ -193,7 +193,50 @@ export class CRDProvider implements vscode.CodeLensProvider, vscode.HoverProvide
             return;
         }
 
-        vscode.window.showInformationMessage('Sample validation feature coming soon!');
+        // The selected file is the CRD; the sample to check against it is picked here.
+        const picked = await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            openLabel: 'Validate',
+            title: 'Select the sample YAML to validate against this CRD',
+            defaultUri: vscode.Uri.file(path.dirname(targetUri.fsPath)),
+            filters: { 'YAML': ['yaml', 'yml'] }
+        });
+
+        if (!picked?.length) {
+            return;
+        }
+
+        const samplePath = picked[0].fsPath;
+
+        try {
+            const result = await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: 'Validating sample against CRD...',
+                cancellable: false
+            }, async () => this.ctyService.validateSample(samplePath, targetUri.fsPath));
+
+            if (result.valid) {
+                vscode.window.showInformationMessage(`${path.basename(samplePath)} is valid.`);
+                return;
+            }
+
+            vscode.window.showErrorMessage(
+                `${path.basename(samplePath)} does not match the CRD schema.`,
+                'Show Details'
+            ).then(selection => {
+                if (selection === 'Show Details') {
+                    const channel = vscode.window.createOutputChannel('CRD to Sample YAML');
+                    channel.clear();
+                    channel.appendLine(`Validating ${samplePath} against ${targetUri.fsPath}`);
+                    result.errors.forEach(error => channel.appendLine(error));
+                    channel.show();
+                }
+            });
+        } catch (error) {
+            vscode.window.showErrorMessage(
+                `Failed to validate sample: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+        }
     }
 
     private getActiveDocumentUri(): vscode.Uri | undefined {
