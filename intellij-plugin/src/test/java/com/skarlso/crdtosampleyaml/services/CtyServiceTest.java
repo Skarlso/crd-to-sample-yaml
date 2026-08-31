@@ -1,156 +1,181 @@
 package com.skarlso.crdtosampleyaml.services;
 
-import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.ProcessOutput;
-import com.intellij.execution.util.ExecUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import com.skarlso.crdtosampleyaml.settings.CtySettings;
 import org.junit.Test;
-import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 
-import java.io.File;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
+/**
+ * These cover the command that actually gets handed to cty. Running the service end to end
+ * would mean driving a background task and a progress dialog, which the headless test fixture
+ * has no UI for; the invocation itself is where the interesting behaviour lives.
+ */
 public class CtyServiceTest extends BasePlatformTestCase {
-    
+
+    private static final String CTY = "/usr/local/bin/cty";
+
     private CtyService ctyService;
-    private CtySettings mockSettings;
-    
+    private CtySettings settings;
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         ctyService = new CtyService(getProject());
-        mockSettings = mock(CtySettings.class);
+        settings = new CtySettings();
     }
-    
-    @Test
-    public void testGenerateSample_WithValidPath() throws Exception {
-        VirtualFile crdFile = myFixture.createFile("test-crd.yaml", """
+
+    private VirtualFile crdFile() {
+        return myFixture.createFile("test-crd.yaml", """
             apiVersion: apiextensions.k8s.io/v1
             kind: CustomResourceDefinition
             metadata:
               name: myresources.example.com
             """);
-        
-        ProcessOutput successOutput = mock(ProcessOutput.class);
-        when(successOutput.getExitCode()).thenReturn(0);
-        when(successOutput.getStdout()).thenReturn("Sample generated successfully");
-        
-        try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class);
-             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
-             MockedConstruction<File> fileMock = mockConstruction(File.class, (mock, context) -> {
-                 when(mock.exists()).thenReturn(true);
-                 when(mock.canExecute()).thenReturn(true);
-             })) {
-            
-            settingsMock.when(CtySettings::getInstance).thenReturn(mockSettings);
-            when(mockSettings.getCtyPath()).thenReturn("/usr/local/bin/cty");
-            execUtilMock.when(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)))
-                       .thenReturn(successOutput);
-            
-            ctyService.generateSample(crdFile, CtyService.GenerationType.COMPLETE);
-            
-            execUtilMock.verify(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)), times(1));
-        }
     }
-    
+
     @Test
-    public void testGenerateSample_CtyNotConfigured() throws Exception {
-        VirtualFile crdFile = myFixture.createFile("test-crd.yaml", """
-            apiVersion: apiextensions.k8s.io/v1
-            kind: CustomResourceDefinition
-            metadata:
-              name: myresources.example.com
-            """);
-        
-        ProcessOutput whichOutput = mock(ProcessOutput.class);
-        when(whichOutput.getExitCode()).thenReturn(1);  // which command fails
-        
-        try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class);
-             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class)) {
-            
-            settingsMock.when(CtySettings::getInstance).thenReturn(mockSettings);
-            when(mockSettings.getCtyPath()).thenReturn("");  // No configured path
-            execUtilMock.when(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)))
-                       .thenReturn(whichOutput);
-            
-            // This should not throw exception, just show error notification
-            ctyService.generateSample(crdFile, CtyService.GenerationType.COMPLETE);
-            
-            execUtilMock.verify(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)), times(1));
-        }
+    public void testGenerateCommand_Complete() {
+        VirtualFile crd = crdFile();
+
+        GeneralCommandLine command = ctyService.buildGenerateCommand(
+                CTY, crd, CtyService.GenerationType.COMPLETE, "/tmp/out");
+
+        assertEquals(CTY, command.getExePath());
+        assertEquals(
+                java.util.List.of("generate", "crd", "-c", crd.getPath(), "-o", "/tmp/out"),
+                command.getParametersList().getList());
     }
-    
+
     @Test
-    public void testGenerateSample_ExecutionFailure() throws Exception {
-        VirtualFile crdFile = myFixture.createFile("test-crd.yaml", """
-            apiVersion: apiextensions.k8s.io/v1
-            kind: CustomResourceDefinition
-            metadata:
-              name: myresources.example.com
-            """);
-        
-        ProcessOutput failureOutput = mock(ProcessOutput.class);
-        when(failureOutput.getExitCode()).thenReturn(1);
-        when(failureOutput.getStderr()).thenReturn("Error: Invalid CRD format");
-        
-        try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class);
-             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
-             MockedConstruction<File> fileMock = mockConstruction(File.class, (mock, context) -> {
-                 when(mock.exists()).thenReturn(true);
-                 when(mock.canExecute()).thenReturn(true);
-             })) {
-            
-            settingsMock.when(CtySettings::getInstance).thenReturn(mockSettings);
-            when(mockSettings.getCtyPath()).thenReturn("/usr/local/bin/cty");
-            execUtilMock.when(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)))
-                       .thenReturn(failureOutput);
-            
-            ctyService.generateSample(crdFile, CtyService.GenerationType.COMPLETE);
-            
-            execUtilMock.verify(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)), times(1));
-        }
+    public void testGenerateCommand_MinimalUsesMinimalFlag() {
+        GeneralCommandLine command = ctyService.buildGenerateCommand(
+                CTY, crdFile(), CtyService.GenerationType.MINIMAL, "/tmp/out");
+
+        assertTrue("minimal generation must pass -l",
+                command.getParametersList().getList().contains("-l"));
     }
-    
+
     @Test
-    public void testValidateSample_Success() throws Exception {
-        VirtualFile crdFile = myFixture.createFile("test-crd.yaml", """
-            apiVersion: apiextensions.k8s.io/v1
-            kind: CustomResourceDefinition
-            metadata:
-              name: myresources.example.com
-            """);
-        
-        VirtualFile sampleFile = myFixture.createFile("sample.yaml", """
+    public void testGenerateCommand_CommentsUsesCommentsFlag() {
+        GeneralCommandLine command = ctyService.buildGenerateCommand(
+                CTY, crdFile(), CtyService.GenerationType.WITH_COMMENTS, "/tmp/out");
+
+        assertTrue("commented generation must pass -m",
+                command.getParametersList().getList().contains("-m"));
+    }
+
+    /**
+     * This used to build "validate -c crd -s sample", which cty rejects outright because
+     * validate had no -s flag. It has to target the sample subcommand.
+     */
+    @Test
+    public void testValidateCommand_TargetsSampleSubcommand() {
+        VirtualFile crd = crdFile();
+        VirtualFile sample = myFixture.createFile("sample.yaml", """
             apiVersion: example.com/v1
             kind: MyResource
             metadata:
               name: test-resource
             """);
-        
-        ProcessOutput successOutput = mock(ProcessOutput.class);
-        when(successOutput.getExitCode()).thenReturn(0);
-        
-        try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class);
-             MockedStatic<ExecUtil> execUtilMock = mockStatic(ExecUtil.class);
-             MockedConstruction<File> fileMock = mockConstruction(File.class, (mock, context) -> {
-                 when(mock.exists()).thenReturn(true);
-                 when(mock.canExecute()).thenReturn(true);
-             })) {
-            
-            settingsMock.when(CtySettings::getInstance).thenReturn(mockSettings);
-            when(mockSettings.getCtyPath()).thenReturn("/usr/local/bin/cty");
-            execUtilMock.when(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)))
-                       .thenReturn(successOutput);
-            
-            ctyService.validateSample(sampleFile, crdFile);
-            
-            execUtilMock.verify(() -> ExecUtil.execAndGetOutput(any(GeneralCommandLine.class)), times(1));
+
+        GeneralCommandLine command = ctyService.buildValidateCommand(CTY, sample, crd);
+
+        assertEquals(CTY, command.getExePath());
+        assertEquals(
+                java.util.List.of("validate", "sample", "-c", crd.getPath(), "-s", sample.getPath()),
+                command.getParametersList().getList());
+    }
+
+    @Test
+    public void testOutputDirectory_DefaultsToCrdDirectory() {
+        VirtualFile crd = crdFile();
+
+        try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
+            settingsMock.when(CtySettings::getInstance).thenReturn(settings);
+
+            assertEquals(crd.getParent().getPath(), ctyService.resolveOutputDirectory(crd));
         }
+    }
+
+    @Test
+    public void testOutputDirectory_HonoursConfiguredCustomDirectory() {
+        VirtualFile crd = crdFile();
+        settings.setOutputLocation(CtySettings.OUTPUT_CUSTOM_DIRECTORY);
+        settings.setCustomOutputPath("/tmp/samples");
+
+        try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
+            settingsMock.when(CtySettings::getInstance).thenReturn(settings);
+
+            assertEquals("/tmp/samples", ctyService.resolveOutputDirectory(crd));
+        }
+    }
+
+    @Test
+    public void testOutputDirectory_FallsBackWhenCustomDirectoryIsBlank() {
+        VirtualFile crd = crdFile();
+        settings.setOutputLocation(CtySettings.OUTPUT_CUSTOM_DIRECTORY);
+        settings.setCustomOutputPath("   ");
+
+        try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
+            settingsMock.when(CtySettings::getInstance).thenReturn(settings);
+
+            assertEquals(crd.getParent().getPath(), ctyService.resolveOutputDirectory(crd));
+        }
+    }
+
+    /**
+     * A bare "cty" was the old default for this setting and is not a usable file path,
+     * so it must not be treated as one.
+     */
+    @Test
+    public void testCtyPath_LegacyBareNameFallsBackToPathLookup() {
+        settings.setCtyPath("cty");
+
+        try (MockedStatic<CtySettings> settingsMock = mockStatic(CtySettings.class)) {
+            settingsMock.when(CtySettings::getInstance).thenReturn(settings);
+
+            // Either resolved from PATH or not found, but never the unusable literal.
+            String resolved = ctyService.getCtyPath();
+            assertFalse("bare name must not be returned as a path", "cty".equals(resolved));
+        }
+    }
+
+    @Test
+    public void testDescribeFailure_PrefersStderr() {
+        ProcessOutput output = mock(ProcessOutput.class);
+        when(output.getStderr()).thenReturn("Error: Invalid CRD format");
+
+        assertEquals("Error: Invalid CRD format", ctyService.describeFailure(output));
+    }
+
+    @Test
+    public void testDescribeFailure_FallsBackToStdout() {
+        ProcessOutput output = mock(ProcessOutput.class);
+        when(output.getStderr()).thenReturn("");
+        when(output.getStdout()).thenReturn("sample is not valid");
+
+        assertEquals("sample is not valid", ctyService.describeFailure(output));
+    }
+
+    @Test
+    public void testDescribeFailure_FallsBackToExitCode() {
+        ProcessOutput output = mock(ProcessOutput.class);
+        when(output.getStderr()).thenReturn("");
+        when(output.getStdout()).thenReturn("");
+        when(output.getExitCode()).thenReturn(2);
+
+        assertTrue(ctyService.describeFailure(output).contains("2"));
+    }
+
+    @Test
+    public void testDescribeFailure_HandlesProcessThatNeverStarted() {
+        assertNotNull(ctyService.describeFailure(null));
     }
 }

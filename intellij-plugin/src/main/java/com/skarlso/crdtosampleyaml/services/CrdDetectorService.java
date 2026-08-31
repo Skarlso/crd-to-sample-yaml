@@ -1,120 +1,134 @@
 package com.skarlso.crdtosampleyaml.services;
 
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
-import org.yaml.snakeyaml.LoaderOptions;
 
 import java.io.StringReader;
 import java.util.Map;
 
 public class CrdDetectorService {
-    
-    private final Project project;
-    private final Yaml yaml;
-    
-    public CrdDetectorService(Project project) {
-        this.project = project;
-        this.yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
+
+    private static final Logger LOG = Logger.getInstance(CrdDetectorService.class);
+    private static final String CRD_KIND = "CustomResourceDefinition";
+    private static final String CRD_API_GROUP = "apiextensions.k8s.io/";
+
+    /**
+     * Files above this are not worth parsing on every context menu update. A CRD large enough
+     * to hit it is possible but rare, and the alternative is stalling the popup.
+     */
+    private static final long MAX_FILE_SIZE = 5L * 1024 * 1024;
+
+    public static CrdDetectorService getInstance() {
+        return new CrdDetectorService();
     }
-    
+
+    /**
+     * snakeyaml's Yaml is not thread safe and detection now runs on background threads,
+     * so each parse gets its own.
+     */
+    private static Yaml yaml() {
+        return new Yaml(new SafeConstructor(new LoaderOptions()));
+    }
+
     public boolean isCrdFile(VirtualFile file) {
-        if (file == null || !isYamlFile(file)) {
-            return false;
-        }
-        
-        try {
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-            if (psiFile == null) {
-                return false;
-            }
-            
-            String content = psiFile.getText();
-            return isCrdContent(content);
-        } catch (Exception e) {
-            return false;
-        }
+        String content = readIfYaml(file);
+
+        return content != null && isCrdContent(content);
     }
-    
+
     public boolean isCrdContent(String content) {
         if (content == null || content.trim().isEmpty()) {
             return false;
         }
-        
+
         try {
-            // Handle multi-document YAML files
-            Iterable<Object> documents = yaml.loadAll(new StringReader(content));
-            
-            for (Object document : documents) {
-                if (!(document instanceof Map)) {
-                    continue;
-                }
-                
-                @SuppressWarnings("unchecked")
-                Map<String, Object> yamlMap = (Map<String, Object>) document;
-                
-                // Check for CRD identifying fields
-                String kind = (String) yamlMap.get("kind");
-                String apiVersion = (String) yamlMap.get("apiVersion");
-                
-                boolean isCrd = "CustomResourceDefinition".equals(kind) && 
-                               apiVersion != null && 
-                               apiVersion.startsWith("apiextensions.k8s.io/");
-                
-                if (isCrd) {
-                    System.out.println("CRD Detection Success - Kind: " + kind + ", ApiVersion: " + apiVersion);
+            // A CRD is often bundled with other manifests in one file.
+            for (Object document : yaml().loadAll(new StringReader(content))) {
+                if (isCrd(document)) {
                     return true;
                 }
             }
-            
-            // Debug logging to help troubleshoot
-            System.out.println("CRD Detection Failed - No valid CRD found in file");
-            return false;
         } catch (Exception e) {
-            System.out.println("CRD Detection Error: " + e.getMessage());
-            e.printStackTrace();
-            return false;
+            // Half-typed or templated YAML lands here constantly; it just isn't a CRD.
+            LOG.debug("could not parse content as YAML", e);
         }
+
+        return false;
     }
-    
+
     public String extractCrdName(VirtualFile file) {
-        if (!isCrdFile(file)) {
+        String content = readIfYaml(file);
+        if (content == null) {
             return null;
         }
-        
+
         try {
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-            if (psiFile == null) {
-                return null;
+            for (Object document : yaml().loadAll(new StringReader(content))) {
+                if (!isCrd(document)) {
+                    continue;
+                }
+
+                Object metadata = asMap(document).get("metadata");
+                if (metadata instanceof Map) {
+                    Object name = asMap(metadata).get("name");
+                    if (name instanceof String) {
+                        return (String) name;
+                    }
+                }
             }
-            
-            String content = psiFile.getText();
-            Object document = yaml.load(new StringReader(content));
-            
-            if (!(document instanceof Map)) {
-                return null;
-            }
-            
-            @SuppressWarnings("unchecked")
-            Map<String, Object> yamlMap = (Map<String, Object>) document;
-            
-            @SuppressWarnings("unchecked")
-            Map<String, Object> metadata = (Map<String, Object>) yamlMap.get("metadata");
-            if (metadata != null) {
-                return (String) metadata.get("name");
-            }
-            
-            return null;
         } catch (Exception e) {
+            LOG.debug("could not extract CRD name from " + file.getPath(), e);
+        }
+
+        return null;
+    }
+
+    private boolean isCrd(Object document) {
+        if (!(document instanceof Map)) {
+            return false;
+        }
+
+        Map<String, Object> map = asMap(document);
+
+        return CRD_KIND.equals(map.get("kind"))
+                && map.get("apiVersion") instanceof String
+                && ((String) map.get("apiVersion")).startsWith(CRD_API_GROUP);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> asMap(Object document) {
+        return (Map<String, Object>) document;
+    }
+
+    /**
+     * Reads straight from the VFS rather than through the PSI, so this stays callable from a
+     * background thread without holding a read action.
+     */
+    private String readIfYaml(VirtualFile file) {
+        if (file == null || !file.isValid() || file.isDirectory() || !isYamlFile(file)) {
+            return null;
+        }
+
+        if (file.getLength() > MAX_FILE_SIZE) {
+            return null;
+        }
+
+        try {
+            return VfsUtilCore.loadText(file);
+        } catch (Exception e) {
+            LOG.debug("could not read " + file.getPath(), e);
+
             return null;
         }
     }
-    
+
     private boolean isYamlFile(VirtualFile file) {
         String extension = file.getExtension();
+
         return "yaml".equalsIgnoreCase(extension) || "yml".equalsIgnoreCase(extension);
     }
 }

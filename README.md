@@ -23,6 +23,17 @@ And the test locations are [here](https://github.com/external-secrets/external-s
 
 For information on this feature, please see [Schema Validation README](SCHEMA_VALIDATION.md).
 
+## Validating a sample against a CRD
+
+`cty` can check that a sample YAML actually satisfies the schema of the CRD it belongs to:
+
+```console
+cty validate sample -c ./sample-crd/delivery.krok.app_krokcommands.yaml -s ./KrokCommand_sample.yaml
+```
+
+It exits non-zero and lists the offending fields when the sample does not match. See the
+[Schema Validation README](SCHEMA_VALIDATION.md) for the full set of options.
+
 ## Conditions parsing with cty annotation
 
 `cty` can parse conditions and reasons from Go type definitions and render them in the HTML output.

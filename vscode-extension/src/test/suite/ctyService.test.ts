@@ -273,11 +273,53 @@ suite('CtyService Test Suite', () => {
     });
 
     suite('validateSample', () => {
-        test('Should return placeholder validation result', async () => {
+        test('Should invoke the validate sample subcommand', async () => {
+            const execFileStub = sandbox.stub(childProcess, 'execFile').callsArgWith(2, null, '', '');
+
+            await service.validateSample('/sample.yaml', '/crd.yaml');
+
+            assert.ok(execFileStub.calledOnce, 'Should execute cty');
+
+            const args = execFileStub.getCall(0).args[1] as string[];
+            assert.deepStrictEqual(args.slice(0, 2), ['validate', 'sample'], 'Should call validate sample');
+            assert.ok(args.includes('-c'), 'Should pass the CRD flag');
+            assert.ok(args.includes('-s'), 'Should pass the sample flag');
+        });
+
+        test('Should report a sample that satisfies the schema as valid', async () => {
+            sandbox.stub(childProcess, 'execFile').callsArgWith(2, null, 'sample is valid', '');
+
             const result = await service.validateSample('/sample.yaml', '/crd.yaml');
 
-            assert.strictEqual(result.valid, true, 'Should return valid as true');
-            assert.deepStrictEqual(result.errors, [], 'Should return empty errors array');
+            assert.strictEqual(result.valid, true, 'Should be valid');
+            assert.deepStrictEqual(result.errors, [], 'Should have no errors');
+        });
+
+        test('Should surface schema violations as errors', async () => {
+            const stderr = 'Error: sample is not valid: spec.image in body must be of type string';
+            sandbox.stub(childProcess, 'execFile')
+                .callsArgWith(2, new Error('exit status 1'), '', stderr);
+
+            const result = await service.validateSample('/sample.yaml', '/crd.yaml');
+
+            assert.strictEqual(result.valid, false, 'Should be invalid');
+            assert.ok(
+                result.errors.some(error => error.includes('must be of type string')),
+                'Should report the schema violation'
+            );
+        });
+
+        test('Should reject when cty could not be executed at all', async () => {
+            sandbox.stub(childProcess, 'execFile')
+                .callsArgWith(2, new Error('spawn cty ENOENT'), '', '');
+
+            try {
+                await service.validateSample('/sample.yaml', '/crd.yaml');
+                assert.fail('Should have thrown');
+            } catch (error) {
+                const err = error as Error;
+                assert.ok(err.message.includes('CTY execution failed'), 'Should report an execution failure');
+            }
         });
     });
 

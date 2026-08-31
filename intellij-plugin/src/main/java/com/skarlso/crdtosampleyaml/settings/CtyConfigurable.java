@@ -1,6 +1,6 @@
 package com.skarlso.crdtosampleyaml.settings;
 
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBCheckBox;
@@ -33,17 +33,17 @@ public class CtyConfigurable implements Configurable {
         
         customOutputPathField = new TextFieldWithBrowseButton();
         customOutputPathField.addBrowseFolderListener(
-            "Select Output Directory",
-            "Choose directory for generated sample files",
             null,
-            new FileChooserDescriptor(false, true, false, false, false, false)
+            FileChooserDescriptorFactory.createSingleFolderDescriptor()
+                .withTitle("Select Output Directory")
+                .withDescription("Choose directory for generated sample files")
         );
         
         showNotificationsCheckBox = new JBCheckBox("Show notifications");
         
         outputLocationComboBox = new JComboBox<>(new String[]{
-            "same_directory",
-            "custom_directory"
+            CtySettings.OUTPUT_SAME_DIRECTORY,
+            CtySettings.OUTPUT_CUSTOM_DIRECTORY
         });
         
         mainPanel = FormBuilder.createFormBuilder()
@@ -58,7 +58,7 @@ public class CtyConfigurable implements Configurable {
         
         // Enable/disable custom path field based on combo box selection
         outputLocationComboBox.addActionListener(e -> {
-            boolean isCustom = "custom_directory".equals(outputLocationComboBox.getSelectedItem());
+            boolean isCustom = CtySettings.OUTPUT_CUSTOM_DIRECTORY.equals(outputLocationComboBox.getSelectedItem());
             customOutputPathField.setEnabled(isCustom);
         });
         
@@ -95,7 +95,7 @@ public class CtyConfigurable implements Configurable {
         customOutputPathField.setText(settings.getCustomOutputPath());
         
         // Update custom path field state
-        boolean isCustom = "custom_directory".equals(settings.getOutputLocation());
+        boolean isCustom = CtySettings.OUTPUT_CUSTOM_DIRECTORY.equals(settings.getOutputLocation());
         customOutputPathField.setEnabled(isCustom);
     }
 }

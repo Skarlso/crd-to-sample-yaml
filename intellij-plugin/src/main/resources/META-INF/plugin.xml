@@ -17,6 +17,14 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>1.0.3</h3>
+        <ul>
+            <li>Support IntelliJ 2025.1 through 2026.2</li>
+            <li>Sample validation now runs <code>cty validate sample</code> and reports real schema errors</li>
+            <li>Generation and validation run in the background instead of freezing the UI</li>
+            <li>Honour the configured output location and notification settings</li>
+            <li>Locate the cty binary on Windows as well</li>
+        </ul>
         <h3>1.0.0</h3>
         <ul>
             <li>Initial release</li>
@@ -30,6 +38,7 @@
     <depends>org.jetbrains.plugins.yaml</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="CRD to Sample YAML" displayType="BALLOON"/>
         <applicationService serviceImplementation="com.skarlso.crdtosampleyaml.settings.CtySettings"/>
         <projectConfigurable 
             parentId="tools" 
