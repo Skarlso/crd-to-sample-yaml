@@ -2,7 +2,7 @@
 // PWA
 // -----------------------------------------------------------------------------
 const cacheName = "app-" + "v1.0.0";
-const resourcesToCache = ["https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css","https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js","https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js","https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css","https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js","https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js","https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css","/web/img/logo.png","/web/css/modern-style.css","/web/app.wasm","/wasm_exec.js","/manifest.webmanifest","/app.js","/app.css","/"];
+const resourcesToCache = ["/web/js/cty.js","/web/img/logo.png","/web/css/cty.css","/web/app.wasm","/wasm_exec.js","/manifest.webmanifest","/app.js","/app.css","/"];
 
 self.addEventListener("install", async (event) => {
   try {

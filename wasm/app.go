@@ -136,47 +136,39 @@ func (v *detailsView) OnMount(_ app.Context) {
 }
 
 func (v *detailsView) Render() app.UI {
-	return app.Div().Body(
-		// Options row
-		app.Div().Class("row g-3 mb-4").Body(
-			app.Div().Class("col-md-6").Body(
-				app.Div().Class("form-check form-switch").Body(
-					app.Input().Class("form-check-input").Type("checkbox").ID("enable-comments-"+v.version.Version).OnClick(v.OnCheckComment),
-					app.Label().Class("form-check-label").For("enable-comments-"+v.version.Version).Body(
-						app.Strong().Text("Include Comments"),
-						app.Br(),
-						app.Small().Class("text-muted").Text("Add helpful field descriptions"),
-					),
+	return app.Div().Class("stack gap-4").Body(
+		app.Div().Class("cols").Body(
+			app.Label().Class("switch").For("enable-comments-"+v.version.Version).Body(
+				app.Input().Type("checkbox").ID("enable-comments-"+v.version.Version).OnClick(v.OnCheckComment),
+				app.Span().Class("switch-track"),
+				app.Span().Body(
+					app.Span().Class("strong").Text("Include comments"),
+					app.Br(),
+					app.Span().Class("hint").Text("Add field descriptions"),
 				),
 			),
-			app.Div().Class("col-md-6").Body(
-				app.Div().Class("form-check form-switch").Body(
-					app.Input().Class("form-check-input").Type("checkbox").ID("enable-minimal-"+v.version.Version).OnClick(v.OnCheckMinimal),
-					app.Label().Class("form-check-label").For("enable-minimal-"+v.version.Version).Body(
-						app.Strong().Text("Minimal Output"),
-						app.Br(),
-						app.Small().Class("text-muted").Text("Show only required fields"),
-					),
+			app.Label().Class("switch").For("enable-minimal-"+v.version.Version).Body(
+				app.Input().Type("checkbox").ID("enable-minimal-"+v.version.Version).OnClick(v.OnCheckMinimal),
+				app.Span().Class("switch-track"),
+				app.Span().Body(
+					app.Span().Class("strong").Text("Minimal output"),
+					app.Br(),
+					app.Span().Class("hint").Text("Only required fields"),
 				),
 			),
 		),
 
-		// YAML output container
-		app.Div().Class("position-relative").Body(
-			// Copy button
-			app.Button().Class("copy-btn").
+		app.Div().Class("code-wrap").Body(
+			app.Button().Class("btn-icon").
 				ID("copy-btn-"+v.version.Version).
-				DataSet("clipboard-target", "#yaml-sample-"+v.version.Version).
 				Title("Copy to clipboard").
-				OnClick(v.onCopyClick).Body(
-				app.I().Class("fas fa-copy"),
-			),
+				Aria("label", "Copy YAML to clipboard").
+				OnClick(v.onCopyClick).Body(icon("copy")),
 
-			// YAML content
-			app.Pre().Class("yaml-text").Body(
+			app.Pre().Class("code").Body(
 				app.Code().ID("yaml-sample-"+v.version.Version).Body(app.If(v.renderErr != nil, func() app.UI {
-					return app.Div().Class("text-danger").Body(
-						app.I().Class("fas fa-exclamation-circle me-2"),
+					return app.Span().Class("center").Style("color", "var(--danger)").Body(
+						icon("alert-circle"),
 						app.Text(v.renderErr.Error()),
 					)
 				}).Else(func() app.UI {
@@ -227,13 +219,12 @@ func (v *detailsView) onCopyClick(ctx app.Context, _ app.Event) {
 		// Show success feedback
 		btn := ctx.JSSrc()
 		originalHTML := btn.Get("innerHTML").String()
-		btn.Set("innerHTML", `<i class="fas fa-check"></i>`)
-		btn.Get("classList").Call("add", "btn-success")
-		btn.Get("classList").Call("remove", "copy-btn")
+		btn.Set("innerHTML", checkIconHTML)
+		btn.Get("classList").Call("add", "is-copied")
 
 		app.Window().Call("setTimeout", app.FuncOf(func(this app.Value, args []app.Value) any {
 			btn.Set("innerHTML", originalHTML)
-			btn.Get("classList").Call("remove", "btn-success")
+			btn.Get("classList").Call("remove", "is-copied")
 			btn.Get("classList").Call("add", "copy-btn")
 
 			return nil
@@ -464,120 +455,83 @@ func (d *diffView) Render() app.UI {
 		return app.Div()
 	}
 
+	versionField := func(id, label string, selected int, onChange app.EventHandler) app.UI {
+		return app.Div().Class("field").Body(
+			app.Label().Class("label").For(id).Body(icon("tag"), app.Text(label)),
+			app.Select().Class("select").ID(id).OnChange(onChange).Body(
+				app.Range(d.versions).Slice(func(i int) app.UI {
+					option := app.Option().Value(d.versions[i].Version).Text(d.versions[i].Version)
+					if i == selected {
+						option = option.Selected(true)
+					}
+
+					return option
+				}),
+			),
+		)
+	}
+
 	return app.Div().Class("card mb-4").Body(
-		app.Div().Class("card-header").Body(
-			app.Div().Class("d-flex justify-content-between align-items-center").Body(
-				app.H5().Class("mb-0 d-flex align-items-center").Body(
-					app.I().Class("fas fa-code-compare me-2 text-warning"),
-					app.Text("Version Diff"),
-				),
-				app.Button().Class("btn btn-outline-secondary btn-sm").
-					Type("button").
-					DataSet("bs-toggle", "collapse").
-					DataSet("bs-target", "#diff-collapse").
-					Aria("expanded", "false").
-					Aria("controls", "diff-collapse").Body(
-					app.I().Class("fas fa-eye me-1"),
-					app.Text("Show Diff"),
-				),
+		app.Div().Class("card-head").Body(
+			icon("git-compare"),
+			app.H2().Class("grow").Text("Version Diff"),
+			app.Button().Class("btn btn-ghost btn-sm").
+				Type("button").
+				DataSets(map[string]any{"toggle": "collapse", "target": "#diff-collapse"}).
+				Aria("expanded", "false").
+				Aria("controls", "diff-collapse").Body(
+				icon("eye"),
+				app.Text("Show Diff"),
 			),
 		),
 
 		app.Div().Class("collapse").ID("diff-collapse").Body(
-			app.Div().Class("card-body").Body(
-				// Version selectors and options
-				app.Div().Class("row g-3 mb-4").Body(
-					app.Div().Class("col-md-3").Body(
-						app.Label().Class("form-label").For("version1-select").Body(
-							app.I().Class("fas fa-tag me-1"),
-							app.Text("Version A"),
+			app.Div().Body(
+				app.Div().Class("card-body stack gap-4").Body(
+					app.Div().Class("cols").Body(
+						versionField("version1-select", "Version A", d.selectedVersion1, d.onVersion1Change),
+						versionField("version2-select", "Version B", d.selectedVersion2, d.onVersion2Change),
+						app.Label().Class("switch").For("diff-comments").Body(
+							app.Input().Type("checkbox").ID("diff-comments").OnClick(d.onCommentToggle),
+							app.Span().Class("switch-track"),
+							app.Span().Text("Comments"),
 						),
-						app.Select().Class("form-select").ID("version1-select").OnChange(d.onVersion1Change).Body(
-							app.Range(d.versions).Slice(func(i int) app.UI {
-								version := d.versions[i]
+						app.Label().Class("switch").For("diff-minimal").Body(
+							app.Input().Type("checkbox").ID("diff-minimal").OnClick(d.onMinimalToggle),
+							app.Span().Class("switch-track"),
+							app.Span().Text("Minimal"),
+						),
+					),
 
-								option := app.Option().Value(version.Version).Text(version.Version)
-								if i == d.selectedVersion1 {
-									option = option.Selected(true)
+					app.If(d.renderErr != nil, func() app.UI {
+						return app.Div().Class("alert alert-danger").Body(
+							icon("alert-circle"),
+							app.Text(d.renderErr.Error()),
+						)
+					}).Else(func() app.UI {
+						return app.Div().Class("diff").Body(
+							app.Range(d.diffLines).Slice(func(i int) app.UI {
+								line := d.diffLines[i]
+
+								var lineClass, marker string
+
+								switch line.Type {
+								case "added":
+									lineClass, marker = "diff-add", "plus"
+								case "removed":
+									lineClass, marker = "diff-del", "minus"
+								default:
+									lineClass, marker = "diff-same", ""
 								}
 
-								return option
+								return app.Div().Class("diff-line "+lineClass).Body(
+									app.If(marker != "", func() app.UI { return icon(marker) }),
+									app.Text(line.Content),
+								)
 							}),
-						),
-					),
-					app.Div().Class("col-md-3").Body(
-						app.Label().Class("form-label").For("version2-select").Body(
-							app.I().Class("fas fa-tag me-1"),
-							app.Text("Version B"),
-						),
-						app.Select().Class("form-select").ID("version2-select").OnChange(d.onVersion2Change).Body(
-							app.Range(d.versions).Slice(func(i int) app.UI {
-								version := d.versions[i]
-
-								option := app.Option().Value(version.Version).Text(version.Version)
-								if i == d.selectedVersion2 {
-									option = option.Selected(true)
-								}
-
-								return option
-							}),
-						),
-					),
-					app.Div().Class("col-md-3").Body(
-						app.Div().Class("form-check form-switch mt-4").Body(
-							app.Input().Class("form-check-input").Type("checkbox").ID("diff-comments").OnClick(d.onCommentToggle),
-							app.Label().Class("form-check-label").For("diff-comments").Text("Comments"),
-						),
-					),
-					app.Div().Class("col-md-3").Body(
-						app.Div().Class("form-check form-switch mt-4").Body(
-							app.Input().Class("form-check-input").Type("checkbox").ID("diff-minimal").OnClick(d.onMinimalToggle),
-							app.Label().Class("form-check-label").For("diff-minimal").Text("Minimal"),
-						),
-					),
+						)
+					}),
 				),
-
-				// Diff display
-				app.If(d.renderErr != nil, func() app.UI {
-					return app.Div().Class("alert alert-danger").Body(
-						app.I().Class("fas fa-exclamation-circle me-2"),
-						app.Text(d.renderErr.Error()),
-					)
-				}).Else(func() app.UI {
-					return app.Div().Class("position-relative").Body(
-						app.Pre().Class("diff-container").Body(
-							app.Code().Body(
-								app.Range(d.diffLines).Slice(func(i int) app.UI {
-									line := d.diffLines[i]
-
-									var (
-										lineClass string
-										icon      string
-									)
-
-									switch line.Type {
-									case "added":
-										lineClass = "diff-line-added"
-										icon = "fas fa-plus"
-									case "removed":
-										lineClass = "diff-line-removed"
-										icon = "fas fa-minus"
-									default:
-										lineClass = "diff-line-unchanged"
-										icon = ""
-									}
-
-									return app.Div().Class("diff-line "+lineClass).Body(
-										app.If(icon != "", func() app.UI {
-											return app.I().Class(icon + " me-2")
-										}),
-										app.Text(line.Content),
-									)
-								}),
-							),
-						),
-					)
-				}),
 			),
 		),
 	)
@@ -601,17 +555,10 @@ type Property struct {
 
 func (h *crdView) buildError(err error) app.UI {
 	return app.Div().Class("alert alert-danger fade-in").Role("alert").Body(
-		app.Div().Class("d-flex align-items-start").Body(
-			app.Div().Class("me-3").Body(
-				app.I().Class("fas fa-exclamation-triangle fa-2x text-danger"),
-			),
-			app.Div().Class("flex-grow-1").Body(
-				app.H4().Class("alert-heading mb-3").Text("Failed to process CRD"),
-				app.P().Class("mb-0").Text(err.Error()),
-			),
-			app.Button().Class("closebtn").Type("button").Body(
-				app.I().Class("fas fa-times"),
-			),
+		icon("alert-triangle", "icon-lg"),
+		app.Div().Class("grow").Body(
+			app.P().Class("strong mb-2").Text("Failed to process CRD"),
+			app.P().Text(err.Error()),
 		),
 	)
 }
@@ -687,8 +634,8 @@ func (h *crdView) Render() app.UI {
 		}
 	}
 
-	wrapper := app.Div().Class("main-container")
-	container := app.Div().Class("container mt-4")
+	wrapper := app.Div()
+	container := app.Div().Class("container mt-4 mb-5")
 
 	// Build the content array
 	var content []app.UI //nolint:prealloc // avoid preallocation
@@ -702,69 +649,51 @@ func (h *crdView) Render() app.UI {
 	// Add version cards
 	for i, version := range versions {
 		content = append(content, app.Div().Class("card mb-5").Body(
-			// Version header
-			app.Div().Class("card-header bg-primary text-white").Body(
-				app.Div().Class("d-flex justify-content-between align-items-center").Body(
-					app.Div().Body(
-						app.H2().Class("h4 mb-1 d-flex align-items-center").Body(
-							app.I().Class("fas fa-cube me-2"),
-							app.Text(version.Kind),
-						),
-						app.Small().Class("opacity-75").Text(fmt.Sprintf("%s/%s", version.Group, version.Version)),
-					),
-					app.Div().Body(
-						app.Span().Class("badge bg-light text-dark px-3 py-2").Body(
-							app.I().Class("fas fa-tag me-1"),
-							app.Text(version.Version),
-						),
-					),
+			app.Div().Class("card-head").Body(
+				icon("box"),
+				app.Div().Class("grow").Body(
+					app.H2().Text(version.Kind),
+					app.Div().Class("card-sub").Text(fmt.Sprintf("%s/%s", version.Group, version.Version)),
 				),
+				app.Span().Class("badge").Text(version.Version),
 			),
 
-			// Version description
 			app.If(version.Description != "", func() app.UI {
-				descElements := parseDescriptionElements(version.Description)
-
-				var content []app.UI
-
-				content = append(content, app.I().Class("fas fa-info-circle me-2"))
-				content = append(content, descElements...)
-
-				return app.Div().Class("card-body border-bottom").Body(
-					app.Div().Class("text-muted mb-0").Body(content...),
+				return app.Div().Class("card-body").Body(
+					app.Div().Class("muted").Body(parseDescriptionElements(version.Description)...),
 				)
 			}),
 
-			// YAML Sample Section
 			app.Div().Class("card-body").Body(
-				app.Div().Class("d-flex justify-content-between align-items-center mb-3").Body(
-					app.H5().Class("mb-0 d-flex align-items-center").Body(
-						app.I().Class("fas fa-file-code me-2 text-success"),
+				app.Div().Class("between mb-3").Body(
+					app.P().Class("section-title").Body(
+						icon("file-code"),
 						app.Text("Generated YAML Sample"),
 					),
-					app.Button().Class("btn btn-outline-primary btn-sm").
+					app.Button().Class("btn btn-ghost btn-sm").
 						Type("button").
-						DataSet("bs-toggle", "collapse").
-						DataSet("bs-target", "#yaml-collapse-"+version.Version).
+						DataSets(map[string]any{
+							"toggle": "collapse",
+							"target": "#yaml-collapse-" + version.Version,
+						}).
 						Aria("expanded", "false").
 						Aria("controls", "yaml-collapse-"+version.Version).Body(
-						app.I().Class("fas fa-eye me-1"),
+						icon("eye"),
 						app.Text("View Sample"),
 					),
 				),
 				app.Div().Class("collapse").ID("yaml-collapse-"+version.Version).Body(
-					&detailsView{version: &version},
+					app.Div().Body(&detailsView{version: &version}),
 				),
 			),
 
-			// Properties Schema Section
-			app.Div().Class("card-body border-top").Body(
-				app.H5().Class("mb-3 d-flex align-items-center").Body(
-					app.I().Class("fas fa-sitemap me-2 text-info"),
+			app.Div().Class("card-body").Body(
+				app.P().Class("section-title mb-3").Body(
+					icon("network"),
 					app.Text("Schema Properties"),
 				),
-				app.Div().Class("accordion").ID("properties-accordion-"+version.Version).Body(
-					render(app.Div().Class("accordion-item"), version.Properties, "properties-accordion-"+version.Version),
+				app.Div().ID("properties-accordion-"+version.Version).Body(
+					render(app.Div(), version.Properties, "properties-accordion-"+version.Version),
 				),
 			),
 		))
@@ -816,99 +745,76 @@ func (h *crdView) onShareClick(ctx app.Context, _ app.Event) {
 func render(d app.UI, p []*Property, accordionID string) app.UI {
 	elements := make([]app.UI, 0, len(p))
 	for _, prop := range p {
-		// Property header with modern styling
-		headerElements := []app.UI{
-			app.Div().Class("col-auto").Body(
-				app.H6().Class("mb-1 fw-bold text-primary").Text(prop.Name),
-			),
-			app.Div().Class("col-auto").Body(
-				app.Span().Class("property-type").Text(prop.Type),
-			),
+		badges := []app.UI{
+			app.Span().Class("badge").Text(prop.Type),
 		}
 
-		// Add badges for special properties
-		badges := []app.UI{}
 		if prop.Required {
-			badges = append(badges, app.Span().Class("property-type property-required me-1").Text("Required"))
+			badges = append(badges, app.Span().Class("badge badge-required").Text("Required"))
 		}
 
 		if prop.Enums != nil {
-			badges = append(badges, app.Span().Class("property-type property-enum me-1").Text("Enum"))
+			badges = append(badges, app.Span().Class("badge badge-enum").Text("Enum"))
 		}
 
 		if prop.Format != "" {
-			badges = append(badges, app.Span().Class("badge bg-info me-1").Text("Format: "+prop.Format))
+			badges = append(badges, app.Span().Class("badge").Text("Format: "+prop.Format))
 		}
 
 		if prop.Default != "" {
-			badges = append(badges, app.Span().Class("badge bg-secondary me-1").Text("Default: "+prop.Default))
+			badges = append(badges, app.Span().Class("badge").Text("Default: "+prop.Default))
 		}
 
 		if prop.Patterns != "" {
-			badges = append(badges, app.Span().Class("badge bg-warning text-dark me-1").Text("Pattern: "+prop.Patterns))
+			badges = append(badges, app.Span().Class("badge").Text("Pattern: "+prop.Patterns))
 		}
 
-		if len(badges) > 0 {
-			headerElements = append(headerElements, app.Div().Class("col-12 mt-2").Body(badges...))
-		}
-
-		headerContainer := app.Div().Class("container-fluid").Body(
-			app.Div().Class("row align-items-center").Body(
-				headerElements...,
+		headerContainer := app.Div().Class("grow").Body(
+			app.Div().Class("prop-head").Body(
+				append([]app.UI{app.Span().Class("prop-name").Text(prop.Name)}, badges...)...,
 			),
 			app.If(prop.Description != "", func() app.UI {
-				descElements := parseDescriptionElements(prop.Description)
-
-				return app.Div().Class("row mt-2").Body(
-					app.Div().Class("col-12").Body(
-						app.Div().Class("text-muted mb-0 small").Body(descElements...),
-					),
-				)
+				return app.Div().Class("prop-desc").Body(parseDescriptionElements(prop.Description)...)
 			}),
 			app.If(prop.Enums != nil, func() app.UI {
-				return app.Div().Class("row mt-2").Body(
-					app.Div().Class("col-12").Body(
-						app.Strong().Class("small text-info").Text("Allowed values: "),
-						app.Code().Class("small").Text(strings.Join(prop.Enums, ", ")),
-					),
+				return app.Div().Class("prop-desc").Body(
+					app.Span().Class("strong").Text("Allowed values: "),
+					app.Code().Text(strings.Join(prop.Enums, ", ")),
 				)
 			}),
 		)
 
-		// Create header element
-		var header app.UI
-
 		if len(prop.Properties) > 0 {
-			// This property has children - make it collapsible
-			targetID := "accordion-collapse-for-" + prop.Name + accordionID
-			button := app.Button().
-				ID("accordion-button-id-"+prop.Name+accordionID).
-				Class("accordion-button").
-				Type("button").
-				DataSets(map[string]any{
-					"bs-toggle": "collapse",
-					"bs-target": "#" + targetID,
-				}).
-				Aria("expanded", "false").
-				Aria("controls", targetID).
-				Body(headerContainer)
+			targetID := "node-" + prop.Name + accordionID
 
-			header = app.H2().Class("accordion-header").Body(button)
-			elements = append(elements, header)
+			elements = append(elements,
+				app.Div().Class("node").Body(
+					app.Button().
+						Class("node-toggle").
+						Type("button").
+						DataSets(map[string]any{
+							"toggle": "collapse",
+							"target": "#" + targetID,
+						}).
+						Aria("expanded", "false").
+						Aria("controls", targetID).
+						Body(headerContainer),
 
-			// Add collapsible content
-			accordionDiv := app.Div().Class("accordion-collapse collapse").ID(targetID).DataSet("bs-parent", "#"+accordionID)
-			accordionBody := app.Div().Class("accordion-body")
+					app.Div().Class("collapse").ID(targetID).
+						DataSet("parent", "#"+accordionID).Body(
+						app.Div().Body(
+							app.Div().Class("node-body").Body(
+								render(app.Div(), prop.Properties, targetID),
+							),
+						),
+					),
+				),
+			)
 
-			element := render(app.Div().ID(prop.Name).Class("accordion-item"), prop.Properties, targetID)
-			accordionBody.Body(element)
-			accordionDiv.Body(accordionBody)
-			elements = append(elements, accordionDiv)
-		} else {
-			// This property has no children - just show as a simple item
-			header = app.Div().Class("accordion-item-static border rounded mb-2 p-3 bg-light").Body(headerContainer)
-			elements = append(elements, header)
+			continue
 		}
+
+		elements = append(elements, app.Div().Class("node node-leaf").Body(headerContainer))
 	}
 
 	// add all the elements and return the div
