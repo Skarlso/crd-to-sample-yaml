@@ -1,208 +1,847 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css"
-    />
-    <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/css/halfmoon.min.css"
-    />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>CRD Schema Preview</title>
+    <meta name="description" content="Interactive preview of Kubernetes Custom Resource Definition schemas">
 
-    <title>Preview CRDs</title>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        
+        (function () {
+            var stored = null;
+            try { stored = localStorage.getItem('cty-theme'); } catch (e) {}
+            var dark = stored ? stored === 'dark'
+                : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        })();
+    </script>
+
     <style>
-        @media (max-width: 576px) {
-            body .content-wrapper > div {
-                padding-left: 1.5rem;
-                padding-right: 1.5rem;
+        :root {
+            --bg: #eef1f4;
+            --bg-subtle: #eef1f4;
+            --surface: #ffffff;
+            --surface-raised: #f7f9fa;
+            --border: #d0d7de;
+            --border-subtle: #e4e8ec;
+            --text: #343b43;
+            --text-muted: #59636e;
+            --accent: #0969da;
+            --accent-contrast: #ffffff;
+            --accent-subtle: #ddf4ff;
+            --danger: #b42318;
+            --danger-subtle: #fdecea;
+            --success: #1a7f37;
+            --success-subtle: #e3f7e8;
+            --radius: 8px;
+            --radius-sm: 6px;
+            --mono: ui-monospace, 'SF Mono', SFMono-Regular, 'JetBrains Mono', Menlo, Consolas, monospace;
+            --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg: #14181d;
+            --bg-subtle: #14181d;
+            --surface: #1c2128;
+            --surface-raised: #232931;
+            --border: #3d444d;
+            --border-subtle: #2a3038;
+            --text: #c3ccd6;
+            --text-muted: #9198a1;
+            --accent: #4493f8;
+            --accent-contrast: #ffffff;
+            --accent-subtle: #1b2a3d;
+            --danger: #f0736a;
+            --danger-subtle: #2e1d1f;
+            --success: #4bb85c;
+            --success-subtle: #18291d;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            font-size: 14px;
+            line-height: 1.55;
+            background: var(--bg-subtle);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem 1rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .main-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin: 0 auto;
+            max-width: 1080px;
+            overflow: hidden;
+        }
+
+         
+        .header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-raised);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header p {
+            margin: 0.15rem 0 0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .theme-toggle {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            background: none;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .theme-toggle:hover {
+            background: var(--surface);
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .content { padding: 1.5rem 2rem 2rem; }
+
+        .group-heading {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .group-heading:first-child { margin-top: 0; }
+
+         
+        .card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        .card-header {
+            background: var(--surface-raised);
+            border-bottom: 1px solid var(--border);
+            padding: 0.875rem 1rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+            background: var(--surface);
+        }
+
+        .card-body + .card-body { border-top: 1px solid var(--border-subtle); }
+
+        .card-subtitle {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin: 0 0 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+         
+        .accordion-item,
+        .accordion-item-static {
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.375rem;
+            background: var(--surface);
+            overflow: hidden;
+        }
+
+        .accordion-item-static { padding: 0.75rem 0.875rem; }
+
+        .accordion-item:hover,
+        .accordion-item-static:hover { border-color: var(--border); }
+
+        .accordion-button {
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font: inherit;
+            font-weight: 500;
+            padding: 0.75rem 0.875rem;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .accordion-button:hover { background: var(--surface-raised); }
+
+        .accordion-button:not(.collapsed) {
+            background: var(--surface-raised);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .accordion-button::before {
+            content: '';
+            flex: none;
+            width: 0;
+            height: 0;
+            margin-top: 0.45rem;
+            border-left: 4px solid var(--text-muted);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            transition: transform 0.15s ease;
+        }
+
+        .accordion-button:not(.collapsed)::before { transform: rotate(90deg); }
+
+        .accordion-body {
+            padding: 0.75rem 0.875rem;
+            background: var(--surface);
+        }
+
+        .collapse { display: none; }
+        .collapse.show { display: block; }
+
+         
+        .property-type {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.1rem 0.45rem;
+            border-radius: 999px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .property-required {
+            background: var(--danger-subtle);
+            border-color: transparent;
+            color: var(--danger);
+        }
+
+        .property-enum {
+            background: var(--accent-subtle);
+            border-color: transparent;
+            color: var(--accent);
+        }
+
+        .property-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .property-name {
+            font-family: var(--mono);
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.875rem;
+        }
+
+        .property-description {
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+            margin-top: 0.35rem;
+            line-height: 1.5;
+        }
+
+         
+        .property-description p { margin: 0 0 0.5rem; }
+        .property-description p:last-child { margin-bottom: 0; }
+        .property-description ul { margin: 0.25rem 0; padding-left: 1.25rem; }
+
+        .card-description {
+            font-size: 0.875rem;
+            color: var(--text);
+            margin-top: 0;
+        }
+
+        .property-constraints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.5rem;
+        }
+
+        .constraint-badge {
+            font-family: var(--mono);
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+         
+        .yaml-output {
+            font-family: var(--mono);
+            font-size: 0.8125rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            background: var(--bg-subtle);
+            color: var(--text);
+            padding: 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            position: relative;
+            margin: 0.5rem 0;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+         
+        .conditions-section { margin-top: 0.5rem; }
+
+        .condition-item {
+            background: var(--surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius);
+            padding: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .condition-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reasons-dropdown { margin-top: 0.625rem; }
+
+        .reasons-toggle {
+            background: var(--surface);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.4rem 0.625rem;
+            font: inherit;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .reasons-toggle:hover { background: var(--bg-subtle); color: var(--text); }
+
+        .dropdown-arrow { transition: transform 0.15s ease; font-size: 0.7rem; }
+        .reasons-toggle.collapsed .dropdown-arrow { transform: rotate(-90deg); }
+
+        .reasons-list {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius);
+            margin-top: 0.375rem;
+        }
+
+        .reasons-list.show { display: block; }
+
+        .reason-item { padding: 0.75rem; border-bottom: 1px solid var(--border-subtle); }
+        .reason-item:last-child { border-bottom: none; }
+
+        .reason-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reason-name {
+            font-family: var(--mono);
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.8125rem;
+        }
+
+        .reason-value {
+            background: var(--success-subtle);
+            color: var(--success);
+            padding: 0.1rem 0.45rem;
+            border-radius: 999px;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+        }
+
+        .reason-description {
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+            margin-top: 0.3rem;
+        }
+
+         
+        .icon {
+            width: 1em;
+            height: 1em;
+            flex: none;
+            vertical-align: -0.135em;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 0; }
+            .main-container { border: none; border-radius: 0; }
+            .header { padding: 1rem; }
+            .content { padding: 1rem; }
+            .property-info { align-items: flex-start; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; animation: none !important; }
+        }
+
+         
+        .mt-4 { margin-top: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .text-center { text-align: center; }
+        .d-flex { display: flex; }
+        .align-items-center { align-items: center; }
+        .gap-2 { gap: 0.5rem; }
+
+         
+        
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div>
+                <h1>CRD Schema Preview</h1>
+                <p>Kubernetes Custom Resource Definition explorer</p>
+            </div>
+            <button class="theme-toggle" type="button" onclick="toggleTheme()"
+                    title="Toggle light and dark theme" aria-label="Toggle theme">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="content">
+            
+            <h2 class="group-heading">delivery.krok.app</h2>
+            
+            
+            <div class="card">
+                <div class="card-header">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8v8a2 2 0 0 1-1 1.7l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 16V8a2 2 0 0 1 1-1.7l7-4a2 2 0 0 1 2 0l7 4A2 2 0 0 1 21 8z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    <div>
+                        <strong>KrokCommand</strong>
+                        <div class="card-subtitle">delivery.krok.app/v1alpha1</div>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <span class="property-type">v1alpha1</span>
+                    </div>
+                </div>
+                
+                
+                <div class="card-body">
+                    <div class="property-description card-description">
+                        <p>KrokCommand is the Schema for the krokcommands API</p>
+
+                    </div>
+                </div>
+                
+                
+                <div class="card-body">
+                    <h3 class="section-title">Schema Properties</h3>
+
+                    <div class="accordion" id="properties-v1alpha1">
+                        
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">apiVersion</span>
+                        <span class="property-type">string</span>
+                        <span class="property-type property-required">Required</span>
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">kind</span>
+                        <span class="property-type">string</span>
+                        <span class="property-type property-required">Required</span>
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">metadata</span>
+                        <span class="property-type">object</span>
+                        <span class="property-type property-required">Required</span>
+                        
+                    </div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item">
+                    <button class="accordion-button collapsed" type="button" onclick="toggleAccordion(this)">
+                        <div style="width: 100%;">
+                            <div class="property-info">
+                                <span class="property-name">spec</span>
+                                <span class="property-type">object</span>
+                                <span class="property-type property-required">Required</span>
+                                
+                            </div>
+                            
+                                <div class="property-description"><p>KrokCommandSpec defines the desired state of KrokCommand</p>
+</div>
+                            
+                            
+                            
+                        </div>
+                    </button>
+                    <div class="collapse">
+                        <div class="accordion-body">
+                            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">commandHasOutputToWrite</span>
+                        <span class="property-type">boolean</span>
+                        
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>CommandHasOutputToWrite if defined, it signals the underlying Job, to put its output into a generated and created secret.</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">dependencies</span>
+                        <span class="property-type">array</span>
+                        
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>Dependencies defines a list of command names that this command depends on.</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">enabled</span>
+                        <span class="property-type">boolean</span>
+                        
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>Enabled defines if this command can be executed or not.</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">image</span>
+                        <span class="property-type">string</span>
+                        <span class="property-type property-required">Required</span>
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>Image defines the image name and tag of the command example: krok-hook/slack-notification:v0.0.1</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">platforms</span>
+                        <span class="property-type">array</span>
+                        
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>Platforms holds all the platforms which this command supports.</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item">
+                    <button class="accordion-button collapsed" type="button" onclick="toggleAccordion(this)">
+                        <div style="width: 100%;">
+                            <div class="property-info">
+                                <span class="property-name">readInputFromSecret</span>
+                                <span class="property-type">object</span>
+                                
+                                
+                            </div>
+                            
+                                <div class="property-description"><p>ReadInputFromSecret if defined, the command will take a list of key/value pairs in a secret and apply them as arguments to the command.</p>
+</div>
+                            
+                            
+                            
+                        </div>
+                    </button>
+                    <div class="collapse">
+                        <div class="accordion-body">
+                            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">name</span>
+                        <span class="property-type">string</span>
+                        <span class="property-type property-required">Required</span>
+                        
+                    </div>
+                    
+                    
+                    
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">namespace</span>
+                        <span class="property-type">string</span>
+                        <span class="property-type property-required">Required</span>
+                        
+                    </div>
+                    
+                    
+                    
+                </div>
+            
+        
+    
+                        </div>
+                    </div>
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">schedule</span>
+                        <span class="property-type">string</span>
+                        
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>Schedule of the command. example: 0 * * * * // follows cron job syntax.</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+    
+                        </div>
+                    </div>
+                </div>
+            
+        
+            
+                <div class="accordion-item-static">
+                    <div class="property-info">
+                        <span class="property-name">status</span>
+                        <span class="property-type">object</span>
+                        
+                        
+                    </div>
+                    
+                        <div class="property-description"><p>KrokCommandStatus defines the observed state of KrokCommand</p>
+</div>
+                    
+                    
+                    
+                </div>
+            
+        
+    
+                    </div>
+
+                    
+                </div>
+            </div>
+            
+            
+            
+        </div>
+    </div>
+
+    
+
+    <script>
+        
+        function toggleAccordion(button) {
+            const accordionItem = button.closest('.accordion-item');
+            const collapse = accordionItem.querySelector('.collapse');
+            const isCollapsed = button.classList.contains('collapsed');
+
+            
+            button.classList.toggle('collapsed');
+
+            
+            if (isCollapsed) {
+                collapse.classList.add('show');
+            } else {
+                collapse.classList.remove('show');
             }
         }
 
-        body .content-wrapper {
-            padding-bottom: 2rem;
+        
+        function toggleReasons(button) {
+            const reasonsList = button.nextElementSibling;
+            const isCurrentlyCollapsed = button.classList.contains('collapsed');
+
+            
+            button.classList.toggle('collapsed');
+
+            
+            if (isCurrentlyCollapsed) {
+                
+                reasonsList.classList.add('show');
+            } else {
+                
+                reasonsList.classList.remove('show');
+            }
         }
-    </style>
-    <style>
-
-    </style>
-</head>
-
-<body class="dark-mode" data-dm-shortcut-enabled="true" data-sidebar-shortcut-enabled="true">
-<div class="content-wrapper">
-    <div class="container">
-        <div class="versions">
+        
+        
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showCopySuccess();
+                });
+            } else {
+                
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showCopySuccess();
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+        
+        function showCopySuccess() {
             
-            <h1>
-                Version: delivery.krok.app/v1alpha1<br>
-                Kind: KrokCommand
-            </h1>
-            <p class="font-size-18">
-                <div>
-                    <p>KrokCommand is the Schema for the krokcommands API</p>
-                </div>
-                <label>Generated YAML sample:</label>
-                <div class="collapse-group">
-                    <details class="collapse-panel">
-                        <div id="yaml-v1alpha1" class="collapse-content">
-                            <pre class="language-yaml"><code class="language-yaml"># APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-apiVersion: delivery.krok.app/v1alpha1
-# Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-kind: KrokCommand
-metadata: {}
-# KrokCommandSpec defines the desired state of KrokCommand
-spec:
-  # Image defines the image name and tag of the command example: krok-hook/slack-notification:v0.0.1
-  image: string
-</code></pre>
-                        </div>
-                    </details>
-                </div>
-            </p>
-            <div class="d-flex flex-row-reverse mb-10 mt-10">
-                <button class="btn ml-10" type="button" onclick="expandAll()">
-                    + expand all
-                </button>
-                <button class="btn" type="button" onclick="collapseAll()">
-                    - collapse all
-                </button>
-            </div>
-            <div class="collapse-group">
-                
-                <details class="collapse-panel">
-                    <summary class="collapse-header position-relative">
-                        apiVersion <kbd class="text-muted">string</kbd>
-                        
-                        
-                        
-                        
-                        <span class="badge badge-primary">required</span>
-                        
-                    </summary>
-                    <div id="apiVersion" class="collapse-content">
-                        <div class="property-description">
-                            <p>APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources</p>
-                        </div>
-                        
-
-
-                    </div>
-                    <br>
-                </details>
-                
-                <details class="collapse-panel">
-                    <summary class="collapse-header position-relative">
-                        kind <kbd class="text-muted">string</kbd>
-                        
-                        
-                        
-                        
-                        <span class="badge badge-primary">required</span>
-                        
-                    </summary>
-                    <div id="kind" class="collapse-content">
-                        <div class="property-description">
-                            <p>Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds</p>
-                        </div>
-                        
-
-
-                    </div>
-                    <br>
-                </details>
-                
-                <details class="collapse-panel">
-                    <summary class="collapse-header position-relative">
-                        metadata <kbd class="text-muted">object</kbd>
-                        
-                        
-                        
-                        
-                        <span class="badge badge-primary">required</span>
-                        
-                    </summary>
-                    <div id="metadata" class="collapse-content">
-                        <div class="property-description">
-                            <p></p>
-                        </div>
-                        
-
-
-                    </div>
-                    <br>
-                </details>
-                
-                <details class="collapse-panel">
-                    <summary class="collapse-header position-relative">
-                        spec <kbd class="text-muted">object</kbd>
-                        
-                        
-                        
-                        
-                        <span class="badge badge-primary">required</span>
-                        
-                    </summary>
-                    <div id="spec" class="collapse-content">
-                        <div class="property-description">
-                            <p>KrokCommandSpec defines the desired state of KrokCommand</p>
-                        </div>
-                        
-
-
-<details class="collapse-panel">
-    <summary class="collapse-header position-relative">
-        image <kbd class="text-muted">string</kbd>
+            console.log('Copied to clipboard!');
+        }
         
-        
-        
-        
-        <span class="badge badge-primary">required</span>
-        
-    </summary>
-    <div id="image" class="collapse-content">
-        <div class="property-description">
-            <p>Image defines the image name and tag of the command example: krok-hook/slack-notification:v0.0.1</p>
-        </div>
-        <div class="collapse-group">
-            
-            
-
-
-        </div>
-    </div>
-    <br>
-</details>
-
-
-
-                    </div>
-                    <br>
-                </details>
-                
-            </div>
-            
-        </div>
-    </div>
-</div>
-<script>
-    function expandAll() {
-        console.log("todo: loop through all elements and expand them")
-    }
-
-    function collapseAll() {
-        console.log("todo: loop through all elements and collapse them")
-    }
-</script>
+        function toggleTheme() {
+            const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.dataset.theme = next;
+            try { localStorage.setItem('cty-theme', next); } catch (e) {}
+        }
+    </script>
 </body>
-</html>
-
-
-
