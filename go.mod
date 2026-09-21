@@ -5,7 +5,7 @@ go 1.26.6
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/fatih/color v1.19.0
-	github.com/fxamacker/cbor/v2 v2.9.3
+	github.com/fxamacker/cbor/v2 v2.9.4
 	github.com/go-git/go-git/v5 v5.19.2
 	github.com/google/go-cmp v0.7.0
 	github.com/jedib0t/go-pretty/v6 v6.8.3
