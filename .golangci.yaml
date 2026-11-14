@@ -17,6 +17,7 @@ linters:
     - dogsled
     - dupl             # Check code duplications.
     - exhaustive       # Doesn't really make sense.
+    - exhaustruct_v5
     - exhaustruct      # Doesn't really make sense.
     - forcetypeassert  # Priority: that can lead to serious crashes.
     - funcorder
@@ -24,6 +25,8 @@ linters:
     - godoclint
     - gochecknoglobals
     - gochecknoinits   # Init functions cause an import to have side effects,
+    - goconst
+    - gomodguard
     - err113
     - interfacebloat
     - ireturn          # Accept interface, return concrate.
